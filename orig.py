@@ -9,11 +9,9 @@ if sel:
             mc.group(em=1,n=each+'_orig')
             mc.xform(each+'_orig',t=mc.xform(each,q=1,ws=1,t=1),ro=mc.xform(each,q=1,ws=1,ro=1),ws=1)
             if mc.listRelatives(each,ap=1):
-                print('yes')
                 mc.parent(each+'_orig',mc.listRelatives(each,ap=1))
                 mc.parent(each,each+'_orig')
             else:
-                print('no')
                 mc.parent(each,each+'_orig')
 else:
     mc.warning('Please select an object')
