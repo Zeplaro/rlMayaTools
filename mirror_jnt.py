@@ -15,3 +15,6 @@ for each in sel:
     mc.setAttr(right+'.jointOrientX',X)
     mc.setAttr(right+'.jointOrientY',Y*-1)
     mc.setAttr(right+'.jointOrientZ',Z*-1)
+    
+    if mc.listRelatives(each,ap=1):
+        mc.parent(right,mc.listRelatives(each,ap=1)[0].replace('L_','R_',1))
