@@ -1,3 +1,4 @@
+# Mirror Facial shapes_orig and Guides L->R
 import maya.cmds as mc
 import mayaRigTools_sk.sandBox.viba.shapes.mirror_shape as ms
 
