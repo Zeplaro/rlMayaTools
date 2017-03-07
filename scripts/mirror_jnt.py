@@ -1,7 +1,7 @@
 #Mirror JNT & orient L>R
 import maya.cmds as mc
 
-def doMirrorjnt()
+def doMirrorjnt():
     sel=mc.ls(sl=1)
 
     for each in sel:
