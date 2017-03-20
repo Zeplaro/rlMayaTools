@@ -1,5 +1,5 @@
 import maya.cmds as mc
-def do_grpOrig():
+def do_Orig():
     sel=mc.ls(sl=1,typ='transform')
     if sel:
         for obj in sel:
