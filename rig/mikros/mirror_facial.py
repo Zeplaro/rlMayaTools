@@ -13,7 +13,7 @@ def do_facial_mirror():
     origs = origs[::-1]
     origs = [l for l in origs if
              l.find(sides[0]) != -1 and l.find('_orig') != -1 and l.find('TRASH') == -1 and l.find('Shape') == -1]
-    missing=[]
+    missing = []
     for orig in origs:
         # _orig mirror
         origloc = orig + '_loc'
@@ -51,8 +51,8 @@ def do_facial_mirror():
                     mc.setAttr(origAlt + '.s' + axe, mc.getAttr(orig + '.s' + axe))
         else:
             missing.append(origAlt)
-    if missing!=[]:
-        print(str(missing)+' are missing in the scene, check if Left and Right names match')
+    if missing != []:
+        print(str(missing) + ' are missing in the scene, check if Left and Right names match')
 
     # Mirror ctrl shapes
     ctrls = mc.listRelatives('facialDrivers', ad=1, type='transform')
@@ -65,12 +65,10 @@ def do_facial_mirror():
     # Guides mirror
     guides = [sides[0] + 'teeth_dn_jnt_GUIDE', sides[0] + 'teeth_up_jnt_GUIDE']
     for guide in guides:
-        guideAlt=guide.replace(sides[0], sides[1], 1)
+        guideAlt = guide.replace(sides[0], sides[1], 1)
         for axe in 'xyz':
             for attr in 'tr':
                 mc.setAttr(guideAlt + '.' + attr + axe,
                            mc.getAttr(guide + '.' + attr + axe))
         mc.setAttr(guideAlt + '.tx', mc.getAttr(guide + '.tx') * -1)
     mc.select(sel, r=1)
-
-do_facial_mirror()

@@ -1,6 +1,7 @@
 # Mirror JNT & orient L>R
 import maya.cmds as mc
 
+
 def doMirrorJnt(side='L'):
     sel = mc.ls(sl=1)
     if side=='R':

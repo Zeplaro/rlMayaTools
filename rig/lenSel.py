@@ -1,5 +1,6 @@
 import maya.cmds as mc
 
+
 def doLenSel ():
     sel = mc.ls(sl=1, typ='transform')
     size = len(sel)

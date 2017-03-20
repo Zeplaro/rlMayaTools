@@ -1,5 +1,6 @@
 import maya.cmds as mc
 
+
 def do_hook():
     if not mc.ls(sl=1, tr=1) == []:
         targets = mc.ls(sl=1, tr=1)

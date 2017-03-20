@@ -1,5 +1,6 @@
 import maya.cmds as mc
 
+
 def do_mxCnst():
     target = mc.ls(sl=1, tr=1)
     if len(target) == 2:

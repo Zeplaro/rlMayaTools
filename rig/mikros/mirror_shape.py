@@ -1,6 +1,7 @@
 import maya.cmds as mc
 from marsTools.mirror_table import getMirrorValues
 
+
 def refCtrlShapes_mirror():
   for node in mc.ls(sl=True):
       names = node.split(':')
