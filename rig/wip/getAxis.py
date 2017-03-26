@@ -1,37 +1,25 @@
 import maya.cmds as mc
 
 
-def do_getAxis(obj):
+def do_getAxis(obj,space='ws'):
     vp=mc.createNode('vectorProduct',n='_vp')
     mc.setAttr(vp+'.operation',3)
-    mc.connectAttr(obj+'.worldMatrix',vp+'.matrix',f=1)
-    mc.setAttr(vp+'.input1X',1)
-    mc.setAttr(vp+'.input1Y',0)
-    mc.setAttr(vp+'.input1Z',0)
-    x=mc.getAttr(vp+'.outputX')
-    if x<0:
-        x=-1
+    if space=='os':
+        mc.connectAttr(obj+'.matrix',vp+'.matrix',f=1)
     else:
-        x=1
-    print(x)
-    mc.setAttr(vp+'.input1X',0)
-    mc.setAttr(vp+'.input1Y',1)
-    mc.setAttr(vp+'.input1Z',0)
-    y=mc.getAttr(vp+'.outputY')
-    if y<0:
-        y=-1
-    else:
-        y=1
-    print(y)
-    mc.setAttr(vp+'.input1X',0)
-    mc.setAttr(vp+'.input1Y',0)
-    mc.setAttr(vp+'.input1Z',1)
-    z=mc.getAttr(vp+'.outputZ')
-    if z<0:
-        z=-1
-    else:
-        z=1
-    print(z)
-    axis=[x,y,z]
-    mc.delete(vp)
+        mc.connectAttr(obj+'.worldMatrix',vp+'.matrix',f=1)
+    axis=[1,1,1]
+    val=[1,0,0]
+    xyz='XYZ'
+    for i in range(3):
+        j=0
+        for dir in 'XYZ':
+            mc.setAttr(vp+'.input1'+dir,val[j])
+            j+=1
+        axis[i]=mc.getAttr(vp+'.output'+xyz[i])
+        if axis[i]<0:
+            axis[i]=-1
+        else:
+            axis[i]=1
+        val=val[-1:]+val[:-1]
     return axis
