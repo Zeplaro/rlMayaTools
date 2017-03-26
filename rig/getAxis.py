@@ -1,5 +1,6 @@
 import maya.cmds as mc
 
+
 def do_getAxis(obj,space='ws'):
     '''
     Find objects axis direction compared to world or parent axis
