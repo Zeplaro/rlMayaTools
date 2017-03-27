@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import getAxis as ga
+import rig.getAxis as ga
 
 def do_shapeMirror(mirAxis='x', os=False):
     '''
@@ -44,12 +44,10 @@ def do_shapeMirror(mirAxis='x', os=False):
 
         #______WIP_____
         #getting ctrls axis in case of object space
-        loc = mc.spaceLocator(n='_loc')[0]
-        mc.parent(loc,slave,r=1)
-        mc.parent(loc,master)
-        table=ga.do_getAxis(loc,os=True)
-        mc.delete(loc)
-        table[mirAxis]*=-1 #mirroring axis on wich mirAxis is defined
+        table=ga.getMirrorTable(master,slave)
+        print(table)
+        table[mirAxis]*=-1
+        print(table)
 
         #Checking if the selection is valid
         if mc.objectType(ctrl, isType='transform') or mc.objectType(ctrl, isType='joint'):
@@ -79,8 +77,8 @@ def do_shapeMirror(mirAxis='x', os=False):
                 #________WIP_________
                 else:
                     pos=mc.xform(shape+cp,q=1,os=1,t=1)
-                    for i in range(3):
-                        pos[i]=pos[i]*table[i]
+                    for k in range(3):
+                        pos[k]=pos[k]*table[k]
                     mc.xform(slave[i]+cp,os=1,t=pos)
             i+=1
     mc.select(ctrls,r=1)
