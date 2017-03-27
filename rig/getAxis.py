@@ -1,17 +1,17 @@
 import maya.cmds as mc
 
 
-def do_getAxis(obj,space='ws'):
+def do_getAxis(obj, os=False):
     '''
     Find objects axis direction compared to world or parent axis
     :param str obj: object to query
-    :param str space: 'ws'(default) query direction compared to world, 'os' query direction compared to parent
+    :param bool os: False(default) query direction compared to world, True query direction compared to parent
     :return: axis direction in a list [1,1,1]
     '''
 
     vp=mc.createNode('vectorProduct',n='_vp')
     mc.setAttr(vp+'.operation',3)
-    if space=='os':
+    if os:
         mc.connectAttr(obj+'.matrix',vp+'.matrix',f=1)
     else:
         mc.connectAttr(obj+'.worldMatrix',vp+'.matrix',f=1)
