@@ -1,6 +1,6 @@
 # Mirror Facial shapes_orig and Guides L->R
 import maya.cmds as mc
-import mayaRigTools_sk.sandBox.viba.shapes.mirror_shape as ms
+import mayaRigTools_sk.sandBox.laro.shapeMirror as sm
 
 
 def do_facial_mirror():
@@ -60,7 +60,7 @@ def do_facial_mirror():
     ctrls = [l for l in ctrls if l.find(sides[0]) != -1 and l.find('_ctrl') != -1 and l.find('TRASH') == -1 and l.find(
         'Shape') == -1 and l.find('_orig') == -1]
     mc.select(ctrls)
-    ms.do_mirror()
+    sm.do_shapeMirror(os=True)
 
     # Guides mirror
     guides = [sides[0] + 'teeth_dn_jnt_GUIDE', sides[0] + 'teeth_up_jnt_GUIDE']
