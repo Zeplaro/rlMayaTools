@@ -2,20 +2,20 @@ import maya.cmds as mc
 from marsTools.mirror_table import getMirrorValues
 
 
-def do_shapeMirror(axis='x', os=False):
+def do_shapeMirror(miraxis='x', ws=False):
     """
     Mirror objects shape on defined axis in world or object space
-    :param str axis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
-    :param bool os: False(default) mirror on world space, True mirror on object space
+    :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
+    :param bool ws: False(default) mirror on object space, True mirror on world space
     """
 
     # defining index of axis to mirror on chosen axis
-    if axis == 'z':
-        axis = 2
-    elif axis == 'y':
-        axis = 1
+    if miraxis == 'z':
+        mirindex = 2
+    elif miraxis == 'y':
+        mirindex = 1
     else:
-        axis = 0
+        mirindex = 0
 
     ctrls = mc.ls(sl=1)
     for ctrl in ctrls:
@@ -65,12 +65,12 @@ def do_shapeMirror(axis='x', os=False):
             altcvs = mc.getAttr(slave[i] + '.cp', s=1)
             for cv in range(cvs):
                 cp = '.cp[' + str(cv) + ']'
-                if not os:
+                if ws:  # mirror on world space
                     pos = mc.xform(shape + cp, q=1, ws=1, t=1)
-                    pos[axis] *= -1  # mirroring on chosen axis
+                    pos[mirindex] *= -1  # mirroring on chosen axis
                     mc.xform(slave[i] + cp, ws=1, t=pos)
 
-                else:
+                else:  # mirror on object space
                     pos = mc.xform(shape + cp, q=1, os=1, t=1)
                     for k in range(3):
                         pos[k] = pos[k] * table[k]

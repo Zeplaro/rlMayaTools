@@ -51,7 +51,7 @@ def do_facial_mirror():
                     mc.setAttr(origAlt + '.s' + axe, mc.getAttr(orig + '.s' + axe))
         else:
             missing.append(origAlt)
-    if missing != []:
+    if not missing == []:
         print(str(missing) + ' are missing in the scene, check if Left and Right names match')
 
     # Mirror ctrl shapes
@@ -60,7 +60,7 @@ def do_facial_mirror():
     ctrls = [l for l in ctrls if l.find(sides[0]) != -1 and l.find('_ctrl') != -1 and l.find('TRASH') == -1 and l.find(
         'Shape') == -1 and l.find('_orig') == -1]
     mc.select(ctrls)
-    sm.do_shapeMirror(os=True)
+    sm.do_shapeMirror()
 
     # Guides mirror
     guides = [sides[0] + 'teeth_dn_jnt_GUIDE', sides[0] + 'teeth_up_jnt_GUIDE']
