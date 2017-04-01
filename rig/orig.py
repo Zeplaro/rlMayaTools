@@ -9,13 +9,17 @@ def do_orig():
             if mc.objExists(grp):
                 mc.warning('Group orig already exits')
             else:
-                grp=mc.group(em=1,n=grp)
-                mc.xform(grp,t=mc.xform(obj,q=1,ws=1,t=1),ro=mc.xform(obj,q=1,ws=1,ro=1),s=mc.xform(obj,q=1,ws=1,s=1),ws=1)
+                grp = mc.group(em=1,n=grp)
                 if mc.listRelatives(obj,ap=1):
                     mc.parent(grp,mc.listRelatives(obj,ap=1))
-                    mc.parent(obj,grp)
-                else:
-                    mc.parent(obj,grp)
+                    sh = mc.xform(obj,q=1,r=1,sh=1)
+                    mc.xform(grp,sh=sh,ws=1)
+                t = mc.xform(obj,q=1,ws=1,t=1)
+                ro = mc.xform(obj,q=1,ws=1,ro=1)
+                s = mc.xform(obj,q=1,r=1,s=1)
+                sh = mc.xform(obj,q=1,r=1,sh=1)
+                mc.xform(grp,t=t,ro=ro,s=s,sh=sh,ws=1)
+                mc.parent(obj,grp)
         mc.select(sel,r=1)
     else:
         mc.warning('Please select an object')
