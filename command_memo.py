@@ -2,6 +2,9 @@
 import maya.OpenMaya as om
 om.MGlobal.displayInfo("my grey info message")
 
+#Add a message attribute
+mc.addAttr(sel, at='message', ln='L_eye')
+
 #To append a python script path
 #It can be written in a userSetup.py file in your script folder to be load when maya starts
 import sys

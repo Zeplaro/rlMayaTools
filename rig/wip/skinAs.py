@@ -1,11 +1,12 @@
 import maya.cmds as mc
 
 
-def getskinCluster(obj):
+def getSkinCluster(obj):
 
     hist = mc.listHistory(obj, ac=1, pdo=1)
     sknclust = mc.ls(hist, type='skinCluster')
     return sknclust
+
 
 def do_skinAs():
 
@@ -20,7 +21,7 @@ def do_skinAs():
         print('Please select at least two objects')
         return
 
-    masterskn = getskinCluster(master)
+    masterskn = getSkinCluster(master)
     inf = mc.skinCluster(masterskn, q=1, inf=1)
     sm = mc.skinCluster(masterskn, q=1, sm=1)
     mi = mc.skinCluster(masterskn, q=1, mi=1)
@@ -29,7 +30,7 @@ def do_skinAs():
     wd = mc.skinCluster(masterskn, q=1, wd=1)
 
     for slave in slaves:
-        if getskinCluster(slave):
+        if getSkinCluster(slave):
             print(slave+' already have a skin attached')
             continue
         print(slave)
