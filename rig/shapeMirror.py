@@ -3,7 +3,14 @@ import rig.getAxis as ga
 import rig.selShape as ss
 
 
-def mirror(master, slave, table, ws=False, miraxis='x'):
+def mirror(shape, slaveshape, table, miraxis='x', ws=False):
+    """
+    :param str shape: shape to copy from
+    :param str slaveshape: slave shape modified
+    :param list table: mirror table
+    :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
+    :param bool ws: False(default) mirror on object space, True mirror on world space
+    """
     # defining index of axis to mirror on chosen axis
     if miraxis == 'z':
         mirindex = 2
@@ -12,25 +19,19 @@ def mirror(master, slave, table, ws=False, miraxis='x'):
     else:
         mirindex = 0
 
-    # checking nbr of shapes in master and slave
-    while len(master) > len(slave):
-        master.pop(-1)
-    i = 0
-    for shape in master:
-        cvs = mc.getAttr(shape + '.cp', s=1)
-        for cv in range(cvs):
-            cp = '.cp[' + str(cv) + ']'
-            if ws:  # mirror on world space
-                pos = mc.xform(shape + cp, q=1, ws=1, t=1)
-                pos[mirindex] *= -1  # mirroring on chosen axis
-                mc.xform(slave[i] + cp, ws=1, t=pos)
+    cvs = mc.getAttr(shape+'.cp', s=1)
+    for cv in range(cvs):
+        cp = '.cp['+str(cv)+']'
+        if ws:  # mirror on world space
+            pos = mc.xform(shape+cp, q=1, ws=1, t=1)
+            pos[mirindex] *= -1  # mirroring on chosen axis
+            mc.xform(slaveshape+cp, ws=1, t=pos)
 
-            else:  # mirror on object space
-                pos = mc.xform(shape + cp, q=1, os=1, t=1)
-                for k in range(3):
-                    pos[k] = pos[k] * table[k]
-                mc.xform(slave[i] + cp, os=1, t=pos)
-        i += 1
+        else:  # mirror on object space
+            pos = mc.xform(shape+cp, q=1, os=1, t=1)
+            for k in range(3):
+                pos[k] = pos[k]*table[k]
+            mc.xform(slaveshape+cp, os=1, t=pos)
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False):
@@ -40,7 +41,6 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
     :param bool ws: False(default) mirror on object space, True mirror on world space
     :param bool copy: True perform a simple copy of the shape without any mirroring
     """
-    # ToDo: copy shape
 
     ctrls = mc.ls(sl=1)
 
@@ -81,13 +81,20 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
             else:
                 continue
 
-            mirror(master, slave, table, ws, miraxis)
+            # checking nbr of shapes in master and slave
+            while len(master) > len(slave):
+                slave.pop(-1)
+
+            i = 0
+            for shape in master:
+                mirror(shape, slave[i], table, miraxis, ws)
+                i += 1
+
     else:
-        master = [ctrls[0]]
-        master = ss.do_selShape(q=1, objs=master)
-        slaves = ss.do_selShape(q=1,objs=ctrls[1:])
+        master = ss.do_selShape(objs=ctrls[0])[0]
+        slaves = ss.do_selShape(objs=ctrls[1:])
         for slave in slaves:
-            mirror(master, [slave], [1, 1, 1])
+            mirror(master, slave, [1, 1, 1])
 
     mc.select(ctrls, r=1)
     print('__DONE__')

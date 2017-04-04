@@ -1,9 +1,7 @@
 import maya.cmds as mc
 from marsTools.mirror_table import getMirrorValues
 
-"""
-To Do: copy shape
-"""
+# TODO: copy shape
 
 
 def mirror(master, slave, table, ws=False, miraxis='x'):
