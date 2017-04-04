@@ -1,14 +1,12 @@
 import maya.cmds as mc
 from marsTools.mirror_table import getMirrorValues
 
+"""
+To Do: copy shape
+"""
 
-def do_shapeMirror(miraxis='x', ws=False):
-    """
-    Mirror objects shape on defined axis in world or object space
-    :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
-    :param bool ws: False(default) mirror on object space, True mirror on world space
-    """
 
+def mirror(master, slave, table, ws=False, miraxis='x'):
     # defining index of axis to mirror on chosen axis
     if miraxis == 'z':
         mirindex = 2
@@ -16,6 +14,35 @@ def do_shapeMirror(miraxis='x', ws=False):
         mirindex = 1
     else:
         mirindex = 0
+
+    # checking nbr of shapes in master and slave
+    while len(master) > len(slave):
+        master.pop(-1)
+
+    i = 0
+    for shape in master:
+        cvs = mc.getAttr(shape + '.cp', s=1)
+        for cv in range(cvs):
+            cp = '.cp[' + str(cv) + ']'
+            if ws:  # mirror on world space
+                pos = mc.xform(shape + cp, q=1, ws=1, t=1)
+                pos[mirindex] *= -1  # mirroring on chosen axis
+                mc.xform(slave[i] + cp, ws=1, t=pos)
+
+            else:  # mirror on object space
+                pos = mc.xform(shape + cp, q=1, os=1, t=1)
+                for k in range(3):
+                    pos[k] = pos[k] * table[k]
+                mc.xform(slave[i] + cp, os=1, t=pos)
+        i += 1
+
+
+def do_shapeMirror(miraxis='x', ws=False):
+    """
+    Mirror objects shape on defined axis in world or object space
+    :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
+    :param bool ws: False(default) mirror on object space, True mirror on world space
+    """
 
     ctrls = mc.ls(sl=1)
     for ctrl in ctrls:
@@ -54,29 +81,7 @@ def do_shapeMirror(miraxis='x', ws=False):
         else:
             continue
 
-        # checking nbr of shapes in master and slave
-        while len(master) > len(slave):
-            master.pop(-1)
-
-        # do mirror
-        i = 0
-        for shape in master:
-            cvs = mc.getAttr(shape + '.cp', s=1)
-            altcvs = mc.getAttr(slave[i] + '.cp', s=1)
-            for cv in range(cvs):
-                cp = '.cp[' + str(cv) + ']'
-                if ws:  # mirror on world space
-                    pos = mc.xform(shape + cp, q=1, ws=1, t=1)
-                    pos[mirindex] *= -1  # mirroring on chosen axis
-                    mc.xform(slave[i] + cp, ws=1, t=pos)
-
-                else:  # mirror on object space
-                    pos = mc.xform(shape + cp, q=1, os=1, t=1)
-                    for k in range(3):
-                        pos[k] = pos[k] * table[k]
-                    mc.xform(slave[i] + cp, os=1, t=pos)
-
-            i += 1
+        mirror(master, slave, table, ws, miraxis)
 
     mc.select(ctrls, r=1)
     print('__DONE__')

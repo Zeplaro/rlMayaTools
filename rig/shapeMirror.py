@@ -8,6 +8,9 @@ def do_shapeMirror(miraxis='x', ws=False):
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
     :param bool ws: False(default) mirror on object space, True mirror on world space
     """
+    """
+    To do: copyshape
+    """
 
     # defining index of mirAxis to mirror on chosen axis
     if miraxis == 'z':
@@ -58,6 +61,8 @@ def do_shapeMirror(miraxis='x', ws=False):
         while len(master) > len(slave):
             master.pop(-1)
 
+
+def mirror(master,slave,table):
         i = 0
         for shape in master:
             cvs = mc.getAttr(shape+'.cp', s=1)
