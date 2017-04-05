@@ -1,18 +1,18 @@
-#Print un message dans la command line
+# Print un message dans la command line
 import maya.OpenMaya as om
 om.MGlobal.displayInfo("my grey info message")
 
-#Add a message attribute
+# Add a message attribute
 mc.addAttr(sel, at='message', ln='L_eye')
 
-#To append a python script path
-#It can be written in a userSetup.py file in your script folder to be load when maya starts
+# To append a python script path
+# It can be written in a userSetup.py file in your script folder to be load when maya starts
 import sys
 sys.path.append(r'/datas/laro/rlMayaTools/rig/')
 
 
-#Fix the copy/paste problem between pycharm and maya
-#To put in userSetup.py
+# Fix the copy/paste problem between pycharm and maya
+# To put in userSetup.py
 # -----------------------------------------------------------------------
 # Fix for the clipboard bug when coming from Wing/PyCharm
 # -----------------------------------------------------------------------
