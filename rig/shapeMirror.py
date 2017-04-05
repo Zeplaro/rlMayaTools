@@ -42,6 +42,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
     :param bool copy: True perform a simple copy of the shape without any mirroring
     """
 
+    # TODO: replace 'check if selection is valid' by selShape
+
     ctrls = mc.ls(sl=1)
 
     if not copy:
