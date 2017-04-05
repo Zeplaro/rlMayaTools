@@ -89,10 +89,15 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 mirror(shape, slave[i], table, miraxis, ws)
                 i += 1
     else:
-        master = [item for item in mc.listRelatives(ctrls[0], s=True, fullPath=True, type='nurbsCurve') or []][0]
+        masters = [item for item in mc.listRelatives(ctrls[0], s=True, fullPath=True, type='nurbsCurve') or []]
         slaves = [item for item in mc.listRelatives(ctrls[1:], s=True, fullPath=True, type='nurbsCurve') or []]
-        for slave in slaves:
-            mirror(master, slave, [1, 1, 1])
+        # checking nbr of shapes in master and slave
+        while len(masters) > len(slaves):
+            masters.pop(-1)
+        i = 0
+        for master in masters:
+            mirror(master, slaves[i], [1, 1, 1])
+            i += 1
 
     mc.select(ctrls, r=1)
     print('__DONE__')
