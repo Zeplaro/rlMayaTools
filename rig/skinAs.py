@@ -13,17 +13,16 @@ def getSkinCluster(obj):
 def do_skinAs():
 
     objs = mc.ls(sl=1, typ='transform')
-    try:
-        master = objs[0]
-    except:
+    if len(objs)<2:
         print('Please select at least two objects')
         return
-    slaves = objs[1:] or []
-    if not slaves:
-        print('Please select at least two objects')
-        return
+    master = objs[0]
+    slaves = objs[1:]
 
     masterskn = getSkinCluster(master)
+    if not masterskn:
+        print('First selection as no skinCluster attached')
+        return
     inf = mc.skinCluster(masterskn, q=1, inf=1)
     sm = mc.skinCluster(masterskn, q=1, sm=1)
     mi = mc.skinCluster(masterskn, q=1, mi=1)
