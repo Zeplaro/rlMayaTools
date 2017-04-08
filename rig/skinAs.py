@@ -5,6 +5,8 @@ def getSkinCluster(obj):
 
     hist = mc.listHistory(obj, ac=1, pdo=1)
     sknclust = mc.ls(hist, type='skinCluster')
+    if sknclust:
+        sknclust = sknclust[0]
     return sknclust
 
 
@@ -28,13 +30,14 @@ def do_skinAs():
     nw = mc.skinCluster(masterskn, q=1, nw=1)
     omi = mc.skinCluster(masterskn, q=1, omi=1)
     wd = mc.skinCluster(masterskn, q=1, wd=1)
-
+    done = []
     for slave in slaves:
         if getSkinCluster(slave):
             print(slave+' already have a skin attached')
             continue
-        print(slave)
         mc.select(inf, slave, r=1)
         mc.skinCluster(sm=sm, mi=mi, nw=nw, omi=omi, wd=wd)
-
-
+        slaveskn = getSkinCluster(slave)
+        mc.copySkinWeights(ss=masterskn, ds=slaveskn, nm=1, sa='closestPoint', ia=('oneToOne', 'label', 'closestJoint'))
+        done.append(slave)
+    return done
