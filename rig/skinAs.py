@@ -14,15 +14,13 @@ def do_skinAs():
 
     objs = mc.ls(sl=1, typ='transform')
     if len(objs)<2:
-        print('Please select at least two objects')
-        return
+        return 'Please select at least two objects'
     master = objs[0]
     slaves = objs[1:]
 
     masterskn = getSkinCluster(master)
     if not masterskn:
-        print('First selection as no skinCluster attached')
-        return
+        return 'First selection as no skinCluster attached'
     inf = mc.skinCluster(masterskn, q=1, inf=1)
     sm = mc.skinCluster(masterskn, q=1, sm=1)
     mi = mc.skinCluster(masterskn, q=1, mi=1)
@@ -38,5 +36,6 @@ def do_skinAs():
         mc.skinCluster(sm=sm, mi=mi, nw=nw, omi=omi, wd=wd)
         slaveskn = getSkinCluster(slave)
         mc.copySkinWeights(ss=masterskn, ds=slaveskn, nm=1, sa='closestPoint', ia=('oneToOne', 'label', 'closestJoint'))
+        print(slave+' done')
         done.append(slave)
     return done
