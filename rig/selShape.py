@@ -4,7 +4,7 @@ import maya.cmds as mc
 def do_selShape(objs=None):
 
     if objs:
-        if isinstance(objs, str):  # if a string is given converts it in a list
+        if isinstance(objs, str) or isinstance(objs, unicode):  # if a string is given converts it in a list
             objs = [objs]
         sel = False
     else:
