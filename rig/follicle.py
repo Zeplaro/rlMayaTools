@@ -1,7 +1,8 @@
 import maya.cmds as mc
 import rig.selShape as ss
 
-def do_follicle(nb=1,even=False):
+
+def do_follicle(nb=1, even=False):
     surfaces = mc.ls(sl=1)
     follicleshapes = []
     if nb < 2:
@@ -22,8 +23,8 @@ def do_follicle(nb=1,even=False):
             mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=1)
             mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=1)
             for manip in 'tr':
-                for dir in 'xyz':
-                    mc.setAttr(follicle+'.'+manip+dir, lock=1)
+                for axis in 'xyz':
+                    mc.setAttr(follicle+'.'+manip+axis, lock=1)
             if even:
                 mc.setAttr(follicleshape+'.parameterU', pos)
                 pos += dif
