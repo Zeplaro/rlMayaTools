@@ -29,5 +29,6 @@ def do_follicle(nb=1, even=False):
                 mc.setAttr(follicleshape+'.parameterU', pos)
                 pos += dif
                 mc.setAttr(follicleshape+'.parameterV', 0.5)
+    mc.select(surfaces, r=1)
 
     return follicleshapes
