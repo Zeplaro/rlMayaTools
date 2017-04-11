@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import rig.selShape as ss
+import selShape as ss
 
 
 def do_follicle(nb=1, even=False):

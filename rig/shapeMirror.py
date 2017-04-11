@@ -1,6 +1,6 @@
 import maya.cmds as mc
-import rig.getAxis as ga
-import rig.selShape as ss
+import getAxis as ga
+import selShape as ss
 
 
 def mirror(shape, slaveshape, table, miraxis='x', ws=False):
