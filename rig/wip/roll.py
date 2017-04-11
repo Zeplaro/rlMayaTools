@@ -1,5 +1,6 @@
 import maya.cmds as mc
 import selShape as ss
+import hook as hk
 
 
 def roll():
@@ -16,14 +17,19 @@ def roll():
             mc.move(0, 1, 0, rollctrl+'.cv['+str(i)+']', r=1, os=1, wd=1)
         else:
             mc.move(0, 1.5, 0, rollctrl+'.cv['+str(i)+']', r=1, os=1, wd=1)
-    mc.parent(path, rollctrl, rollgrp)
+    rollctrlhook = hk.do_hook(rollctrl)[0]
+    mc.parent(path, rollctrlhook, rollctrl, rollgrp)
 
-    pivotguide = mc.group(em=1, p=rollctrl, n='pivotguide')
+    pivotguide = mc.group(em=1, p=rollctrlhook, n='pivotguide')
     mc.move(0, 2, 0, pivotguide, r=1, os=1, wd=1)
     mc.setAttr(pivotguide+'.displayScalePivot', 1)
 
-    nearpoc = mc.createNode('nearestPointOnCurve', n='nearpoc')
+    nearpoc = mc.createNode('nearestPointOnCurve', n='nearpoc#')
     pathshape = ss.do_selShape(path)[0]
 
-    # mc.connectAttr(pathshape+'.')
+    mc.connectAttr(pathshape+'.local', nearpoc+'.inputCurve')
+    dmx = mc.createNode('decomposeMatrix', n='dmx_roll#')
+    mc.connectAttr(pivotguide+'.worldMatrix[0]', dmx+'.inputMatrix')
+    mc.connectAttr(dmx+'.outputTranslate', nearpoc+'.inPosition')
+    mc.connectAttr(nearpoc+'.position', pivotpos+'.translate')
     return
