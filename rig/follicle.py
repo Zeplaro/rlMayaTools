@@ -2,7 +2,7 @@ import maya.cmds as mc
 import selShape as ss
 
 
-def do_follicle(nb=1, even=False):
+def do_follicle(nb=1, param='U'):
     surfaces = mc.ls(sl=1)
     follicleshapes = []
     if nb < 2:
@@ -25,10 +25,13 @@ def do_follicle(nb=1, even=False):
             for manip in 'tr':
                 for axis in 'xyz':
                     mc.setAttr(follicle+'.'+manip+axis, lock=1)
-            if even:
-                mc.setAttr(follicleshape+'.parameterU', pos)
-                pos += dif
-                mc.setAttr(follicleshape+'.parameterV', 0.5)
+            if not param == 'U':
+                param = ['V', 'U']
+            else:
+                param = ['U', 'V']
+            mc.setAttr(follicleshape+'.parameter'+param[0], pos)
+            pos += dif
+            mc.setAttr(follicleshape+'.parameter'+param[1], 0.5)
     mc.select(surfaces, r=1)
 
     return follicleshapes
