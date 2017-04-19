@@ -5,6 +5,9 @@ import selShape as ss
 def do_follicle(nb=1, param='U'):
     surfaces = mc.ls(sl=1)
     follicleshapes = []
+    if not surfaces:
+        mc.warning('Select a nurbs surface')
+        return 'Select a nurbs surface'
     if nb < 2:
         pos = 0.5
         dif = 0
@@ -14,6 +17,8 @@ def do_follicle(nb=1, param='U'):
     for i in range(nb):
         for surface in surfaces:
             surfaceshape = ss.do_selShape(surface)[0]
+            if not mc.nodeType(surfaceshape) == 'nurbsSurface':
+                continue
             follicleshape = mc.createNode('follicle', n=surface+'_follicleShape')
             follicleshapes.append(follicleshape)
             follicle = mc.listRelatives(follicleshape, p=1)[0]
