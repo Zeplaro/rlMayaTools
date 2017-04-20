@@ -8,7 +8,7 @@ def do_selShape(objs=None):
             objs = [objs]
         sel = False
     else:
-        objs = mc.ls(sl=1)
+        objs = mc.ls(sl=True, fl=True)
         sel = True
 
     childs = []
@@ -16,7 +16,7 @@ def do_selShape(objs=None):
         if mc.objectType(obj, isa='shape'):  # if selection is already a shape add it and continue
             childs += [obj]
             continue
-        child = mc.listRelatives(obj, c=1, typ='shape') or []
+        child = mc.listRelatives(obj, c=True, typ='shape') or []
         child = [shape for shape in child if 'Orig' not in shape]
         childs += child
 
@@ -25,5 +25,5 @@ def do_selShape(objs=None):
     [shapes.append(i) for i in childs if i not in shapes]
 
     if sel:
-        mc.select(shapes, r=1)
+        mc.select(shapes, r=True)
     return shapes
