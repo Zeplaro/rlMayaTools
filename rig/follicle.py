@@ -19,7 +19,7 @@ def do_follicle(nb=1, param='U'):
             surfaceshape = ss.do_selShape(surface)[0]
             if not mc.nodeType(surfaceshape) == 'nurbsSurface':
                 continue
-            follicleshape = mc.createNode('follicle', n=surface+'_follicleShape')
+            follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
             follicleshapes.append(follicleshape)
             follicle = mc.listRelatives(follicleshape, p=1)[0]
             follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=1)
