@@ -2,7 +2,7 @@ import maya.cmds as mc
 
 
 def do_lenSel ():
-    sel = mc.ls(sl=1)
+    sel = mc.ls(sl=True, fl=True)
     size = len(sel)
     if size > 1 or size == 0:
         print(size)
