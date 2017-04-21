@@ -13,9 +13,13 @@ def do_mxCnst():
         mc.connectAttr(mmx + '.matrixSum', dmx + '.inputMatrix', f=True)
 
         loc1 = mc.spaceLocator(n=target[0] + '_loc')[0]
-        mc.xform(loc1, ws=1, ro=mc.xform(target[0], q=1, ws=1, ro=1), t=mc.xform(target[0], q=1, ws=1, t=1))
+        ro = mc.xform(target[0], q=True, ws=True, ro=True)
+        t = mc.xform(target[0], q=True, ws=True, t=True)
+        mc.xform(loc1, ws=True, ro=ro, t=t)
         loc2 = mc.spaceLocator(n=target[1] + '_loc')[0]
-        mc.xform(loc2, ws=1, ro=mc.xform(target[1], q=1, ws=1, ro=1), t=mc.xform(target[1], q=1, ws=1, t=1))
+        ro = mc.xform(target[1], q=True, ws=True, ro=True)
+        t = mc.xform(target[1], q=True, ws=True, t=True)
+        mc.xform(loc2, ws=True, ro=ro, t=t)
         mc.parent(loc2, loc1)
 
         mc.connectAttr(loc2 + '.translate', cmx + '.inputTranslate', f=True)

@@ -93,8 +93,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 i += 1
 
     else:
-        master = ss.do_selShape(objs=ctrls[0])[0]
-        slaves = ss.do_selShape(objs=ctrls[1:])
+        master = ss.do_selShape([ctrls[0]])[0]
+        slaves = ss.do_selShape(ctrls[1:])
         for slave in slaves:
             mirror(master, slave, [1, 1, 1])
 

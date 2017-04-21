@@ -14,9 +14,9 @@ def do_getAxis(obj, os=False, exact=False):
     vp = mc.createNode('vectorProduct', n='_vp')
     mc.setAttr(vp+'.operation', 3)
     if os:
-        mc.connectAttr(obj+'.matrix', vp+'.matrix', f=1)
+        mc.connectAttr(obj+'.matrix', vp+'.matrix', f=True)
     else:
-        mc.connectAttr(obj+'.worldMatrix', vp+'.matrix', f=1)
+        mc.connectAttr(obj+'.worldMatrix', vp+'.matrix', f=True)
     axis = [1, 1, 1]
     val = [1, 0, 0]
     xyz = 'XYZ'

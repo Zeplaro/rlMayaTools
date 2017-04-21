@@ -2,6 +2,7 @@ import maya.cmds as mc
 
 
 def do_jntOrig():
+
     jnts = []
     sel = mc.ls(sl=True, typ='transform', fl=True)
     if sel:

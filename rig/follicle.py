@@ -3,7 +3,8 @@ import selShape as ss
 
 
 def do_follicle(nb=1, param='U'):
-    surfaces = mc.ls(sl=1)
+
+    surfaces = mc.ls(sl=True, fl=True)
     follicleshapes = []
     if not surfaces:
         mc.warning('Select a nurbs surface')
@@ -16,20 +17,20 @@ def do_follicle(nb=1, param='U'):
         pos = 0.0
     for i in range(nb):
         for surface in surfaces:
-            surfaceshape = ss.do_selShape(surface)[0]
+            surfaceshape = ss.do_selShape([surface])[0]
             if not mc.nodeType(surfaceshape) == 'nurbsSurface':
                 continue
             follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
             follicleshapes.append(follicleshape)
-            follicle = mc.listRelatives(follicleshape, p=1)[0]
-            follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=1)
-            mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=1)
-            mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=1)
-            mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=1)
-            mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=1)
+            follicle = mc.listRelatives(follicleshape, p=True)[0]
+            follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
+            mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=True)
+            mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=True)
+            mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=True)
+            mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=True)
             for manip in 'tr':
                 for axis in 'xyz':
-                    mc.setAttr(follicle+'.'+manip+axis, lock=1)
+                    mc.setAttr(follicle+'.'+manip+axis, lock=True)
             if not param == 'U':
                 param = ['V', 'U']
             else:
@@ -37,6 +38,6 @@ def do_follicle(nb=1, param='U'):
             mc.setAttr(follicleshape+'.parameter'+param[0], pos)
             pos += dif
             mc.setAttr(follicleshape+'.parameter'+param[1], 0.5)
-    mc.select(surfaces, r=1)
+    mc.select(surfaces, r=True)
 
     return follicleshapes

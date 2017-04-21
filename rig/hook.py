@@ -12,7 +12,7 @@ def do_hook(objs=None):
         for obj in objs:
             if not mc.objExists(obj):
                 continue
-            hook = mc.group(em=1, n=obj + '_hook')
+            hook = mc.group(em=True, n=obj + '_hook')
             hooks += [hook]
             mmx = mc.createNode('multMatrix', n='mmx_' + obj)
             dmx = mc.createNode('decomposeMatrix', n='dmx_' + obj)
