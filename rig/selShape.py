@@ -3,27 +3,14 @@ import maya.cmds as mc
 
 def do_selShape(objs=None):
 
-    if objs:
-        if isinstance(objs, str) or isinstance(objs, unicode):  # if a string is given converts it in a list
-            objs = [objs]
-        sel = False
-    else:
+    sel = False
+    if not objs:
         objs = mc.ls(sl=True, fl=True)
         sel = True
-
-    childs = []
-    for obj in objs:
-        if mc.objectType(obj, isa='shape'):  # if selection is already a shape add it and continue
-            childs += [obj]
-            continue
-        child = mc.listRelatives(obj, c=True, typ='shape') or []
-        child = [shape for shape in child if 'Orig' not in shape]
-        childs += child
-
-    # Removing doublon in case shape was already selected
     shapes = []
-    [shapes.append(i) for i in childs if i not in shapes]
-
+    for obj in objs:
+        [shapes.append(shape) for shape in mc.listRelatives(obj, s=True) or [] if 'Orig' not in shape]
     if sel:
         mc.select(shapes, r=True)
+    print(shapes)
     return shapes
