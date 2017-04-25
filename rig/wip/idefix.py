@@ -1,4 +1,3 @@
-"""
-shape replace
-roll pivot
-"""
+# todo : shape replace
+# todo : roll pivot
+# todo : reset pivot space

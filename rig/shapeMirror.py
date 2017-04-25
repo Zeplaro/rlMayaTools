@@ -42,8 +42,6 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
     :param bool copy: True perform a simple copy of the shape without any mirroring
     """
 
-    # TODO: replace 'check if selection is valid' by selShape
-
     ctrls = mc.ls(sl=True, fl=True)
 
     if not copy:
@@ -75,8 +73,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
 
             # Checking if the selection is valid
             if mc.objectType(ctrl, isType='transform') or mc.objectType(ctrl, isType='joint'):
-                master = mc.listRelatives(master, c=True, s=True, pa=True, type='nurbsCurve') or []
-                slave = mc.listRelatives(slave, c=True, s=True, pa=True, type='nurbsCurve') or []
+                master = ss.do_selShape([master])
+                slave = ss.do_selShape([slave])
             elif mc.objectType(ctrl, isType='nurbsCurve'):
                 master = [master]
                 slave = [slave]

@@ -9,7 +9,7 @@ def do_selShape(objs=None):
         sel = True
     shapes = []
     for obj in objs:
-        [shapes.append(shape) for shape in mc.listRelatives(obj, s=True) or [] if 'Orig' not in shape]
+        [shapes.append(shape) for shape in mc.listRelatives(obj, s=True, pa=1) or [] if 'Orig' not in shape]
     if sel:
         mc.select(shapes, r=True)
     print(shapes)
