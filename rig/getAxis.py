@@ -1,5 +1,4 @@
 import maya.cmds as mc
-import math
 
 
 def do_getAxis(obj, os=False, exact=False):
