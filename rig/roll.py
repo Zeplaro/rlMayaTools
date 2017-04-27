@@ -1,6 +1,8 @@
 import maya.cmds as mc
 import selShape as ss
 
+# todo : UI
+
 
 def roll(size=1):
 
