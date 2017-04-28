@@ -1,11 +1,26 @@
 import maya.cmds as mc
+import selShape as ss
+# todo : cv compatible
 
+def get_component(obj):
+    comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []
+    if not mc.nodeType(ss.do_selShape([obj])) == 'nurbsCurve':
+        complen = mc.getAttr(obj+'.cp', s=1)
+        print(complen)
+        if complen:
+            for j in range(complen):
+                comps.append(obj+'.cp['+str(j)+']')
+    [comps.append(x) for x in [obj] if '.cv' in x]
+    return comps
 
 def do_avLoc():
 
-    sel = mc.ls(sl=True, fl=True)
-    vtxs = mc.ls(mc.polyListComponentConversion(sel, tv=True), fl=True)
-    if not vtxs:
+    sel = mc.ls(sl=True, fl=True) or []
+    comps = []
+    for i in sel:
+        comps.extend(get_component(i))
+
+    if not comps:
         mc.warning('Select components or meshes and try again')
         return
 

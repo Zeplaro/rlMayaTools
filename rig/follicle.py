@@ -2,21 +2,22 @@ import maya.cmds as mc
 import selShape as ss
 
 
-def do_follicle(nb=1, param='U'):
+def do_follicle(nb=1, param='U', objs=None):
 
-    surfaces = mc.ls(sl=True, fl=True)
-    follicleshapes = []
-    if not surfaces:
+    if not objs:
+        objs = mc.ls(sl=True, fl=True)
+    if not objs:
         mc.warning('Select a nurbs surface')
-        return 'Select a nurbs surface'
+        return
     if nb < 2:
         pos = 0.5
         dif = 0
     else:
         dif = 1.0/(nb-1)
         pos = 0.0
+    follicleshapes = []
     for i in range(nb):
-        for surface in surfaces:
+        for surface in objs:
             surfaceshape = ss.do_selShape([surface])[0]
             if not mc.nodeType(surfaceshape) == 'nurbsSurface':
                 continue
@@ -38,6 +39,5 @@ def do_follicle(nb=1, param='U'):
             mc.setAttr(follicleshape+'.parameter'+param[0], pos)
             pos += dif
             mc.setAttr(follicleshape+'.parameter'+param[1], 0.5)
-    mc.select(surfaces, r=True)
 
     return follicleshapes
