@@ -1,10 +1,12 @@
 import maya.cmds as mc
-import selShape as ss
+import getShape as gs
 # todo : cv compatible
 
+
 def get_component(obj):
+    
     comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []
-    if not mc.nodeType(ss.do_selShape(obj)) == 'nurbsCurve':
+    if not mc.nodeType(gs.do_getShape(obj)) == 'nurbsCurve':
         complen = mc.getAttr(obj+'.cp', s=1)
         print(complen)
         if complen:
@@ -12,6 +14,7 @@ def get_component(obj):
                 comps.append(obj+'.cp['+str(j)+']')
     [comps.append(x) for x in [obj] if '.cv' in x]
     return comps
+
 
 def do_avLoc():
 

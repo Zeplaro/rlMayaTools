@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import selShape as ss
+import getShape as gs
 
 # todo : UI
 
@@ -39,7 +39,7 @@ def roll(size=1):
     mc.pointConstraint(pivotguide, pivotguideflat, mo=0, sk='y')
 
     nearpoc = mc.createNode('nearestPointOnCurve', n='nearpoc#')
-    pathshape = ss.do_selShape(path)[0]
+    pathshape = gs.do_getShape(path)[0]
 
     mc.connectAttr(pathshape+'.local', nearpoc+'.inputCurve')
     mc.connectAttr(pivotguideflat+'.translate', nearpoc+'.inPosition')
