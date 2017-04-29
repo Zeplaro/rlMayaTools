@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_selShape(objs=None):
+def do_getShape(objs=None):
 
     sel = False
     if not objs:
