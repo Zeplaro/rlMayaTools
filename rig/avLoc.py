@@ -4,7 +4,7 @@ import selShape as ss
 
 def get_component(obj):
     comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []
-    if not mc.nodeType(ss.do_selShape([obj])) == 'nurbsCurve':
+    if not mc.nodeType(ss.do_selShape(obj)) == 'nurbsCurve':
         complen = mc.getAttr(obj+'.cp', s=1)
         print(complen)
         if complen:
