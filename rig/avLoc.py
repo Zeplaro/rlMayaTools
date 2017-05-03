@@ -6,13 +6,16 @@ import getShape as gs
 def get_component(obj):
     
     comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []
-    if not mc.nodeType(gs.do_getShape(obj)) == 'nurbsCurve':
+
+    [comps.append(x) for x in [obj] if '.cv' in x]
+
+    if mc.nodeType(gs.do_getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
         complen = mc.getAttr(obj+'.cp', s=1)
         print(complen)
         if complen:
             for j in range(complen):
                 comps.append(obj+'.cp['+str(j)+']')
-    [comps.append(x) for x in [obj] if '.cv' in x]
+
     return comps
 
 
@@ -28,8 +31,8 @@ def do_avLoc():
         return
 
     pos = []
-    for vtx in vtxs:
-        pos.append(mc.xform(vtx, q=True, ws=True, t=True))
+    for comp in comps:
+        pos.append(mc.xform(comp, q=True, ws=True, t=True))
 
     posx = []
     posy = []
