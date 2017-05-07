@@ -37,10 +37,10 @@ def do_avLoc():
     posx = []
     posy = []
     posz = []
-    for each in pos:
-        posx.append(each[0])
-        posy.append(each[1])
-        posz.append(each[2])
+    for x, y, z in pos:
+        posx.append(x)
+        posy.append(y)
+        posz.append(z)
     av = [(min(posx)+max(posx))/2, (min(posy)+max(posy))/2, (min(posz)+max(posz))/2]
     loc = mc.spaceLocator(n='avLoc#')
     mc.xform(loc, ws=True, t=av)
