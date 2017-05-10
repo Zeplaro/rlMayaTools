@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import getShape as gs
+import utils as ut
 # todo : cv compatible
 
 
@@ -9,7 +9,7 @@ def get_component(obj):
 
     [comps.append(x) for x in [obj] if '.cv' in x]
 
-    if mc.nodeType(gs.do_getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
+    if mc.nodeType(ut.do_getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
         complen = mc.getAttr(obj+'.cp', s=1)
         print(complen)
         if complen:
