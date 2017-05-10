@@ -72,8 +72,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
 
             # Checking if the selection is valid
             if mc.objectType(ctrl, isType='transform') or mc.objectType(ctrl, isType='joint'):
-                master = ut.do_getShape(master)
-                slave = ut.do_getShape(slave)
+                master = ut.getShape(master)
+                slave = ut.getShape(slave)
             elif mc.objectType(ctrl, isType='nurbsCurve'):
                 master = [master]
                 slave = [slave]
@@ -99,8 +99,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 while len(slaveshape) > len(mastershape):
                     mastershape.append(mastershape[0])
             else:  # if transforms are selected
-                mastershape = ut.do_getShape(master)
-                slaveshape = ut.do_getShape(slave)
+                mastershape = ut.getShape(master)
+                slaveshape = ut.getShape(slave)
                 while len(slaveshape) > len(mastershape):
                     slaveshape.pop(-1)
                 while len(slaveshape) < len(mastershape):

@@ -10,7 +10,7 @@ def getSkinCluster(obj):
     return sknclust
 
 
-def do_getShape(objs=None):
+def getShape(objs=None):
 
     sel = False
     if not objs:
@@ -23,7 +23,7 @@ def do_getShape(objs=None):
     return shapes
 
 
-def do_getAxis(obj, os=False, exact=False):
+def getAxis(obj, os=False, exact=False):
     """
     Find objects axis direction compared to world or parent axis
     :param str obj: object to query
@@ -95,7 +95,7 @@ def getAxisDir (obj):
                     for a object matching world axis it will return : [x, y, z]
     """
 
-    objdir = do_getAxis(obj, exact=True)[-1]
+    objdir = getAxis(obj, exact=True)[-1]
     dir = []
     for i in range(3):
         val = []

@@ -18,7 +18,7 @@ def do_follicle(nb=1, param='U', objs=None):
     follicleshapes = []
     for i in range(nb):
         for surface in objs:
-            surfaceshape = ut.do_getShape(surface)[0]
+            surfaceshape = ut.getShape(surface)[0]
             if not mc.nodeType(surfaceshape) == 'nurbsSurface':
                 continue
             follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
