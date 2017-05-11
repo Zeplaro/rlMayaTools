@@ -14,5 +14,5 @@ def do_reSkin(objs=None):
             for conn in conns:
                 bpm = conn.replace('matrix', 'bindPreMatrix')
                 wim = mc.getAttr(inf+'.worldInverseMatrix')
-                mc.setAttr(bpm, wim, type='matrix')
+                mc.setAttr(bpm, *wim, type='matrix')
         mc.skinCluster(skn, e=True, rbm=True)
