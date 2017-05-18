@@ -2,9 +2,9 @@ import maya.cmds as mc
 import utils as ut
 
 
-def mirror(shape, slaveshape, table, miraxis='x', ws=False):
+def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     """
-    :param str shape: shape to copy from
+    :param str mastershape: shape to copy from
     :param str slaveshape: slave shape modified
     :param list table: mirror table
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
@@ -18,16 +18,16 @@ def mirror(shape, slaveshape, table, miraxis='x', ws=False):
     else:
         mirindex = 0
 
-    cvs = mc.getAttr(shape+'.cp', s=True)
+    cvs = mc.getAttr(mastershape + '.cp', s=True)
     for cv in range(cvs):
         cp = '.cp['+str(cv)+']'
         if ws:  # mirror on world space
-            pos = mc.xform(shape+cp, q=True, ws=True, t=True)
+            pos = mc.xform(mastershape + cp, q=True, ws=True, t=True)
             pos[mirindex] *= -1  # mirroring on chosen axis
             mc.xform(slaveshape+cp, ws=True, t=pos)
 
         else:  # mirror on object space
-            pos = mc.xform(shape+cp, q=True, os=True, t=True)
+            pos = mc.xform(mastershape + cp, q=True, os=True, t=True)
             for k in range(3):
                 pos[k] = pos[k]*table[k]
             mc.xform(slaveshape+cp, os=True, t=pos)
