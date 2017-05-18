@@ -1,6 +1,12 @@
 import maya.cmds as mc
 from marsTools.mirror_table import getMirrorValues
 
+'''
+import mayaRigTools_sk.sandBox.laro.shapeMirror as sm
+reload(sm)
+sm.do_shapeMirror()
+'''
+
 
 def mirror(shape, slaveshape, table, miraxis='x', ws=False):
     """
@@ -41,7 +47,7 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
     :param bool copy: True perform a simple copy of the shape without any mirroring
     """
 
-    ctrls = mc.ls(sl=1)
+    ctrls = mc.ls(sl=True, fl=True)
 
     if not copy:
         for ctrl in ctrls:
@@ -88,16 +94,25 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
             for shape in master:
                 mirror(shape, slave[i], table, miraxis, ws)
                 i += 1
+
     else:
-        masters = [item for item in mc.listRelatives(ctrls[0], s=True, fullPath=True, type='nurbsCurve') or []]
-        slaves = [item for item in mc.listRelatives(ctrls[1:], s=True, fullPath=True, type='nurbsCurve') or []]
-        # checking nbr of shapes in master and slave
-        while len(masters) > len(slaves):
-            masters.pop(-1)
-        i = 0
-        for master in masters:
-            mirror(master, slaves[i], [1, 1, 1])
-            i += 1
+        master = ctrls[0]
+        slaves = ctrls[1:]
+        for slave in slaves:
+            if mc.nodeType(master) == 'nurbsCurve':  # if shapes are selected
+                mastershape = [master]
+                slaveshape = slaves
+                while len(slaveshape) > len(mastershape):
+                    mastershape.append(mastershape[0])
+            else:  # if transforms are selected
+                mastershape = mc.listRelatives(master, c=1, s=1, pa=1, type='nurbsCurve') or []
+                slaveshape = mc.listRelatives(slave, c=1, s=1, pa=1, type='nurbsCurve') or []
+                while len(slaveshape) > len(mastershape):
+                    slaveshape.pop(-1)
+                while len(slaveshape) < len(mastershape):
+                    mastershape.pop(-1)
+            for i in range(len(mastershape)):
+                mirror(mastershape[i], slaveshape[i], [1, 1, 1])
 
     mc.select(ctrls, r=1)
     print('__DONE__')
