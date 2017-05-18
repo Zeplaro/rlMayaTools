@@ -1,6 +1,5 @@
 import maya.cmds as mc
 import utils as ut
-# todo : cv compatible
 
 
 def get_component(obj):
