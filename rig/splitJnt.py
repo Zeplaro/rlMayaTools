@@ -11,25 +11,25 @@ def do_splitJnt(nb=1, jnts=False):
     start = jnts[0]
     end = jnts[1]
     rad = mc.joint(start, q=True, rad=True)[0]
-    print(rad)
-    mc.select(cl=True)
-    splitdummy = mc.joint(n=start + '_splitdummy#')
-    mc.parent(splitdummy, end, r=True)
-    mc.parent(splitdummy, start)
-    lastpos = mc.xform(splitdummy, q=True, t=True)
+    if end in (mc.listRelatives(start, ap=True) or []):
+        mc.warning('Start joint is a child of the end joint')
+        return
+    if mc.listRelatives(end, p=True) != [start]:
+        mc.parent(end, start)
+    lastpos = mc.xform(end, q=True, t=True)
     splitpos = []
     for i in range(3):
         splitpos.append(lastpos[i]/(nb+1))
-    mc.delete(splitdummy)
 
     splits = []
+    pos = splitpos[:]
     for i in range(nb):
         mc.select(cl=True)
-        split = mc.joint(n=start+'_split#', rad=rad)
+        split = mc.joint(n=start+'_split_#', rad=rad)
         mc.parent(split, start, r=True)
+        mc.xform(split, r=True, t=pos)
         for j in range(3):
-            splitpos[j] *= (i+1)
-        mc.xform(split, r=True, t=splitpos)
+            pos[j] += splitpos[j]
         splits.append(split)
 
     for i in range(len(splits)-1):
