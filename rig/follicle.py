@@ -33,11 +33,11 @@ def do_follicle(nb=1, param='U', objs=None):
                 for axis in 'xyz':
                     mc.setAttr(follicle+'.'+manip+axis, lock=True)
             if not param == 'U':
-                param = ['V', 'U']
+                paramlist = ['V', 'U']
             else:
-                param = ['U', 'V']
-            mc.setAttr(follicleshape+'.parameter'+param[0], pos)
+                paramlist = ['U', 'V']
+            mc.setAttr(follicleshape+'.parameter'+paramlist[0], pos)
             pos += dif
-            mc.setAttr(follicleshape+'.parameter'+param[1], 0.5)
+            mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
 
     return follicleshapes
