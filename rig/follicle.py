@@ -15,6 +15,10 @@ def do_follicle(nb=1, param='U', objs=None):
     else:
         dif = 1.0/(nb-1)
         pos = 0.0
+    if not param == 'U':
+        paramlist = ['V', 'U']
+    else:
+        paramlist = ['U', 'V']
     follicleshapes = []
     for i in range(nb):
         for surface in objs:
@@ -32,10 +36,6 @@ def do_follicle(nb=1, param='U', objs=None):
             for manip in 'tr':
                 for axis in 'xyz':
                     mc.setAttr(follicle+'.'+manip+axis, lock=True)
-            if not param == 'U':
-                paramlist = ['V', 'U']
-            else:
-                paramlist = ['U', 'V']
             mc.setAttr(follicleshape+'.parameter'+paramlist[0], pos)
             pos += dif
             mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
