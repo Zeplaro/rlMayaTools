@@ -32,3 +32,6 @@ if hasattr(qApp, '_clipboard_fix'):
    del qApp._clipboard_fix
 qApp._clipboard_fix = ScriptEditorFilter()
 qApp.installEventFilter(qApp._clipboard_fix)
+
+# Hide node on the channelbox list
+'node'.ihi ou 'node'.isHistoricalyInteresting on ou off
