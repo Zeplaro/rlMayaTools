@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import utils as ut
+import tbx
 
 
 def get_component(obj):
@@ -8,7 +8,7 @@ def get_component(obj):
 
     [comps.append(x) for x in [obj] if '.cv' in x]
 
-    if mc.nodeType(ut.getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
+    if mc.nodeType(tbx.getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
         complen = mc.getAttr(obj+'.cp', s=1)
         print(complen)
         if complen:
