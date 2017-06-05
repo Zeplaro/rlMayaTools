@@ -4,10 +4,11 @@ import maya.cmds as mc
 def do_splitJnt(nb=1, jnts=False):
 
     if not jnts:
-        jnts = mc.ls(sl=True, fl=True)
+        jnts = mc.ls(sl=True, fl=True, type='joint')
     if len(jnts) < 2:
         mc.warning('Not enough jnts selected')
         return
+
     start = jnts[0]
     end = jnts[1]
     rad = mc.joint(start, q=True, rad=True)[0]
