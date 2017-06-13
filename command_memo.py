@@ -33,5 +33,10 @@ if hasattr(qApp, '_clipboard_fix'):
 qApp._clipboard_fix = ScriptEditorFilter()
 qApp.installEventFilter(qApp._clipboard_fix)
 
+
 # Hide node on the channelbox list
 'node'.ihi ou 'node'.isHistoricalyInteresting on ou off
+
+# Viewport command
+mc.ogs(r=1) # reset le viewport
+mc.ogs(p=1) # pause le viewport
