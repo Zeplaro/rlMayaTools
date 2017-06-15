@@ -2,11 +2,11 @@ import maya.cmds as mc
 import tbx
 
 
-def do_follicle(nb=1, param='U', objs=None):
+def do_follicle(nb=1, param='U', surface=None):
 
-    if not objs:
-        objs = mc.ls(sl=True, fl=True)
-    if not objs:
+    if not surface:
+        surface = mc.ls(sl=True, fl=True)
+    if not surface:
         mc.warning('Select a nurbs surface')
         return
     if nb < 2:
@@ -19,25 +19,24 @@ def do_follicle(nb=1, param='U', objs=None):
         paramlist = ['V', 'U']
     else:
         paramlist = ['U', 'V']
-    follicleshapes = []
+    follicles = []
     for i in range(nb):
-        for surface in objs:
-            surfaceshape = tbx.getShape(surface)[0]
-            if not mc.nodeType(surfaceshape) == 'nurbsSurface':
-                continue
-            follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
-            follicleshapes.append(follicleshape)
-            follicle = mc.listRelatives(follicleshape, p=True)[0]
-            follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
-            mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=True)
-            mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=True)
-            mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=True)
-            mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=True)
-            for manip in 'tr':
-                for axis in 'xyz':
-                    mc.setAttr(follicle+'.'+manip+axis, lock=True)
-            mc.setAttr(follicleshape+'.parameter'+paramlist[0], pos)
-            pos += dif
-            mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
+        surfaceshape = tbx.getShape(surface)[0]
+        if not mc.nodeType(surfaceshape) == 'nurbsSurface':
+            continue
+        follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
+        follicle = mc.listRelatives(follicleshape, p=True)[0]
+        follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
+        follicles.append(follicle)
+        mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=True)
+        mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=True)
+        mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=True)
+        mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=True)
+        for manip in 'tr':
+            for axis in 'xyz':
+                mc.setAttr(follicle+'.'+manip+axis, lock=True)
+        mc.setAttr(follicleshape+'.parameter'+paramlist[0], pos)
+        pos += dif
+        mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
 
-    return follicleshapes
+    return follicles

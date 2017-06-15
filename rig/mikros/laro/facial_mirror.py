@@ -16,19 +16,18 @@ def do_facial_mirror():
     missing = []
     for orig in origs:
         # _orig mirror
-        origloc = orig + '_loc'
         origAlt = orig.replace(sides[0], sides[1], 1)
         if mc.objExists(origAlt):
-            mc.spaceLocator(n=origloc)
+            origloc = mc.spaceLocator(n=orig + '_loc#')[0]
             mc.parent(origloc, orig, r=1)
-            mc.group(em=1, n=orig + '_grp')
-            mc.parent(origloc, orig + '_grp')
-            mc.setAttr(orig + '_grp.scaleX', -1)
+            origgrp = mc.group(em=1, n=orig + '_grp#')
+            mc.parent(origloc, origgrp)
+            mc.setAttr(origgrp + '.scaleX', -1)
             p = mc.listRelatives(origAlt, ap=1, type='transform')
             if mc.objExists(p[0]):
                 mc.parent(origloc, p)
                 for axe in 'xyz':
-                    mc.setAttr(orig + '_loc.s' + axe, 1)
+                    mc.setAttr(origloc + '.s' + axe, 1)
                 mc.parent(origAlt, origloc)
                 for axe in 'xyz':
                     for attr in 'tr':
@@ -38,7 +37,7 @@ def do_facial_mirror():
                 # eye_corner rotation exception
                 if orig == 'L_eyeCorner_in_ctrl_orig' or orig == 'L_eyeCorner_out_ctrl_orig':
                     mc.rotate(0, 0, 180, origAlt, r=1, os=1)
-            mc.delete(origloc, orig + '_grp')
+            mc.delete(origloc, origgrp)
 
             # Scale mirror
             if (mc.getAttr(orig + '.sz') < 0 or mc.getAttr(origAlt + '.sz') < 0) and (
@@ -51,7 +50,7 @@ def do_facial_mirror():
                     mc.setAttr(origAlt + '.s' + axe, mc.getAttr(orig + '.s' + axe))
         else:
             missing.append(origAlt)
-    if not missing == []:
+    if missing:
         print(str(missing) + ' are missing in the scene, check if Left and Right names match')
 
     # Mirror ctrl shapes

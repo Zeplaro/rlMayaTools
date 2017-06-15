@@ -1,7 +1,7 @@
 import maya.cmds as mc
 import tbx
 
-
+# todo : rework using mc.polyEvaluate
 def get_component(obj):
     
     comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []

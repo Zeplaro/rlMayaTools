@@ -5,3 +5,4 @@
 # todo : randomizer
 # todo : script manager
 # todo : constraint manager
+# todo : quality check
