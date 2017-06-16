@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import tbx
+from tbx import getSkinCluster
 
 
 def do_reSkin(objs=None):
@@ -7,7 +7,7 @@ def do_reSkin(objs=None):
     if not objs:
         objs = mc.ls(sl=True, fl=True)
     for obj in objs:
-        skn = tbx.getSkinCluster(obj)
+        skn = getSkinCluster(obj)
         infs = mc.skinCluster(skn, q=True, inf=True)
         for inf in infs:
             conns = mc.listConnections(inf+'.worldMatrix', type='skinCluster', p=True)

@@ -1,46 +1,12 @@
 import maya.cmds as mc
-import tbx
-
-# todo : rework using mc.polyEvaluate
-def get_component(obj):
-    
-    comps = mc.ls(mc.polyListComponentConversion(obj, tv=True), fl=True) or []
-
-    [comps.append(x) for x in [obj] if '.cv' in x]
-
-    if mc.nodeType(tbx.getShape(obj)) == 'nurbsCurve' and '.cv' not in obj:
-        complen = mc.getAttr(obj+'.cp', s=1)
-        print(complen)
-        if complen:
-            for j in range(complen):
-                comps.append(obj+'.cp['+str(j)+']')
-
-    return comps
 
 
 def do_avLoc():
 
-    sel = mc.ls(sl=True, fl=True) or []
-    comps = []
-    for i in sel:
-        comps.extend(get_component(i))
+    sel = mc.ls(sl=True, fl=True)
+    bb = mc.exactWorldBoundingBox(sel)
 
-    if not comps:
-        mc.warning('Select components or meshes and try again')
-        return
-
-    pos = []
-    for comp in comps:
-        pos.append(mc.xform(comp, q=True, ws=True, t=True))
-
-    posx = []
-    posy = []
-    posz = []
-    for x, y, z in pos:
-        posx.append(x)
-        posy.append(y)
-        posz.append(z)
-    av = [(min(posx)+max(posx))/2, (min(posy)+max(posy))/2, (min(posz)+max(posz))/2]
+    av = [(bb[0]+bb[3])/2, (bb[1]+bb[4])/2, (bb[2]+bb[5])/2]
     loc = mc.spaceLocator(n='avLoc#')
     mc.xform(loc, ws=True, t=av)
     mc.select(sel, r=True)
