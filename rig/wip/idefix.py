@@ -6,3 +6,5 @@
 # todo : script manager
 # todo : constraint manager
 # todo : quality check
+# todo : surface attach
+# todo : curve attach

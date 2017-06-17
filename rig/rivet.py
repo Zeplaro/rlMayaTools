@@ -22,28 +22,44 @@ def do_rivet(edges=False):
     surf = mc.loft(crvs, ch=True, u=True, c=False, ar=True, d=3, ss=1, rn=False, po=0, rsn=False, n='rvt_surf#')[0]
     rvt = f.do_follicle(surface=surf)[0]
 
-    rvtshape = getShape(rvt)[0]
-    mc.setAttr(rvt+'.inheritsTransform', 0)
-    mc.setAttr(rvtshape+'.visibility', 0)
-    loc = mc.spaceLocator(n='rvtloc#')[0]
-    locshape = getShape(loc)
-    for axe in 'XYZ':
-        mc.setAttr(loc+'.localScale'+axe, 0.1)
-    mc.parent(locshape, rvt, r=True, s=True)
-
+    # grpWorld with curves and surface to clean
     grpW = mc.group(em=True, n='rvtWorld#')
     mc.setAttr(grpW+'.inheritsTransform', 0)
     mc.setAttr(grpW+'.visibility', 0)
     mc.parent(getShape(surf), grpW, r=True, s=True)
-    mc.delete(surf, loc)
+    mc.delete(surf)
     for crv in crvs:
         mc.parent(getShape(crv), grpW, r=True, s=True)
         mc.delete(crv)
     for i in 'trs':
         for axe in 'xyz':
             mc.setAttr(grpW+'.'+i+axe, lock=True)
-    mc.group(rvt, grpW, n='rvtGrp_#')
+
+    # adding a locactor shape
+    loc = mc.spaceLocator(n='rivetloc_#')[0]
+    locshape = getShape(loc)
+    mc.parent(locshape, rvt, r=True, s=True)
+    mc.delete(loc)
     rvt = mc.rename(rvt, 'rivet_#')
+    rvtshape = getShape(rvt)[0]
+    mc.setAttr(rvtshape+'.visibility', 0)
     mc.reorder(locshape, front=True)
+
+    # grouping it all
+    rvtGrp = mc.group(em=True, n='rvtGrp_#')
+    mc.xform(rvtGrp, ws=True, ro=mc.xform(rvt, q=True, ws=True, ro=True), t=mc.xform(rvt, q=True, ws=True, t=True))
+    mc.parent(rvt, grpW, rvtGrp)
+
+    # creating a stronger rivet position to be able to group it
+    cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
+    mmx = mc.createNode('multMatrix', n='mmx_rvt#')
+    dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
+    mc.connectAttr(rvtshape+'.outRotate', cmx+'.inputRotate')
+    mc.connectAttr(rvtshape+'.outTranslate', cmx+'.inputTranslate')
+    mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
+    mc.connectAttr(rvt+'.parentInverseMatrix', mmx+'.matrixIn[1]')
+    mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
+    mc.connectAttr(dmx+'.outputTranslate', rvt+'.translate', f=True)
+    mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
 
     return rvt
