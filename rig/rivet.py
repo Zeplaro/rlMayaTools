@@ -5,7 +5,7 @@ from tbx import getShape
 # todo : contiguous edges sorter or step by step edges selection interface
 
 
-def do_rivet(edges=False):
+def do_rivet(edges=None):
 
     if not edges:
         edges = mc.ls(sl=True, fl=True)
@@ -63,3 +63,20 @@ def do_rivet(edges=False):
     mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
 
     return rvt
+
+
+def edgesSort(edges=None):
+
+    sort = []
+    poly = edges[0].split('.')[0]
+    edgesNum = [int(a.split('[')[-1].split(']')[0]) for a in edges]
+    print(edgesNum)
+
+    for i, edge in enumerate(edgesNum):
+        if i+1 == len(edgesNum):
+            break
+        if mc.polySelect(poly, elp=(edge, edgesNum[i+1])):
+            print('loop')
+        else:
+            print('not loop')
+    mc.select(edges, r=True)
