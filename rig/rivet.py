@@ -64,7 +64,7 @@ def do_rivet(edges=None):
 
     return rvt
 
-
+# WIP
 def edgesSort(edges=None):
 
     sort = []
