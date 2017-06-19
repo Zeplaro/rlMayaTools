@@ -80,3 +80,13 @@ def edgesSort(edges=None):
         else:
             print('not loop')
     mc.select(edges, r=True)
+
+
+# TO TEST
+
+edges = {edge: [edgesInLoop], ...}
+list = []
+for each in edges:
+    for j in eges:
+        if each in j:
+            list[jIndexInedges].append(each)
