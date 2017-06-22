@@ -5,11 +5,24 @@ from tbx import getShape
 # todo : contiguous edges sorter or step by step edges selection interface
 
 
-def do_rivet(edges=None):
+def do_fRivet(*edges):
+    """
+    :param edges: if more than two edges, select a mesh and input edges number list, e.g.: [12,13], [21,22], [33,34]
+    :return: the rivet transform node.
+    """
 
-    if not edges:
+    if edges:
+        obj = mc.ls(sl=1, type='transform')
+        if not obj:
+            mc.warning('Please select a mesh')
+            return
+        edges = list(edges)
+        for i, ls in enumerate(edges):
+            edges[i] = [obj[0]+'.e['+str(x)+']' for x in ls]
+    else:
         edges = mc.ls(sl=True, fl=True)
-    if not edges or len(edges) < 2:
+
+    if len(edges) < 2:
         mc.warning('Please select at least two edges')
         return
 
@@ -85,8 +98,8 @@ def edgesSort(edges=None):
 # TO TEST
 
 edges = {edge: [edgesInLoop], ...}
-list = []
+liste = []
 for each in edges:
     for j in eges:
         if each in j:
-            list[jIndexInedges].append(each)
+            liste[jIndexInedges].append(each)
