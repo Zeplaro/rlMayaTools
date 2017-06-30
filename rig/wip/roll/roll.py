@@ -7,7 +7,7 @@ from tbx import getShape
 
 def roll(size=1, path=None):
 
-    if no path:
+    if not path:
         path = mc.ls(sl=True, type='transform')
         if path:
             path = path[0]
