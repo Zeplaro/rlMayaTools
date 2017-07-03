@@ -2,13 +2,11 @@ import maya.cmds as mc
 from functools import partial
 
 """
-
 Info:   -curveInfo: si une curve est selectinnee alors le node cree est directement connecte a cette curve.
         -distanceBetween: si deux objets sont selectionnes alors le node est directement connecte entre ces deux objets.
 
-Vous pouvez ajouter ou retirer les nodes de vos choix en les ajoutant a la liste si dessous ligne 61 (attention a donner
+Vous pouvez ajouter ou retirer les nodes de vos choix en les ajoutant a la liste si dessous ligne 52 (attention a donner
 le nom exact entre guillemets)
-
 """
 
 
@@ -46,7 +44,7 @@ def do_quickNode():
     mc.columnLayout(w=200)
     mc.rowLayout(nc=3)
     mc.text('Name :')
-    texte=mc.textField(w=203)
+    texte = mc.textField(w=203)
     mc.setParent('..')
     mc.rowColumnLayout(nc=6)
 
