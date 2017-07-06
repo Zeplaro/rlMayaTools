@@ -34,11 +34,11 @@ def getAxis(obj, os=False, exact=False):
     fullval = []
     for i in range(3):
         j = 0
-        for dir in 'XYZ':
-            mc.setAttr(vp+'.input1'+dir, val[j])
+        for axe in 'XYZ':
+            mc.setAttr(vp+'.input1'+axe, val[j])
             j += 1
-        for dir in 'XYZ':
-            fullval.append(mc.getAttr(vp+'.output'+dir))
+        for axe in 'XYZ':
+            fullval.append(mc.getAttr(vp+'.output'+axe))
         axis[i] = mc.getAttr(vp+'.output'+xyz[i])
         if axis[i] < 0:
             axis[i] = -1
@@ -86,7 +86,7 @@ def getAxisDir (obj):
     """
 
     objdir = getAxis(obj, exact=True)[-1]
-    dir = []
+    axe = []
     for i in range(3):
         val = []
         for j in range(3):
@@ -94,23 +94,23 @@ def getAxisDir (obj):
         if abs(val[0]) > abs(val[1]):
             if abs(val[0]) > abs(val[2]):
                 if val[0] < 0:
-                    dir.append('-x')
+                    axe.append('-x')
                 else:
-                    dir.append('x')
+                    axe.append('x')
             else:
                 if val[2] < 0:
-                    dir.append('-z')
+                    axe.append('-z')
                 else:
-                    dir.append('z')
+                    axe.append('z')
         else:
             if abs(val[1]) > abs(val[2]):
                 if val[1] < 0:
-                    dir.append('-y')
+                    axe.append('-y')
                 else:
-                    dir.append('y')
+                    axe.append('y')
             else:
                 if val[2] < 0:
-                    dir.append('-z')
+                    axe.append('-z')
                 else:
-                    dir.append('z')
-    return dir
+                    axe.append('z')
+    return axe
