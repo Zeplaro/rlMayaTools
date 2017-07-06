@@ -1,14 +1,13 @@
 import maya.cmds as mc
 
 
-def do_orig(objs=None, jnt=False):
+def do_orig(jnt=False, *objs):
 
     if not objs:
-        objs = mc.ls(sl=True, typ='transform', fl=True)
-
-    if not objs:
-        mc.warning('Please select an object')
-        return
+        objs = mc.ls(sl=True, tr=True, fl=True)
+        if not objs:
+            mc.warning('Please select an object')
+            return
 
     grps = []
     for obj in objs:
@@ -41,5 +40,4 @@ def do_orig(objs=None, jnt=False):
             mc.xform(grp, t=t, ro=ro, s=s, sh=sh, ws=True)
 
         mc.parent(obj, grp)
-    mc.select(objs, r=True)
     return grps

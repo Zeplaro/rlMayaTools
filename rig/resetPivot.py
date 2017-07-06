@@ -1,10 +1,13 @@
 import maya.cmds as mc
 
 
-def do_resetPivot(objs=None):
+def do_resetPivot(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
+    if not objs:
+        mc.warning('Select at least one object')
+        return
 
     for obj in objs:
         pivot = mc.group(em=True, w=True, n=obj+'Pivot#')

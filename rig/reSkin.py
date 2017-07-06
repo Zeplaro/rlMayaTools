@@ -2,10 +2,13 @@ import maya.cmds as mc
 from tbx import getSkinCluster
 
 
-def do_reSkin(objs=None):
+def do_reSkin(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
+    if not objs:
+        mc.warning('Select at least one object')
+        return
     for obj in objs:
         skn = getSkinCluster(obj)
         infs = mc.skinCluster(skn, q=True, inf=True)
@@ -16,3 +19,4 @@ def do_reSkin(objs=None):
                 wim = mc.getAttr(inf+'.worldInverseMatrix')
                 mc.setAttr(bpm, *wim, type='matrix')
         mc.skinCluster(skn, e=True, rbm=True)
+    return objs

@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_invHier(objs=None):
+def do_invHier(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)

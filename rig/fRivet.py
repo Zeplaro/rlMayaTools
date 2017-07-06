@@ -7,7 +7,7 @@ from tbx import getShape
 
 def do_fRivet(*edges):
     """
-    :param edges: if more than two edges, select a mesh and input edges number list, e.g.: [12,13], [21,22], [33,34]
+    :param edges: if more than two edges, select a mesh and input edges number lists, e.g.: [12,13], [21,22], [33,34]
     :return: the rivet transform node.
     """
 

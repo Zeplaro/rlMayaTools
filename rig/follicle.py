@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import tbx
+from tbx import getShape
 
 
 def do_follicle(nb=1, param='U', surface=None):
@@ -21,7 +21,7 @@ def do_follicle(nb=1, param='U', surface=None):
         paramlist = ['U', 'V']
     follicles = []
     for i in range(nb):
-        surfaceshape = tbx.getShape(surface)[0]
+        surfaceshape = getShape(surface)[0]
         if not mc.nodeType(surfaceshape) == 'nurbsSurface':
             continue
         follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
