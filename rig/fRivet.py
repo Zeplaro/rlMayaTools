@@ -5,23 +5,40 @@ from tbx import getShape
 # todo : contiguous edges sorter or step by step edges selection interface
 
 
-def do_fRivet(*edges):
+def do_fRivet(*args):
     """
-    :param edges: if more than two edges, select a mesh and input edges number lists, e.g.: [12,13], [21,22], [33,34]
+    :param args: if more than two edges, input edges (number or full name) list, e.g.: [12,13], [21,22], [33,34] and
+                input or select a mesh
     :return: the rivet transform node.
     """
 
-    if edges:
-        obj = mc.ls(sl=1, type='transform')
-        if not obj:
+    if args:
+
+        # Getting mesh if one
+        mesh = [arg for arg in args if isinstance(arg, basestring) and '.' not in arg]
+        if not mesh:
+            mesh = mc.ls(sl=1, type='transform')
+        if not mesh:
             mc.warning('Please select a mesh')
             return
-        edges = list(edges)
-        for i, ls in enumerate(edges):
-            edges[i] = [obj[0]+'.e['+str(x)+']' for x in ls]
-    else:
-        edges = mc.ls(sl=True, fl=True)
 
+        # Getting edges
+        edges = [arg for arg in args if arg not in mesh]
+        if not edges or len(edges) < 2:
+            mc.warning('Not enough or no edges given')
+            return
+
+        # if edges are given as integer converting them to real edges name string
+        if type(edges[0]) is int:
+            edges = convertIntEdges(mesh[0], edges)
+        # elif edges are given as list of integer converting them to real edges name string
+        elif type(edges[0]) is list or type(edges[0]) is tuple:
+            for i, edge in enumerate(edges):
+                if type(edge[0]) is int:
+                    edges[i] = convertIntEdges(mesh[0], edge)
+
+    else:
+        edges = [edge for edge in mc.ls(sl=True, fl=True) if '.' in edge]
     if len(edges) < 2:
         mc.warning('Please select at least two edges')
         return
@@ -77,6 +94,12 @@ def do_fRivet(*edges):
     mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
 
     return rvt
+
+
+def convertIntEdges(mesh, edges):
+    for i, edge in enumerate(edges):
+        edges[i] = mesh + '.e[' + str(edge) + ']'
+    return edges
 
 """
 # WIP

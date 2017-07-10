@@ -26,8 +26,8 @@ def do_fRivet(*args):
 
         # Getting edges
         edges = [arg for arg in args if arg not in mesh]
-        if not edges:
-            mc.warning('No edges given')
+        if not edges or len(edges) < 2:
+            mc.warning('Not enough or no edges given')
             return
 
         # if edges are given as integer converting them to real edges name string
@@ -41,7 +41,6 @@ def do_fRivet(*args):
 
     else:
         edges = [edge for edge in mc.ls(sl=True, fl=True) if '.' in edge]
-
     if len(edges) < 2:
         mc.warning('Please select at least two edges')
         return
