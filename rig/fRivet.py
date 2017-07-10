@@ -48,6 +48,7 @@ def do_fRivet(*edges):
         for axe in 'xyz':
             mc.setAttr(grpW+'.'+i+axe, lock=True)
 
+    # TODO : replace following by diplayHandle
     # adding a locactor shape
     loc = mc.spaceLocator(n='rivetloc_#')[0]
     locshape = getShape(loc)
@@ -77,6 +78,7 @@ def do_fRivet(*edges):
 
     return rvt
 
+"""
 # WIP
 def edgesSort(edges=None):
 
@@ -103,3 +105,4 @@ for each in edges:
     for j in eges:
         if each in j:
             liste[jIndexInedges].append(each)
+"""
