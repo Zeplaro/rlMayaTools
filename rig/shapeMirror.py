@@ -37,7 +37,7 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False):
-    """"
+    """
     Mirror objects shape on defined axis in world or object space
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
     :param bool ws: False(default) mirror on object space, True mirror on world space
