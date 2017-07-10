@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_orig(jnt=False, *objs):
+def do_orig(jnt=False, objs=None):
 
     if not objs:
         objs = mc.ls(sl=True, tr=True, fl=True)

@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_splitJnt(nb=1, *jnts):
+def do_splitJnt(nb=1, jnts=None):
 
     if not jnts:
         jnts = mc.ls(sl=True, fl=True, type='joint')
