@@ -23,9 +23,11 @@ def launchUI():
 '''
 import os
 pypath = os.environ['MAYA_SCRIPT_PATH']
-splitpath=pypath.split(';')
-print path
+splitpath=pypath.split(':')
 for i in splitpath:
-    print i
-    print os.listdir(i)
+    try:
+        print i
+        print os.listdir(i)
+    except:
+        pass
 '''

@@ -65,7 +65,6 @@ def do_fRivet(*args):
         for axe in 'xyz':
             mc.setAttr(grpW+'.'+i+axe, lock=True)
 
-    # TODO : replace following by diplayHandle
     # adding a locactor shape
     loc = mc.spaceLocator(n='rivetloc_#')[0]
     locshape = getShape(loc)
