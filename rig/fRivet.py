@@ -9,6 +9,8 @@ nbOfColumn = 2
 
 def ui():
 
+    # TODO : ranger en collumn au lieu de row
+
     winID = 'rvtUI'
     if mc.window(winID, exists=True):
         mc.deleteUI(winID)
