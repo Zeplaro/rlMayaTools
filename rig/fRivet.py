@@ -4,6 +4,61 @@ from tbx import getShape
 
 # todo : contiguous edges sorter or step by step edges selection interface
 
+nbOfColumn = 2
+
+
+def ui():
+
+    winID = 'rvtUI'
+    if mc.window(winID, exists=True):
+        mc.deleteUI(winID)
+    mc.window(winID, title='Follicle Rivet creator')
+    mc.columnLayout(w=200)
+    mc.rowLayout(nc=2)
+    mc.separator(style='none', w=21)
+    mc.text('Edges', align='center', w=100)
+    mc.setParent('..')
+    mc.rowLayout('rowEdges', nc=100)
+    mc.columnLayout()
+    mc.button('+', w=20, command=addColumn)
+    mc.button('-', w=20, command=delColumn)
+    mc.setParent('..')
+    mc.textScrollList('edges1', w=100, h=100, allowMultiSelection=True)
+    mc.textScrollList('edges2', w=100, h=100, allowMultiSelection=True)
+    mc.setParent('..')
+    mc.rowLayout('rowButton', nc=100)
+    mc.separator(style='none', w=21)
+    mc.button('upSel1', label='Update selection', w=100, command=lambda x: upEdges(1))
+    mc.button('upSel2', label='Update selection', w=100, command=lambda x: upEdges(2))
+    mc.showWindow()
+
+
+def upEdges(*args):
+    name = 'edges'+str(args[0])
+    mc.textScrollList(name, e=True, ra=True)
+    edges = [x for x in mc.ls(sl=True, fl=True) if '.e' in x]
+    print('name ', name)
+    mc.textScrollList(name, e=True, append=edges)
+    print('nb of collumn ', nbOfColumn)
+
+
+def addColumn(*args):
+    global nbOfColumn
+    nbOfColumn += 1
+    mc.textScrollList('edges'+str(nbOfColumn), w=100, h=100, allowMultiSelection=True, parent='rowEdges')
+    nbr = nbOfColumn
+    mc.button('upSel'+str(nbr), label='Update selection', w=100, command=lambda x: upEdges(str(nbr)), parent='rowButton')
+    print('nb of collumn ', nbOfColumn)
+
+
+def delColumn(*args):
+    global nbOfColumn
+    if nbOfColumn > 2:
+        mc.deleteUI('edges'+str(nbOfColumn))
+        mc.deleteUI('upSel'+str(nbOfColumn))
+        nbOfColumn -= 1
+    print('nb of collumn ', nbOfColumn)
+
 
 def do_fRivet(*args):
     """
@@ -124,7 +179,7 @@ def edgesSort(edges=None):
 edges = {edge: [edgesInLoop], ...}
 liste = []
 for each in edges:
-    for j in eges:
+    for j in edges:
         if each in j:
             liste[jIndexInedges].append(each)
 """
