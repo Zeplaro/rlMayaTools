@@ -28,7 +28,7 @@ def do_skinAs(master=None, *slaves):
             print(slave+' already have a skin attached')
             continue
         mc.select(inf, slave, r=True)
-        mc.skinCluster(sm=sm, mi=mi, nw=nw, omi=omi, wd=wd)
+        mc.skinCluster(name='skinCluster_'+slave+'_#', sm=sm, mi=mi, nw=nw, omi=omi, wd=wd, ihs=True, tsb=True)
         slaveskn = getSkinCluster(slave)
         mc.copySkinWeights(ss=masterskn, ds=slaveskn, nm=True, sa='closestPoint', ia=('oneToOne', 'label', 'closestJoint'))
         print(slave+' skinned')

@@ -29,7 +29,7 @@ def get_scripts(path):
 
 
 def launchScript(script):
-    os.system(script+'.py')
+    exec (script+'.py')
 
 '''
 import os
@@ -42,3 +42,6 @@ for i in splitpath:
     except:
         pass
 '''
+
+
+exec
