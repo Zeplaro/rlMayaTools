@@ -5,6 +5,7 @@ from tbx import getShape
 # todo : contiguous edges sorter or step by step edges selection interface
 
 nbOfColumn = 2
+width = 440
 
 
 def ui():
@@ -14,24 +15,29 @@ def ui():
     winID = 'rvtUI'
     if mc.window(winID, exists=True):
         mc.deleteUI(winID)
-    mc.window(winID, title='Follicle Rivet creator')
-    mc.columnLayout(w=200)
-    mc.rowLayout(nc=2)
+    mc.window(winID, title='Follicle Rivet creator', s=False, rtf=True)
+
+    mc.columnLayout('columnMain', w=width)
+    mc.rowLayout('rowTitle', nc=3)
     mc.separator(style='none', w=21)
-    mc.text('Edges', align='center', w=100)
+    mc.text(label='Edges', align='center', w=200)
+    mc.text(label='Edges', align='center', w=200)
     mc.setParent('..')
     mc.rowLayout('rowEdges', nc=100)
-    mc.columnLayout()
+    mc.columnLayout('columnAddDel')
     mc.button('+', w=20, command=addColumn)
     mc.button('-', w=20, command=delColumn)
     mc.setParent('..')
-    mc.textScrollList('edges1', w=100, h=100, allowMultiSelection=True)
-    mc.textScrollList('edges2', w=100, h=100, allowMultiSelection=True)
+    mc.columnLayout('columnEdges1')
+    mc.textScrollList('edges1', w=200, h=100, allowMultiSelection=True)
+    mc.button('upSel1', label='Update selection', w=200, command=lambda x: upEdges(1))
     mc.setParent('..')
-    mc.rowLayout('rowButton', nc=100)
-    mc.separator(style='none', w=21)
-    mc.button('upSel1', label='Update selection', w=100, command=lambda x: upEdges(1))
-    mc.button('upSel2', label='Update selection', w=100, command=lambda x: upEdges(2))
+    mc.columnLayout('columnEdges2')
+    mc.textScrollList('edges2', w=200, h=100, allowMultiSelection=True)
+    mc.button('upSel2', label='Update selection', w=200, command=lambda x: upEdges(2))
+    mc.setParent('..')
+    mc.setParent('..')
+    mc.button('Create fRivet', command=createFRivet)
     mc.showWindow()
 
 
@@ -39,27 +45,37 @@ def upEdges(*args):
     name = 'edges'+str(args[0])
     mc.textScrollList(name, e=True, ra=True)
     edges = [x for x in mc.ls(sl=True, fl=True) if '.e' in x]
-    print('name ', name)
     mc.textScrollList(name, e=True, append=edges)
-    print('nb of collumn ', nbOfColumn)
 
 
 def addColumn(*args):
     global nbOfColumn
     nbOfColumn += 1
-    mc.textScrollList('edges'+str(nbOfColumn), w=100, h=100, allowMultiSelection=True, parent='rowEdges')
-    nbr = nbOfColumn
-    mc.button('upSel'+str(nbr), label='Update selection', w=100, command=lambda x: upEdges(str(nbr)), parent='rowButton')
-    print('nb of collumn ', nbOfColumn)
+    global width
+    width += 204
+    nbr = str(nbOfColumn)
+    mc.columnLayout('columnEdges'+nbr, parent='rowEdges')
+    mc.textScrollList('edges'+nbr, w=200, h=100, allowMultiSelection=True)
+    mc.button('upSel'+nbr, label='Update selection', w=200, command=lambda x: upEdges(nbr))
+    mc.columnLayout('columnMain', e=True, w=width)
 
 
 def delColumn(*args):
     global nbOfColumn
+    global width
+    nbr = str(nbOfColumn)
     if nbOfColumn > 2:
-        mc.deleteUI('edges'+str(nbOfColumn))
-        mc.deleteUI('upSel'+str(nbOfColumn))
+        mc.deleteUI('columnEdges'+nbr)
         nbOfColumn -= 1
-    print('nb of collumn ', nbOfColumn)
+        width -= 204
+        mc.columnLayout('columnMain', e=True, w=width)
+
+
+def createFRivet(*args):
+    edges = []
+    for i in range(nbOfColumn):
+        edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
+        print edges
 
 
 def do_fRivet(*args):
