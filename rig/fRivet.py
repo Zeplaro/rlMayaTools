@@ -13,7 +13,7 @@ def ui():
     winID = 'rvtUI'
     if mc.window(winID, exists=True):
         mc.deleteUI(winID)
-    mc.window(winID, title='Follicle Rivet creator', w=width, s=True, rtf=True)
+    mc.window(winID, title='Follicle Rivet creator', w=width, s=False, rtf=True)
 
     mc.columnLayout('columnMain', w=width)
     mc.rowLayout('rowEdges', nc=100)
@@ -25,6 +25,7 @@ def ui():
     addColumn()
     mc.setParent('..')
     mc.setParent('..')
+    mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1, max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=width)
     mc.button('Create fRivet', command=createFRivet, w=width)
     mc.showWindow()
 
@@ -64,15 +65,17 @@ def createFRivet(*args):
     edges = []
     for i in range(nbOfColumn):
         edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
-    do_fRivet(*edges)
+    nb = mc.intSliderGrp('nb', q=True, value=True)
+    do_fRivet(edges, nb)
 ########################################################################################################################
 
 
-def do_fRivet(edges, mesh=None, nb=1):
+def do_fRivet(edges, nb=1, param='U', mesh=None):
     """
     :param edges: input edges (number or full name) list, e.g.: [[12,13], [21,22], [33,34]]
     :param mesh: input or select a mesh
     :param nb: number of rivet wanted
+    :param param: 'U' or 'V' param of the follicle
     :return: the rivet transform node.
     """
 
@@ -80,10 +83,10 @@ def do_fRivet(edges, mesh=None, nb=1):
 
         # Getting mesh if one
         if not mesh:
-            mesh = mc.ls(sl=1, type='transform')
+            mesh = mc.ls(sl=True, type='transform')
 
         # Getting edges
-        edges = [arg for arg in args if arg not in mesh]
+        edges = [arg for arg in edges if arg not in mesh]
         if not edges or len(edges) < 2 or not edges[0] or not edges[1]:
             mc.warning('Not enough or no edges given')
             return
@@ -119,11 +122,6 @@ def do_fRivet(edges, mesh=None, nb=1):
         mc.rebuildCurve(crv, ch=True, rpo=True, rt=0, end=1, kr=0, kcp=False, kep=True, kt=False, s=0, d=3, tol=0.01)
     surf = mc.loft(crvs, ch=True, u=True, c=False, ar=True, d=3, ss=1, rn=False, po=0, rsn=False, n='rvt_surf#')[0]
 
-    # todo : to finish
-    for i in range(nb):
-        rvt = do_follicle(surface=surf, pos="""todo""")
-    # todo : to finish
-
     # grpWorld with curves and surface to clean
     grpW = mc.group(em=True, n='rvtWorld#')
     mc.setAttr(grpW+'.inheritsTransform', 0)
@@ -137,34 +135,47 @@ def do_fRivet(edges, mesh=None, nb=1):
         for axe in 'xyz':
             mc.setAttr(grpW+'.'+i+axe, lock=True)
 
-    # adding a locactor shape
-    loc = mc.spaceLocator(n='rivetloc_#')[0]
-    locshape = getShape(loc)
-    mc.parent(locshape, rvt, r=True, s=True)
-    mc.delete(loc)
-    rvt = mc.rename(rvt, 'rivet_#')
-    rvtshape = getShape(rvt)[0]
-    mc.setAttr(rvtshape+'.visibility', 0)
-    mc.reorder(locshape, front=True)
-
-    # grouping it all
     rvtGrp = mc.group(em=True, n='rvtGrp_#')
-    mc.xform(rvtGrp, ws=True, ro=mc.xform(rvt, q=True, ws=True, ro=True), t=mc.xform(rvt, q=True, ws=True, t=True))
-    mc.parent(rvt, grpW, rvtGrp)
+    mc.parent(grpW, rvtGrp)
 
-    # creating a stronger rivet position to be able to group it
-    cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
-    mmx = mc.createNode('multMatrix', n='mmx_rvt#')
-    dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
-    mc.connectAttr(rvtshape+'.outRotate', cmx+'.inputRotate')
-    mc.connectAttr(rvtshape+'.outTranslate', cmx+'.inputTranslate')
-    mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
-    mc.connectAttr(rvt+'.parentInverseMatrix', mmx+'.matrixIn[1]')
-    mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
-    mc.connectAttr(dmx+'.outputTranslate', rvt+'.translate', f=True)
-    mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
+    if nb < 2:
+        pos = 0.5
+        dif = 0
+    else:
+        dif = 1.0/(nb-1)
+        pos = 0.0
 
-    return rvt
+    surf = grpW
+    rvts = []
+    for i in range(nb):
+        rvt = do_follicle(surface=surf, pos=pos, param=param)
+        pos += dif
+
+    # adding a locactor shape
+        loc = mc.spaceLocator(n='rivetloc_#')[0]
+        locshape = getShape(loc)
+        mc.parent(locshape, rvt, r=True, s=True)
+        mc.delete(loc)
+        rvt = mc.rename(rvt, 'rivet_#')
+        rvtshape = getShape(rvt)[0]
+        mc.setAttr(rvtshape+'.visibility', 0)
+        mc.reorder(locshape, front=True)
+        mc.parent(rvt, rvtGrp)
+
+        # creating a stronger rivet position to be able to group it
+        cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
+        mmx = mc.createNode('multMatrix', n='mmx_rvt#')
+        dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
+        mc.connectAttr(rvtshape+'.outRotate', cmx+'.inputRotate')
+        mc.connectAttr(rvtshape+'.outTranslate', cmx+'.inputTranslate')
+        mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
+        mc.connectAttr(rvt+'.parentInverseMatrix', mmx+'.matrixIn[1]')
+        mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
+        mc.connectAttr(dmx+'.outputTranslate', rvt+'.translate', f=True)
+        mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
+        rvts.append(rvt)
+
+    return rvts
 
 
 def convertIntEdges(mesh, edges):
@@ -173,7 +184,7 @@ def convertIntEdges(mesh, edges):
     return edges
 
 
-def do_follicle(param='U', surface=None, pos=0.5):
+def do_follicle(surface=None, pos=0.5, param='U'):
 
     if not surface:
         surface = mc.ls(sl=True, fl=True)
@@ -189,6 +200,7 @@ def do_follicle(param='U', surface=None, pos=0.5):
     if not mc.nodeType(surfaceshape) == 'nurbsSurface':
         mc.warning('No nurbs surface given')
         return
+
     follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
     follicle = mc.listRelatives(follicleshape, p=True)[0]
     follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
