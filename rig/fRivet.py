@@ -75,9 +75,9 @@ class launch_ui:
 def do_fRivet(edges, nb=1, param='U', mesh=None):
     """
     :param edges: input edges (number or full name) list, e.g.: [[12,13], [21,22], [33,34]]
-    :param mesh: input or select a mesh
     :param nb: number of rivet wanted
     :param param: 'U' or 'V' param of the follicle
+    :param mesh: input or select a mesh
     :return: the rivet transform node.
     """
 
@@ -94,20 +94,20 @@ def do_fRivet(edges, nb=1, param='U', mesh=None):
             return
 
         # if edges are given as integer converting them to real edges name string
-        edgesType = type(edges[0])
-        if edgesType is int:
+        edges_type = type(edges[0])
+        if edges_type is int:
             if not mesh:
                 mc.warning('Please select a mesh')
                 return
-            edges = convertIntEdges(mesh[0], edges)
+            edges = convert_int_edges(mesh[0], edges)
         # elif edges are given as list of integer converting them to real edges name string
-        elif edgesType is list or edgesType is tuple:
+        elif edges_type is list or edges_type is tuple:
             for i, edge in enumerate(edges):
                 if type(edge[0]) is int:
                     if not mesh:
                         mc.warning('Please select a mesh')
                         return
-                    edges[i] = convertIntEdges(mesh[0], edge)
+                    edges[i] = convert_int_edges(mesh[0], edge)
 
     else:
         edges = [edge for edge in mc.ls(sl=True, fl=True) if '.' in edge]
@@ -121,23 +121,23 @@ def do_fRivet(edges, nb=1, param='U', mesh=None):
         crvs.append(mc.polyToCurve(form=2, degree=1, n='rvt_crv_#')[0])
     for crv in crvs:
         mc.rebuildCurve(crv, ch=True, rpo=True, rt=0, end=1, kr=0, kcp=False, kep=True, kt=False, s=0, d=3, tol=0.01)
-    surf = mc.loft(crvs, ch=True, u=True, c=False, ar=True, d=3, ss=1, rn=False, po=0, rsn=False, n='rvt_surf#')[0]
+    surface = mc.loft(crvs, ch=True, u=True, c=False, ar=True, d=3, ss=1, rn=False, po=0, rsn=False, n='rvt_surf#')[0]
 
     # grpWorld with curves and surface to clean
-    grpW = mc.group(em=True, n='rvtWorld#')
-    mc.setAttr(grpW+'.inheritsTransform', 0)
-    mc.setAttr(grpW+'.visibility', 0)
-    mc.parent(getShape(surf), grpW, r=True, s=True)
-    mc.delete(surf)
+    grp_w = mc.group(em=True, n='rvtWorld#')
+    mc.setAttr(grp_w+'.inheritsTransform', 0)
+    mc.setAttr(grp_w+'.visibility', 0)
+    mc.parent(getShape(surface), grp_w, r=True, s=True)
+    mc.delete(surface)
     for crv in crvs:
-        mc.parent(getShape(crv), grpW, r=True, s=True)
+        mc.parent(getShape(crv), grp_w, r=True, s=True)
         mc.delete(crv)
     for i in 'trs':
         for axe in 'xyz':
-            mc.setAttr(grpW+'.'+i+axe, lock=True)
+            mc.setAttr(grp_w+'.'+i+axe, lock=True)
 
-    rvtGrp = mc.group(em=True, n='rvtGrp_#')
-    mc.parent(grpW, rvtGrp)
+    rvt_grp = mc.group(em=True, n='rvtGrp_#')
+    mc.parent(grp_w, rvt_grp)
 
     if nb < 2:
         pos = 0.5
@@ -146,10 +146,10 @@ def do_fRivet(edges, nb=1, param='U', mesh=None):
         dif = 1.0/(nb-1)
         pos = 0.0
 
-    surf = grpW
+    surface = grp_w
     rvts = []
     for i in range(nb):
-        rvt = do_follicle(surface=surf, pos=pos, param=param)
+        rvt = do_follicle(surface=surface, pos=pos, param=param)
         pos += dif
 
     # adding a locactor shape
@@ -161,7 +161,7 @@ def do_fRivet(edges, nb=1, param='U', mesh=None):
         rvtshape = getShape(rvt)[0]
         mc.setAttr(rvtshape+'.visibility', 0)
         mc.reorder(locshape, front=True)
-        mc.parent(rvt, rvtGrp)
+        mc.parent(rvt, rvt_grp)
 
         # creating a stronger rivet position to be able to group it
         cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
@@ -179,7 +179,7 @@ def do_fRivet(edges, nb=1, param='U', mesh=None):
     return rvts
 
 
-def convertIntEdges(mesh, edges):
+def convert_int_edges(mesh, edges):
     for i, edge in enumerate(edges):
         edges[i] = mesh + '.e[' + str(edge) + ']'
     return edges

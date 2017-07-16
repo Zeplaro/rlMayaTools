@@ -2,7 +2,8 @@ import maya.cmds as mc
 import os
 import ast
 
-def launchUI():
+
+def launch_ui():
     winID = 'pyMUI'
     doc = 'docUI'
     if mc.window(winID, exists=True):
@@ -12,10 +13,6 @@ def launchUI():
     path = 'D:/Robin/Work/Python/rlMayaTools/rig'
     for script in get_scripts(path):
         mc.button(l=script, h=40, w=40, ann=node, command=partial(nodecreation, node))
-
-
-
-
 
     # Put Win in dockControl
     if mc.dockControl(doc, exists=True):
@@ -29,19 +26,4 @@ def get_scripts(path):
 
 
 def launchScript(script):
-    exec (script+'.py')
-
-'''
-import os
-pypath = os.environ['MAYA_SCRIPT_PATH']
-splitpath=pypath.split(':')
-for i in splitpath:
-    try:
-        print i
-        print os.listdir(i)
-    except:
-        pass
-'''
-
-
-exec
+    exec(script+'.py')

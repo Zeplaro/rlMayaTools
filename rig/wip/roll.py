@@ -1,9 +1,6 @@
 import maya.cmds as mc
 from tbx import getShape
 
-# todo : UI
-
-
 
 def roll(size=1, path=None):
 
