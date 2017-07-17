@@ -72,7 +72,7 @@ class launch_ui:
         do_fRivet(edges, nb)
 
 
-def do_fRivet(edges, nb=1, param='U', mesh=None):
+def do_fRivet(edges=None, nb=1, param='U', mesh=None):
     """
     :param edges: input edges (number or full name) list, e.g.: [[12,13], [21,22], [33,34]]
     :param nb: number of rivet wanted
