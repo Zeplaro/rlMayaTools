@@ -10,6 +10,6 @@ class dep_nodes:
         self.shape = [shape for shape in mc.listRelatives(obj, s=True, pa=1) or [] if 'Orig' not in shape]
         return self.shape
 
-    def get_sknCluster(self, obj):
+    def get_skinCluster(self, obj):
         self.skn = mc.ls(mc.listHistory(obj, ac=True, pdo=True), type='skinCluster')
         return self.skn

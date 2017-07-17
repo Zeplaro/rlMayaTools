@@ -1,5 +1,5 @@
 import maya.cmds as mc
-from tbx import getSkinCluster
+from tbx import get_skinCluster
 
 
 def do_skinAs(master=None, *slaves):
@@ -12,7 +12,7 @@ def do_skinAs(master=None, *slaves):
         master = objs[0]
         slaves = objs[1:]
 
-    masterskn = getSkinCluster(master)
+    masterskn = get_skinCluster(master)
     if not masterskn:
         mc.warning('First object as no skinCluster attached')
         return
@@ -24,12 +24,12 @@ def do_skinAs(master=None, *slaves):
     wd = mc.skinCluster(masterskn, q=True, wd=True)
     done = []
     for slave in slaves:
-        if getSkinCluster(slave):
+        if get_skinCluster(slave):
             print(slave+' already have a skin attached')
             continue
         mc.select(inf, slave, r=True)
         mc.skinCluster(name='skinCluster_'+slave+'_#', sm=sm, mi=mi, nw=nw, omi=omi, wd=wd, ihs=True, tsb=True)
-        slaveskn = getSkinCluster(slave)
+        slaveskn = get_skinCluster(slave)
         mc.copySkinWeights(ss=masterskn, ds=slaveskn, nm=True, sa='closestPoint', ia=('oneToOne', 'label', 'closestJoint'))
         print(slave+' skinned')
         done.append(slave)

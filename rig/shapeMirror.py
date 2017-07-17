@@ -1,6 +1,6 @@
 import maya.cmds as mc
-from tbx import getShape
-from tbx import getMirrorTable
+from tbx import get_shape
+from tbx import get_mirrorTable
 
 # TODO : copy in ws and os
 
@@ -71,12 +71,12 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 continue
 
             # getting ctrls axis for object space
-            table = getMirrorTable(master, slave, miraxis=miraxis)
+            table = get_mirrorTable(master, slave, miraxis=miraxis)
 
             # Checking if the selection is valid
             if mc.objectType(ctrl, isType='transform') or mc.objectType(ctrl, isType='joint'):
-                master = getShape(master)
-                slave = getShape(slave)
+                master = get_shape(master)
+                slave = get_shape(slave)
             elif mc.objectType(ctrl, isType='nurbsCurve'):
                 master = [master]
                 slave = [slave]
@@ -102,8 +102,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 while len(slaveshape) > len(mastershape):
                     mastershape.append(mastershape[0])
             else:  # if transforms are selected
-                mastershape = getShape(master)
-                slaveshape = getShape(slave)
+                mastershape = get_shape(master)
+                slaveshape = get_shape(slave)
                 while len(slaveshape) > len(mastershape):
                     slaveshape.pop(-1)
                 while len(slaveshape) < len(mastershape):

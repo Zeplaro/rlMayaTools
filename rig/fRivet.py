@@ -1,5 +1,5 @@
 import maya.cmds as mc
-from tbx import getShape
+from tbx import get_shape
 
 
 class launch_ui:
@@ -125,10 +125,10 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
     grp_w = mc.group(em=True, n='rvtWorld#')
     mc.setAttr(grp_w+'.inheritsTransform', 0)
     mc.setAttr(grp_w+'.visibility', 0)
-    mc.parent(getShape(surface), grp_w, r=True, s=True)
+    mc.parent(get_shape(surface), grp_w, r=True, s=True)
     mc.delete(surface)
     for crv in crvs:
-        mc.parent(getShape(crv), grp_w, r=True, s=True)
+        mc.parent(get_shape(crv), grp_w, r=True, s=True)
         mc.delete(crv)
     for i in 'trs':
         for axe in 'xyz':
@@ -152,11 +152,11 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
 
     # adding a locactor shape
         loc = mc.spaceLocator(n='rivetloc_#')[0]
-        locshape = getShape(loc)
+        locshape = get_shape(loc)
         mc.parent(locshape, rvt, r=True, s=True)
         mc.delete(loc)
         rvt = mc.rename(rvt, 'rivet_#')
-        rvtshape = getShape(rvt)[0]
+        rvtshape = get_shape(rvt)[0]
         mc.setAttr(rvtshape+'.visibility', 0)
         mc.reorder(locshape, front=True)
         mc.parent(rvt, rvt_grp)
@@ -195,7 +195,7 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     else:
         paramlist = ['U', 'V']
 
-    surfaceshape = getShape(surface)[0]
+    surfaceshape = get_shape(surface)[0]
     if not mc.nodeType(surfaceshape) == 'nurbsSurface':
         mc.warning('No nurbs surface given')
         return

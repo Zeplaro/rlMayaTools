@@ -1,7 +1,6 @@
 import maya.cmds as mc
 
 """
-run :
 import mayaRigTools_sk.sandBox.laro.fRivet as fr
 reload(fr)
 fr.launch_ui()
@@ -43,28 +42,28 @@ class launch_ui:
         edges = [x for x in mc.ls(sl=True, fl=True) if '.e' in x]
         mc.textScrollList(name, e=True, append=edges)
 
-    def add_column(self, *args):
-        launch_ui.nbOfColumn += 1
-        launch_ui.width += 204
-        nbr = str(self.nbOfColumn)
-        mc.columnLayout('columnEdges'+nbr, cal='center', parent='rowEdges')
+    @classmethod
+    def add_column(cls, *args):
+        cls.nbOfColumn += 1
+        cls.width += 204
+        mc.columnLayout('columnEdges{}'.format(cls.nbOfColumn), cal='center', parent='rowEdges')
         mc.text(label='Edges', align='center', w=200)
-        mc.textScrollList('edges'+nbr, w=200, h=100, allowMultiSelection=True)
-        mc.button('upSel'+nbr, label='Update from selection', w=200, command=lambda x: self.update_edges(nbr))
-        if self.nbOfColumn > 2:
-            mc.intSliderGrp('nb', e=True, w=self.width)
-            mc.button('Create_Rivet', e=True, w=self.width)
-        mc.columnLayout('columnMain', e=True, w=self.width)
+        mc.textScrollList('edges{}'.format(cls.nbOfColumn), w=200, h=100, allowMultiSelection=True)
+        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200, command=lambda x: cls.update_edges(cls.nbOfColumn))
+        if cls.nbOfColumn > 2:
+            mc.intSliderGrp('nb', e=True, w=cls.width)
+            mc.button('Create_Rivet', e=True, w=cls.width)
+        mc.columnLayout('columnMain', e=True, w=cls.width)
 
-    def del_column(self, *args):
-        nbr = str(self.nbOfColumn)
-        if self.nbOfColumn > 2:
-            mc.deleteUI('columnEdges'+nbr)
-            launch_ui.nbOfColumn -= 1
-            launch_ui.width -= 204
-            mc.intSliderGrp('nb', e=True, w=self.width)
-            mc.button('Create_Rivet', e=True, w=self.width)
-            mc.window('rvtUI', e=True, w=self.width)
+    @classmethod
+    def del_column(cls, *args):
+        if cls.nbOfColumn > 2:
+            mc.deleteUI('columnEdges{}'.format(cls.nbOfColumn))
+            cls.nbOfColumn -= 1
+            cls.width -= 204
+            mc.intSliderGrp('nb', e=True, w=cls.width)
+            mc.button('Create_Rivet', e=True, w=cls.width)
+            mc.window('rvtUI', e=True, w=cls.width)
 
     def launch_fRivet(self, *args):
         while not mc.textScrollList('edges'+str(self.nbOfColumn), q=True, ai=True) and self.nbOfColumn > 2:
@@ -73,7 +72,7 @@ class launch_ui:
         for i in range(self.nbOfColumn):
             edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
         nb = mc.intSliderGrp('nb', q=True, value=True)
-        do_fRivet(edges, nb)
+        do_fRivet(edges=edges, nb=nb)
 
 
 def do_fRivet(edges=None, nb=1, param='U', mesh=None):
@@ -131,10 +130,10 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
     grp_w = mc.group(em=True, n='rvtWorld#')
     mc.setAttr(grp_w+'.inheritsTransform', 0)
     mc.setAttr(grp_w+'.visibility', 0)
-    mc.parent(getShape(surface), grp_w, r=True, s=True)
+    mc.parent(get_shape(surface), grp_w, r=True, s=True)
     mc.delete(surface)
     for crv in crvs:
-        mc.parent(getShape(crv), grp_w, r=True, s=True)
+        mc.parent(get_shape(crv), grp_w, r=True, s=True)
         mc.delete(crv)
     for i in 'trs':
         for axe in 'xyz':
@@ -158,11 +157,11 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
 
     # adding a locactor shape
         loc = mc.spaceLocator(n='rivetloc_#')[0]
-        locshape = getShape(loc)
+        locshape = get_shape(loc)
         mc.parent(locshape, rvt, r=True, s=True)
         mc.delete(loc)
         rvt = mc.rename(rvt, 'rivet_#')
-        rvtshape = getShape(rvt)[0]
+        rvtshape = get_shape(rvt)[0]
         mc.setAttr(rvtshape+'.visibility', 0)
         mc.reorder(locshape, front=True)
         mc.parent(rvt, rvt_grp)
@@ -201,7 +200,7 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     else:
         paramlist = ['U', 'V']
 
-    surfaceshape = getShape(surface)[0]
+    surfaceshape = get_shape(surface)[0]
     if not mc.nodeType(surfaceshape) == 'nurbsSurface':
         mc.warning('No nurbs surface given')
         return
@@ -222,7 +221,7 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     return follicle
 
 
-def getShape(objs=None):
+def get_shape(objs=None):
 
     shapes = [shape for shape in mc.listRelatives(objs, s=True, pa=1) or [] if 'Orig' not in shape]
     return shapes

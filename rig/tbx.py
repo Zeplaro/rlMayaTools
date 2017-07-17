@@ -1,19 +1,42 @@
 import maya.cmds as mc
 
 
-def getSkinCluster(obj):
+def get_skinCluster(obj):
 
     sknclust = mc.ls(mc.listHistory(obj, ac=True, pdo=True), type='skinCluster')
     return sknclust[0] if sknclust else None
 
 
-def getShape(objs=None):
+def get_shape(objs=None):
 
     shapes = [shape for shape in mc.listRelatives(objs, s=True, pa=1) or [] if 'Orig' not in shape]
     return shapes
 
 
-def getAxis(obj, os=False, exact=False):
+def get_mirrorTable (master, slave, miraxis='x'):
+    """
+    Return a mirror table between two object on chosen axis
+    :param str master: object to compare to slave
+    :param str slave: object to compare to master
+    :param str miraxis: 'x'(default) chosen world axis on wich mirror is wanted
+    :return: list: return a mirror table list, e.g.:[-1, 1, 1]
+    """
+
+    m = get_axisDir(master)
+    s = get_axisDir(slave)
+    mirtable = [1, 1, 1]
+    for i in range(3):
+        if m[i][-1] == s[i][-1]:
+            if not m[i][0] == s[i][0]:
+                mirtable[i] = -1
+            if m[i][-1] == miraxis:
+                mirtable[i] *= -1
+        else:
+            mirtable[i] = 0
+    return mirtable
+
+
+def get_axis(obj, os=False, exact=False):
     """
     Find objects axis direction compared to world or parent axis
     :param str obj: object to query
@@ -53,30 +76,7 @@ def getAxis(obj, os=False, exact=False):
         return axis
 
 
-def getMirrorTable (master, slave, miraxis='x'):
-    """
-    Return a mirror table between two object on chosen axis
-    :param str master: object to compare to slave
-    :param str slave: object to compare to master
-    :param str miraxis: 'x'(default) chosen world axis on wich mirror is wanted
-    :return: list: return a mirror table list, e.g.:[-1, 1, 1]
-    """
-
-    m = getAxisDir(master)
-    s = getAxisDir(slave)
-    mirtable = [1, 1, 1]
-    for i in range(3):
-        if m[i][-1] == s[i][-1]:
-            if not m[i][0] == s[i][0]:
-                mirtable[i] = -1
-            if m[i][-1] == miraxis:
-                mirtable[i] *= -1
-        else:
-            mirtable[i] = 0
-    return mirtable
-
-
-def getAxisDir (obj):
+def get_axisDir(obj):
     """
     Return a list of axis direction compared to world
     :param str obj: object on wich to check the axis
@@ -85,7 +85,7 @@ def getAxisDir (obj):
                     for a object matching world axis it will return : [x, y, z]
     """
 
-    objdir = getAxis(obj, exact=True)[-1]
+    objdir = get_axis(obj, exact=True)[-1]
     axe = []
     for i in range(3):
         val = []
