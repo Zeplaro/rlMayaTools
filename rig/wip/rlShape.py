@@ -33,7 +33,9 @@ def parent_shape(parent=None, child=None, freeze=False):
                 mc.setAttr(grp_freeze+'.'+i+j, 0)
             mc.setAttr(grp_freeze+'.s'+j, 1)
         mc.makeIdentity(child_parent, a=True)
+
     mc.parent(child, parent, r=True, s=True)
+
     if freeze:
         if child_grd_parent:
             mc.parent(child_parent, child_grd_parent[0])

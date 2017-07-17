@@ -1,8 +1,6 @@
 import maya.cmds as mc
 from tbx import getShape
 
-# todo : contiguous edges sorter
-
 
 class launch_ui:
 
@@ -39,28 +37,28 @@ class launch_ui:
         edges = [x for x in mc.ls(sl=True, fl=True) if '.e' in x]
         mc.textScrollList(name, e=True, append=edges)
 
-    def add_column(self, *args):
-        launch_ui.nbOfColumn += 1
-        launch_ui.width += 204
-        nbr = str(self.nbOfColumn)
-        mc.columnLayout('columnEdges'+nbr, cal='center', parent='rowEdges')
+    @classmethod
+    def add_column(cls, *args):
+        cls.nbOfColumn += 1
+        cls.width += 204
+        mc.columnLayout('columnEdges{}'.format(cls.nbOfColumn), cal='center', parent='rowEdges')
         mc.text(label='Edges', align='center', w=200)
-        mc.textScrollList('edges'+nbr, w=200, h=100, allowMultiSelection=True)
-        mc.button('upSel'+nbr, label='Update from selection', w=200, command=lambda x: self.update_edges(nbr))
-        if self.nbOfColumn > 2:
-            mc.intSliderGrp('nb', e=True, w=self.width)
-            mc.button('Create_Rivet', e=True, w=self.width)
-        mc.columnLayout('columnMain', e=True, w=self.width)
+        mc.textScrollList('edges{}'.format(cls.nbOfColumn), w=200, h=100, allowMultiSelection=True)
+        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200, command=lambda x: cls.update_edges(cls.nbOfColumn))
+        if cls.nbOfColumn > 2:
+            mc.intSliderGrp('nb', e=True, w=cls.width)
+            mc.button('Create_Rivet', e=True, w=cls.width)
+        mc.columnLayout('columnMain', e=True, w=cls.width)
 
-    def del_column(self, *args):
-        nbr = str(self.nbOfColumn)
-        if self.nbOfColumn > 2:
-            mc.deleteUI('columnEdges'+nbr)
-            launch_ui.nbOfColumn -= 1
-            launch_ui.width -= 204
-            mc.intSliderGrp('nb', e=True, w=self.width)
-            mc.button('Create_Rivet', e=True, w=self.width)
-            mc.window('rvtUI', e=True, w=self.width)
+    @classmethod
+    def del_column(cls, *args):
+        if cls.nbOfColumn > 2:
+            mc.deleteUI('columnEdges{}'.format(cls.nbOfColumn))
+            cls.nbOfColumn -= 1
+            cls.width -= 204
+            mc.intSliderGrp('nb', e=True, w=cls.width)
+            mc.button('Create_Rivet', e=True, w=cls.width)
+            mc.window('rvtUI', e=True, w=cls.width)
 
     def launch_fRivet(self, *args):
         while not mc.textScrollList('edges'+str(self.nbOfColumn), q=True, ai=True) and self.nbOfColumn > 2:
@@ -69,7 +67,7 @@ class launch_ui:
         for i in range(self.nbOfColumn):
             edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
         nb = mc.intSliderGrp('nb', q=True, value=True)
-        do_fRivet(edges, nb)
+        do_fRivet(edges=edges, nb=nb)
 
 
 def do_fRivet(edges=None, nb=1, param='U', mesh=None):
