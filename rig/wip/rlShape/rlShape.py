@@ -1,6 +1,23 @@
 import maya.cmds as mc
 
 
+class launch_ui:
+
+    winID = 'rlShapeUI'
+
+    def __init__(self):
+        self.ui_layout()
+        mc.showWindow(self.winID)
+
+    def ui_layout(self):
+        if mc.window(self.winID, exists=True):
+            mc.deleteUI(self.winID)
+        mc.window(self.winID, title='rl Shape creator', s=True, rtf=True)
+
+        mc.
+
+
+
 def parent_shape(parent=None, child=None, freeze=False):
 
     sel = mc.ls(sl=True)
@@ -45,3 +62,34 @@ def parent_shape(parent=None, child=None, freeze=False):
         mc.makeIdentity(child_parent, a=True)
         mc.xform(child_parent, ro=child_parent_ro, t=child_parent_t, s=child_parent_s, ws=True)
         mc.delete(grp_freeze)
+
+"""
+todo: quad_round_arrow, cube, sphere, cylinder, locator, cross, half_circle, simple_arrow, octo_arrown, double_arrow,
+      quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,
+      pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
+      double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis
+"""
+class shapes():
+
+    @staticmethod
+    def scale(p, scale=1):
+        return [(x * scale, y * scale, z * scale) for x, y, z in p]
+
+    @staticmethod
+    def circle(scale=1):
+        crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+        return crv
+
+    def square(self, scale=1):
+        p = [(1, 0, 1), (-1, 0, 1), (-1, 0, -1), (1, 0, -1)]
+        p = self.scale(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
+
+    def quad_arrow(self, scale=1):
+        p = [(0, 0, -5), (2, 0, -3), (1, 0, -3), (1, 0, -1), (3, 0, -1), (3, 0, -2), (5, 0, 0), (3, 0, 2),
+             (3, 0, 1), (1, 0, 1), (1, 0, 3), (2, 0, 3), (0, 0, 5), (-2, 0, 3), (-1, 0, 3), (-1, 0, 1), (-3, 0, 1),
+             (-3, 0, 2), (-5, 0, 0), (-3, 0, -2), (-3, 0, -1), (-1, 0, -1), (-1, 0, -3), (-2, 0, -3), (0, 0, -5)]
+        p = self.scale(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
