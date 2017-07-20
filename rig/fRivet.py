@@ -2,7 +2,7 @@ import maya.cmds as mc
 from tbx import get_shape
 
 
-class launch_ui:
+class Launch_ui:
 
     winID = 'rvtUI'
     nbOfColumn = 0

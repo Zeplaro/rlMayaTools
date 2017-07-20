@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-class launch_ui:
+class Launch_ui:
 
     winID = 'rlShapeUI'
 
@@ -69,7 +69,7 @@ todo: quad_round_arrow, cube, sphere, cylinder, locator, cross, half_circle, sim
       pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
       double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 """
-class shapes():
+class Shapes():
 
     @staticmethod
     def scale(p, scale=1):

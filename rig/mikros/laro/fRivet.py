@@ -3,7 +3,7 @@ import maya.cmds as mc
 """
 import mayaRigTools_sk.sandBox.laro.fRivet as fr
 reload(fr)
-fr.launch_ui()
+fr.Launch_ui()
 """
 
 
