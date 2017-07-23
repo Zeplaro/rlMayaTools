@@ -1,21 +1,139 @@
 import maya.cmds as mc
+from PySide import QtGui
+from PySide import QtCore
+import maya.OpenMayaUI as mui
+import shiboken
+
+from math import sqrt, ceil
+import shapeMirror
+from tbx import get_shape
 
 
-class Launch_ui:
+def getMayaWin():
+    pointer = mui.MQtUtil.mainWindow()
+    return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
 
-    winID = 'rlShapeUI'
 
-    def __init__(self):
+class rlShape_ui(QtGui.QDialog):
+
+    def __init__(self, parent=getMayaWin()):
+        super(rlShape_ui, self).__init__(parent)
+
+        self.setWindowTitle('rlShape Creator')
+        self.setObjectName('rlShapeCreator')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
         self.ui_layout()
-        mc.showWindow(self.winID)
+        self.ui_connection()
 
     def ui_layout(self):
-        if mc.window(self.winID, exists=True):
-            mc.deleteUI(self.winID)
-        mc.window(self.winID, title='rl Shape creator', s=True, rtf=True)
+        mainLayout = QtGui.QVBoxLayout()
+        self.setLayout(mainLayout)
 
-        mc.
+        # Shapes groupBox
+        self.shapeGroupBox = QtGui.QGroupBox('Shapes')
+        self.shapeGroupBox.setAlignment(4)
+        mainLayout.addWidget(self.shapeGroupBox)
 
+        # Shapes buttons Layout
+        shapeLayout = QtGui.QGridLayout()
+        self.shapeGroupBox.setLayout(shapeLayout)
+        row = 0
+        column = 0
+        shapeDone = 0
+        while shapeDone < len(Shapes.shapesList):
+            if column < ceil(sqrt(len(Shapes.shapesList))):
+                self.shapeButton = QtGui.QPushButton(Shapes.shapesList[shapeDone])
+                self.shapeButton.setFixedSize(55, 55)
+                shapeLayout.addWidget(self.shapeButton, row, column)
+                column += 1
+                shapeDone += 1
+            else:
+                column = 0
+                row += 1
+
+        # Shape Option layout
+        self.shapeOptionLayout = QtGui.QHBoxLayout()
+        self.shapeOptionLayout.setAlignment(4)
+        mainLayout.addLayout(self.shapeOptionLayout)
+
+        self.replaceCheckBox = QtGui.QCheckBox('Replace')
+        self.replaceCheckBox.setChecked(True)
+        self.shapeOptionLayout.addWidget(self.replaceCheckBox)
+
+        self.optionSeparator = QtGui.QLabel()
+        self.optionSeparator.setMaximumWidth(1)
+        self.optionSeparator.setStyleSheet("background-color: #292929")
+        self.shapeOptionLayout.addWidget(self.optionSeparator)
+
+        self.colorLabel = QtGui.QLabel('  Color  :')
+        self.shapeOptionLayout.addWidget(self.colorLabel)
+        self.colorButton = QtGui.QPushButton()
+        self.colorButton.setStyleSheet("background-color: yellow")
+        self.colorButton.setFixedSize(50, 20)
+        self.shapeOptionLayout.addWidget(self.colorButton)
+
+        # separator line
+        self.separator = QtGui.QLabel()
+        self.separator.setMaximumHeight(1)
+        self.separator.setStyleSheet("background-color: #292929")
+        mainLayout.addWidget(self.separator)
+
+        # Parent shape button
+        self.parentButton = QtGui.QPushButton('Parent Shapes')
+        mainLayout.addWidget(self.parentButton)
+
+        # Mirror button Layout
+        self.mirrorLayout = QtGui.QHBoxLayout()
+        self.mirrorLayout.setAlignment(4)
+        mainLayout.addLayout(self.mirrorLayout)
+        self.mirrorLabel = QtGui.QLabel('Mirror :')
+        self.mirrorLayout.addWidget(self.mirrorLabel)
+        for axe in 'XYZ':
+            self.mirrorButton = QtGui.QPushButton(axe)
+            self.mirrorButton.setObjectName('mirrorButton{}'.format(axe))
+            self.mirrorButton.setFixedSize(20, 20)
+            self.mirrorLayout.addWidget(self.mirrorButton)
+        self.spaceCheckBox = QtGui.QCheckBox('Object space')
+        self.spaceCheckBox.setObjectName('objectSpace')
+        self.spaceCheckBox.setChecked(True)
+        self.mirrorLayout.addWidget(self.spaceCheckBox)
+
+        # Mirror other side
+        self.sideMirror = QtGui.QPushButton('Mirror other side')
+        mainLayout.addWidget(self.sideMirror)
+
+    def ui_connection(self):
+        self.parentButton.clicked.connect(parent_shape)
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
+        self.mirbutt.clicked.connect(self.ui_signal)
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
+        self.mirbutt.clicked.connect(self.ui_signal)
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
+        self.mirbutt.clicked.connect(self.ui_signal)
+        self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
+
+    def ui_signal(self):
+        sender = self.sender()
+
+        # Mirror Buttons
+        space = self.findChild(QtGui.QCheckBox, 'objectSpace')
+        ws = not space.isChecked()
+        if sender.objectName()[-1] == 'X':
+            solo_mirror([-1, 1, 1], 'x', ws)
+        elif sender.objectName()[-1] == 'Y':
+            solo_mirror([1, -1, 1], 'x', ws)
+        elif sender.objectName()[-1] == 'Z':
+            solo_mirror([1, 1, -1], 'x', ws)
+
+
+def solo_mirror(table, axis, ws):
+    sel = mc.ls(sl=True)
+    for each in sel:
+        for shape in get_shape(each):
+            if not mc.objectType(shape, isType='nurbsCurve'):
+                continue
+            shapeMirror.mirror(shape, shape, table, axis, ws)
 
 
 def parent_shape(parent=None, child=None, freeze=False):
@@ -71,13 +189,14 @@ todo: quad_round_arrow, cube, sphere, cylinder, locator, cross, half_circle, sim
 """
 class Shapes():
 
+    shapesList = ['circle', 'square', 'quad_arrow', 'shape0', 'shape1', 'shape2']
+
     @staticmethod
     def scale(p, scale=1):
         return [(x * scale, y * scale, z * scale) for x, y, z in p]
 
-    @staticmethod
-    def circle(scale=1):
-        crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+    def circle(self, scale=1):
+        crv = mc.circle(nr=(0, 1, 0), r=self.scale, ch=False)
         return crv
 
     def square(self, scale=1):
@@ -93,3 +212,11 @@ class Shapes():
         p = self.scale(p, scale)
         crv = mc.curve(d=1, p=p)
         return crv
+
+
+def launch_ui():
+
+    if mc.window('rlShapeCreator', exists=True):
+        mc.deleteUI('rlShapeCreator')
+    ui = rlShape_ui()
+    ui.show()

@@ -21,7 +21,7 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     else:
         mirindex = 0
 
-    cvs = mc.getAttr(mastershape + '.cp', s=True)
+    cvs = mc.getAttr(mastershape + '.cp', size=True)
     for cv in range(cvs):
         cp = '.cp['+str(cv)+']'
         if ws:  # mirror on world space
