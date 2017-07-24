@@ -16,6 +16,8 @@ def getMayaWin():
 
 class rlShape_ui(QtGui.QDialog):
 
+    choosenColor = '#ffff00'
+
     def __init__(self, parent=getMayaWin()):
         super(rlShape_ui, self).__init__(parent)
 
@@ -27,13 +29,13 @@ class rlShape_ui(QtGui.QDialog):
         self.ui_connection()
 
     def ui_layout(self):
-        mainLayout = QtGui.QVBoxLayout()
-        self.setLayout(mainLayout)
+        self.mainLayout = QtGui.QVBoxLayout()
+        self.setLayout(self.mainLayout)
 
         # Shapes groupBox
         self.shapeGroupBox = QtGui.QGroupBox('Shapes')
         self.shapeGroupBox.setAlignment(4)
-        mainLayout.addWidget(self.shapeGroupBox)
+        self.mainLayout.addWidget(self.shapeGroupBox)
 
         # Shapes buttons Layout
         shapeLayout = QtGui.QGridLayout()
@@ -55,7 +57,7 @@ class rlShape_ui(QtGui.QDialog):
         # Shape Option layout
         self.shapeOptionLayout = QtGui.QHBoxLayout()
         self.shapeOptionLayout.setAlignment(4)
-        mainLayout.addLayout(self.shapeOptionLayout)
+        self.mainLayout.addLayout(self.shapeOptionLayout)
 
         self.replaceCheckBox = QtGui.QCheckBox('Replace')
         self.replaceCheckBox.setChecked(True)
@@ -69,7 +71,7 @@ class rlShape_ui(QtGui.QDialog):
         self.colorLabel = QtGui.QLabel('  Color  :')
         self.shapeOptionLayout.addWidget(self.colorLabel)
         self.colorButton = QtGui.QPushButton()
-        self.colorButton.setStyleSheet("background-color: yellow")
+        self.colorButton.setStyleSheet('background-color: '+self.choosenColor)
         self.colorButton.setFixedSize(50, 20)
         self.shapeOptionLayout.addWidget(self.colorButton)
 
@@ -77,16 +79,16 @@ class rlShape_ui(QtGui.QDialog):
         self.separator = QtGui.QLabel()
         self.separator.setMaximumHeight(1)
         self.separator.setStyleSheet("background-color: #292929")
-        mainLayout.addWidget(self.separator)
+        self.mainLayout.addWidget(self.separator)
 
         # Parent shape button
         self.parentButton = QtGui.QPushButton('Parent Shapes')
-        mainLayout.addWidget(self.parentButton)
+        self.mainLayout.addWidget(self.parentButton)
 
         # Mirror button Layout
         self.mirrorLayout = QtGui.QHBoxLayout()
         self.mirrorLayout.setAlignment(4)
-        mainLayout.addLayout(self.mirrorLayout)
+        self.mainLayout.addLayout(self.mirrorLayout)
         self.mirrorLabel = QtGui.QLabel('Mirror :')
         self.mirrorLayout.addWidget(self.mirrorLabel)
         for axe in 'XYZ':
@@ -101,9 +103,10 @@ class rlShape_ui(QtGui.QDialog):
 
         # Mirror other side
         self.sideMirror = QtGui.QPushButton('Mirror other side')
-        mainLayout.addWidget(self.sideMirror)
+        self.mainLayout.addWidget(self.sideMirror)
 
     def ui_connection(self):
+        self.colorButton.clicked.connect(self.get_color)
         self.parentButton.clicked.connect(parent_shape)
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
         self.mirbutt.clicked.connect(self.ui_signal)
@@ -125,6 +128,16 @@ class rlShape_ui(QtGui.QDialog):
             solo_mirror([1, -1, 1], 'x', ws)
         elif sender.objectName()[-1] == 'Z':
             solo_mirror([1, 1, -1], 'x', ws)
+
+    def get_color(self):
+        self.colorItem = QtGui.QColor()
+        self.colorItem.setRgb(150,150,150,150)
+        self.colorPicker = QtGui.QColorDialog()
+        self.colorPicker.setCurrentColor(self.colorItem)
+        self.colorItem = self.colorPicker.getColor()
+        self.choosenColor = self.colorItem.name()
+        self.colorButton.setStyleSheet("background-color: "+self.colorItem.name())
+        print(self.choosenColor)
 
 
 def solo_mirror(table, axis, ws):
