@@ -131,7 +131,7 @@ class rlShape_ui(QtGui.QDialog):
 
     def get_color(self):
         self.colorItem = QtGui.QColor()
-        self.colorItem.setRgb(150,150,150,150)
+        self.colorItem.fromRgb(150, 150, 10)
         self.colorPicker = QtGui.QColorDialog()
         self.colorPicker.setCurrentColor(self.colorItem)
         self.colorItem = self.colorPicker.getColor()
@@ -202,19 +202,19 @@ todo: quad_round_arrow, cube, sphere, cylinder, locator, cross, half_circle, sim
 """
 class Shapes():
 
-    shapesList = ['circle', 'square', 'quad_arrow', 'shape0', 'shape1', 'shape2']
+    shapesList = ['circle', 'square', 'quad_arrow', 'shape0', 'shape1', 'shape2', '2', '5', '5sd', '568', '1', '2']
 
     @staticmethod
-    def scale(p, scale=1):
+    def scaleConfo(p, scale=1):
         return [(x * scale, y * scale, z * scale) for x, y, z in p]
 
     def circle(self, scale=1):
-        crv = mc.circle(nr=(0, 1, 0), r=self.scale, ch=False)
+        crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
         return crv
 
     def square(self, scale=1):
         p = [(1, 0, 1), (-1, 0, 1), (-1, 0, -1), (1, 0, -1)]
-        p = self.scale(p, scale)
+        p = self.scaleConfo(p, scale)
         crv = mc.curve(d=1, p=p)
         return crv
 
@@ -222,7 +222,7 @@ class Shapes():
         p = [(0, 0, -5), (2, 0, -3), (1, 0, -3), (1, 0, -1), (3, 0, -1), (3, 0, -2), (5, 0, 0), (3, 0, 2),
              (3, 0, 1), (1, 0, 1), (1, 0, 3), (2, 0, 3), (0, 0, 5), (-2, 0, 3), (-1, 0, 3), (-1, 0, 1), (-3, 0, 1),
              (-3, 0, 2), (-5, 0, 0), (-3, 0, -2), (-3, 0, -1), (-1, 0, -1), (-1, 0, -3), (-2, 0, -3), (0, 0, -5)]
-        p = self.scale(p, scale)
+        p = self.scaleConfo(p, scale)
         crv = mc.curve(d=1, p=p)
         return crv
 
