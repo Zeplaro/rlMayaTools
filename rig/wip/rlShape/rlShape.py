@@ -4,6 +4,7 @@ from PySide import QtCore
 import maya.OpenMayaUI as mui
 import shiboken
 
+from functools import partial
 from math import sqrt, ceil
 import shapeMirror
 from tbx import get_shape
@@ -16,7 +17,7 @@ def getMayaWin():
 
 class rlShape_ui(QtGui.QDialog):
 
-    choosenColor = '#ffff00'
+    choosenColor = [255, 255, 0]
 
     def __init__(self, parent=getMayaWin()):
         super(rlShape_ui, self).__init__(parent)
@@ -46,6 +47,7 @@ class rlShape_ui(QtGui.QDialog):
         while shapeDone < len(Shapes.shapesList):
             if column < ceil(sqrt(len(Shapes.shapesList))):
                 self.shapeButton = QtGui.QPushButton(Shapes.shapesList[shapeDone])
+                self.shapeButton.setObjectName('btn_'+Shapes.shapesList[shapeDone])
                 self.shapeButton.setFixedSize(55, 55)
                 shapeLayout.addWidget(self.shapeButton, row, column)
                 column += 1
@@ -71,7 +73,7 @@ class rlShape_ui(QtGui.QDialog):
         self.colorLabel = QtGui.QLabel('  Color  :')
         self.shapeOptionLayout.addWidget(self.colorLabel)
         self.colorButton = QtGui.QPushButton()
-        self.colorButton.setStyleSheet('background-color: '+self.choosenColor)
+        self.colorButton.setStyleSheet('background-color: rgb('+str(self.choosenColor[0])+', '+str(self.choosenColor[1])+', '+str(self.choosenColor[2])+')')
         self.colorButton.setFixedSize(50, 20)
         self.shapeOptionLayout.addWidget(self.colorButton)
 
@@ -109,32 +111,23 @@ class rlShape_ui(QtGui.QDialog):
         self.colorButton.clicked.connect(self.get_color)
         self.parentButton.clicked.connect(parent_shape)
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
-        self.mirbutt.clicked.connect(self.ui_signal)
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, [-1, 1, 1], 'x'))
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
-        self.mirbutt.clicked.connect(self.ui_signal)
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, [1, -1, 1], 'y'))
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
-        self.mirbutt.clicked.connect(self.ui_signal)
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, [1, 1, -1], 'z'))
         self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
 
-    def ui_signal(self):
-        sender = self.sender()
-
-        # Mirror Buttons
+    def mirror_signal(self, table, axis):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        if sender.objectName()[-1] == 'X':
-            solo_mirror([-1, 1, 1], 'x', ws)
-        elif sender.objectName()[-1] == 'Y':
-            solo_mirror([1, -1, 1], 'x', ws)
-        elif sender.objectName()[-1] == 'Z':
-            solo_mirror([1, 1, -1], 'x', ws)
+        solo_mirror(table, axis, ws)
 
     def get_color(self):
         self.colorItem = QtGui.QColor()
-        self.colorItem.fromRgb(150, 150, 10)
+        self.colorItem.setRgb(*self.choosenColor)
         self.colorPicker = QtGui.QColorDialog()
-        self.colorPicker.setCurrentColor(self.colorItem)
-        self.colorItem = self.colorPicker.getColor()
+        self.colorItem = self.colorPicker.getColor(self.colorItem)
         self.choosenColor = self.colorItem.name()
         self.colorButton.setStyleSheet("background-color: "+self.colorItem.name())
         print(self.choosenColor)
