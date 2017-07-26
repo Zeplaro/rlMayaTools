@@ -119,6 +119,13 @@ class rlShape_ui(QtGui.QDialog):
         self.parentCopyLayout.addWidget(self.copyButton)
 
     def ui_connection(self):
+'''
+        # Shapes
+        for buttonIndex in range(len(Shapes.shapesList)):
+            print buttonIndex
+            self.shapeButton = self.findChild(QtGui.QPushButton, '')
+'''
+        # Shape option
         self.colorButton.clicked.connect(self.get_color)
         self.applyColorButton.clicked.connect(apply_color)
 
@@ -221,7 +228,7 @@ todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arr
 """
 class Shapes():
 
-    shapesList = ['circle', 'square', 'quad_arrow', 'cross', 'shape1', 'shape2', '2', '5', '5sd', '568', '1', '2']
+    shapesList = ['circle', 'square', 'quad_arrow', 'cross']
 
     @staticmethod
     def scaleConfo(p, scale=1):
