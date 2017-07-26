@@ -1,5 +1,6 @@
 import maya.cmds as mc
 from tbx import get_shape
+from functools import partial
 
 
 class Launch_ui:
@@ -27,7 +28,8 @@ class Launch_ui:
         self.add_column()
         mc.setParent('..')
         mc.setParent('..')
-        mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1, max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=self.width)
+        mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1,
+                        max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=self.width)
         mc.button('Create Rivet', command=self.launch_fRivet, w=self.width)
 
     @staticmethod
@@ -44,7 +46,8 @@ class Launch_ui:
         mc.columnLayout('columnEdges{}'.format(cls.nbOfColumn), cal='center', parent='rowEdges')
         mc.text(label='Edges', align='center', w=200)
         mc.textScrollList('edges{}'.format(cls.nbOfColumn), w=200, h=100, allowMultiSelection=True)
-        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200, command=lambda x: cls.update_edges(cls.nbOfColumn))
+        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200,
+                  command=partial(cls.update_edges, cls.nbOfColumn))
         if cls.nbOfColumn > 2:
             mc.intSliderGrp('nb', e=True, w=cls.width)
             mc.button('Create_Rivet', e=True, w=cls.width)
@@ -214,32 +217,3 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
 
     return follicle
-
-"""
-# WIP
-def edgesSort(edges):
-
-    sort = []
-    poly = edges[0].split('.')[0]
-    edgesNum = [int(a.split('[')[-1].split(']')[0]) for a in edges]
-    print(edgesNum)in
-
-    for i, edge in enumerate(edgesNum):
-        if i+1 == len(edgesNum):
-            break
-        if mc.polySelect(poly, elp=(edge, edgesNum[i+1])):
-            print('loop')
-        else:
-            print('not loop')
-    mc.select(edges, r=True)
-
-
-# TO TEST
-
-edges = {edge: [edgesInLoop], ...}
-liste = []
-for each in edges:
-    for j in edges:
-        if each in j:
-            liste[jIndexInedges].append(each)
-"""

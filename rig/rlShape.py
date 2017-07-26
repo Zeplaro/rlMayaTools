@@ -7,6 +7,7 @@ import shiboken
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
+from tbx import get_shape
 
 
 def getMayaWin():
@@ -16,7 +17,7 @@ def getMayaWin():
 
 class rlShape_ui(QtGui.QDialog):
 
-    choosenColor = [255, 255, 0, 1]
+    choosenColor = (255, 255, 0)
 
     def __init__(self, parent=getMayaWin()):
         super(rlShape_ui, self).__init__(parent)
@@ -72,10 +73,7 @@ class rlShape_ui(QtGui.QDialog):
         self.colorLabel = QtGui.QLabel(' Color  :')
         self.shapeOptionLayout.addWidget(self.colorLabel)
         self.colorButton = QtGui.QPushButton()
-        self.colorButton.setStyleSheet('background-color: rgb('
-                                       + str(self.choosenColor[0]) + ', '
-                                       + str(self.choosenColor[1]) + ', '
-                                       + str(self.choosenColor[2]) + ')')
+        self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
         self.colorButton.setFixedSize(50, 20)
         self.shapeOptionLayout.addWidget(self.colorButton)
         # Apply Color button
@@ -83,6 +81,7 @@ class rlShape_ui(QtGui.QDialog):
         self.shapeOptionLayout.addWidget(self.applyColorButton)
 
         # Separator line
+        # to do : replace with QFrame(QHLine)
         self.separator = QtGui.QLabel()
         self.separator.setMaximumHeight(1)
         self.separator.setStyleSheet("background-color: #292929")
@@ -121,7 +120,7 @@ class rlShape_ui(QtGui.QDialog):
 
     def ui_connection(self):
         self.colorButton.clicked.connect(self.get_color)
-        self.applyColorButton.clicked.connect(self.apply_color)
+        self.applyColorButton.clicked.connect(apply_color)
 
         # Mirror buttons
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
@@ -135,14 +134,6 @@ class rlShape_ui(QtGui.QDialog):
         self.parentButton.clicked.connect(parent_shape)
         self.copyButton.clicked.connect(partial(shapeMirror.do_shapeMirror, copy=True))
 
-    def apply_color(self):
-        # TODO, try with : mc.curveRGBColor or the .overrideColorRGB attr
-        print('TO DO')
-        for i in sel:
-            mc.setAttr(i+'.overrideEnabled', True)
-            # todo : find how to set rgb color not index
-            mc.setAttr(i+'.overrideColorRGB', 0.5, 0.6, 0.1)
-
     def mirror_signal(self, axis):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
@@ -154,11 +145,27 @@ class rlShape_ui(QtGui.QDialog):
         self.colorPicker = QtGui.QColorDialog()
         self.colorItem = self.colorPicker.getColor(self.colorItem)
         if self.colorItem.isValid():
-            self.choosenColor = self.colorItem.getRgb()
-            self.colorButton.setStyleSheet('background-color: rgb('
-                                           + str(self.choosenColor[0]) + ', '
-                                           + str(self.choosenColor[1]) + ', '
-                                           + str(self.choosenColor[2]) + ')')
+            rlShape_ui.choosenColor = self.colorItem.getRgb()
+            self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
+
+
+def apply_color():
+    def do(shape, color):
+        mc.setAttr(shape + '.overrideEnabled', True)
+        mc.setAttr(shape + '.overrideRGBColors', True)
+        mc.setAttr(shape + '.overrideColorRGB', *color)
+
+    color = rlShape_ui.choosenColor
+    crvs = mc.ls(sl=True)
+    color = [x/255.0 for x in color]
+    for crv in crvs:
+        if mc.nodeType(crv) == 'nurbsCurve':
+            do(crv, color)
+        else:
+            shapes = get_shape(crv)
+            for shape in shapes:
+                if mc.nodeType(shape) == 'nurbsCurve':
+                    do(shape, color[:3])
 
 
 def parent_shape(parent=None, child=None, freeze=False):
@@ -207,37 +214,46 @@ def parent_shape(parent=None, child=None, freeze=False):
         mc.delete(grp_freeze)
 
 """
-todo: quad_round_arrow, cube, sphere, cylinder, locator, cross, half_circle, simple_arrow, octo_arrown, double_arrow,
+todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arrow, octo_arrown, double_arrow,
       quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,
       pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
       double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 """
 class Shapes():
 
-    shapesList = ['circle', 'square', 'quad_arrow', 'shape0', 'shape1', 'shape2', '2', '5', '5sd', '568', '1', '2']
+    shapesList = ['circle', 'square', 'quad_arrow', 'cross', 'shape1', 'shape2', '2', '5', '5sd', '568', '1', '2']
 
     @staticmethod
     def scaleConfo(p, scale=1):
+        scale = float(scale)
         return [(x * scale, y * scale, z * scale) for x, y, z in p]
 
     def circle(self, scale=1):
-        crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+        crv = mc.circle(nr=(0, 1, 0), r=scale/2.0, ch=False)
         return crv
 
     def square(self, scale=1):
-        p = [(1, 0, 1), (-1, 0, 1), (-1, 0, -1), (1, 0, -1)]
+        p = [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
         p = self.scaleConfo(p, scale)
         crv = mc.curve(d=1, p=p)
         return crv
 
     def quad_arrow(self, scale=1):
-        p = [(0, 0, -5), (2, 0, -3), (1, 0, -3), (1, 0, -1), (3, 0, -1), (3, 0, -2), (5, 0, 0), (3, 0, 2),
-             (3, 0, 1), (1, 0, 1), (1, 0, 3), (2, 0, 3), (0, 0, 5), (-2, 0, 3), (-1, 0, 3), (-1, 0, 1), (-3, 0, 1),
-             (-3, 0, 2), (-5, 0, 0), (-3, 0, -2), (-3, 0, -1), (-1, 0, -1), (-1, 0, -3), (-2, 0, -3), (0, 0, -5)]
+        p = [(0, 0, -2.5), (1, 0, -1.5), (0.5, 0, -1.5), (0.5, 0, -0.5), (1.5, 0, -0.5), (1.5, 0, -1), (2.5, 0, 0),
+             (1.5, 0, 1), (1.5, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, 1.5), (1, 0, 1.5), (0, 0, 2.5), (-1, 0, 1.5),
+             (-0.5, 0, 1.5), (-0.5, 0, 0.5), (-1.5, 0, 0.5), (-1.5, 0, 1), (-2.5, 0, 0), (-1.5, 0, -1), (-1.5, 0, -0.5),
+             (-0.5, 0, -0.5), (-0.5, 0, -1.5), (-1, 0, -1.5), (0, 0, -2.5)]
         p = self.scaleConfo(p, scale)
         crv = mc.curve(d=1, p=p)
         return crv
 
+    def cross(self, scale=1):
+        p = [(0.25, 0, -0.25), (0.5, 0, -0.25), (0.5, 0, 0.25), (0.25, 0, 0.25), (0.25, 0, 0.5), (-0.25, 0, 0.5),
+             (-0.25, 0, 0.25), (-0.5, 0, 0.25), (-0.5, 0, -0.25), (-0.25, 0, -0.25), (-0.25, 0, -0.5), (0.25, 0, -0.5),
+             (0.25, 0, -0.25)]
+        p = self.scaleConfo(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
 
 def launch_ui():
 

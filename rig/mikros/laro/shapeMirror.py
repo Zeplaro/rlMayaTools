@@ -24,19 +24,19 @@ def mirror(shape, slaveshape, table, miraxis='x', ws=False):
     else:
         mirindex = 0
 
-    cvs = mc.getAttr(shape+'.cp', s=1)
+    cvs = mc.getAttr(shape+'.cp', size=True)
     for cv in range(cvs):
         cp = '.cp['+str(cv)+']'
         if ws:  # mirror on world space
-            pos = mc.xform(shape+cp, q=1, ws=1, t=1)
+            pos = mc.xform(shape+cp, q=True, ws=True, t=True)
             pos[mirindex] *= -1  # mirroring on chosen axis
-            mc.xform(slaveshape+cp, ws=1, t=pos)
+            mc.xform(slaveshape+cp, ws=True, t=pos)
 
         else:  # mirror on object space
-            pos = mc.xform(shape+cp, q=1, os=1, t=1)
+            pos = mc.xform(shape+cp, q=True, os=True, t=True)
             for k in range(3):
                 pos[k] = pos[k] * table[k]
-            mc.xform(slaveshape+cp, os=1, t=pos)
+            mc.xform(slaveshape+cp, os=True, t=pos)
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False):
@@ -78,8 +78,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
 
             # Checking if the selection is valid
             if mc.objectType(ctrl, isType='transform') or mc.objectType(ctrl, isType='joint'):
-                master = mc.listRelatives(master, c=1, s=1, pa=1, type='nurbsCurve') or []
-                slave = mc.listRelatives(slave, c=1, s=1, pa=1, type='nurbsCurve') or []
+                master = mc.listRelatives(master, c=True, s=True, pa=True, type='nurbsCurve') or []
+                slave = mc.listRelatives(slave, c=True, s=True, pa=True, type='nurbsCurve') or []
             elif mc.objectType(ctrl, isType='nurbsCurve'):
                 master = [master]
                 slave = [slave]
@@ -105,8 +105,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
                 while len(slaveshape) > len(mastershape):
                     mastershape.append(mastershape[0])
             else:  # if transforms are selected
-                mastershape = mc.listRelatives(master, c=1, s=1, pa=1, type='nurbsCurve') or []
-                slaveshape = mc.listRelatives(slave, c=1, s=1, pa=1, type='nurbsCurve') or []
+                mastershape = mc.listRelatives(master, c=True, s=True, pa=True, type='nurbsCurve') or []
+                slaveshape = mc.listRelatives(slave, c=True, s=True, pa=True, type='nurbsCurve') or []
                 while len(slaveshape) > len(mastershape):
                     slaveshape.pop(-1)
                 while len(slaveshape) < len(mastershape):
@@ -114,5 +114,5 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
             for i in range(len(mastershape)):
                 mirror(mastershape[i], slaveshape[i], [1, 1, 1])
 
-    mc.select(ctrls, r=1)
+    mc.select(ctrls, r=True)
     print('__DONE__')

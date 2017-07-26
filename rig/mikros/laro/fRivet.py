@@ -1,4 +1,5 @@
 import maya.cmds as mc
+from functools import partial
 
 """
 import mayaRigTools_sk.sandBox.laro.fRivet as fr
@@ -7,7 +8,7 @@ fr.Launch_ui()
 """
 
 
-class launch_ui:
+class Launch_ui:
 
     winID = 'rvtUI'
     nbOfColumn = 0
@@ -32,7 +33,8 @@ class launch_ui:
         self.add_column()
         mc.setParent('..')
         mc.setParent('..')
-        mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1, max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=self.width)
+        mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1,
+                        max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=self.width)
         mc.button('Create Rivet', command=self.launch_fRivet, w=self.width)
 
     @staticmethod
@@ -49,7 +51,8 @@ class launch_ui:
         mc.columnLayout('columnEdges{}'.format(cls.nbOfColumn), cal='center', parent='rowEdges')
         mc.text(label='Edges', align='center', w=200)
         mc.textScrollList('edges{}'.format(cls.nbOfColumn), w=200, h=100, allowMultiSelection=True)
-        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200, command=lambda x: cls.update_edges(cls.nbOfColumn))
+        mc.button('upSel{}'.format(cls.nbOfColumn), label='Update from selection', w=200,
+                  command=partial(cls.update_edges, cls.nbOfColumn))
         if cls.nbOfColumn > 2:
             mc.intSliderGrp('nb', e=True, w=cls.width)
             mc.button('Create_Rivet', e=True, w=cls.width)
