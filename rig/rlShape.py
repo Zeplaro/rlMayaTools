@@ -7,7 +7,6 @@ import shiboken
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
-from tbx import get_shape
 
 
 def getMayaWin():
@@ -17,7 +16,7 @@ def getMayaWin():
 
 class rlShape_ui(QtGui.QDialog):
 
-    choosenColor = [255, 255, 0]
+    choosenColor = [255, 255, 0, 1]
 
     def __init__(self, parent=getMayaWin()):
         super(rlShape_ui, self).__init__(parent)
@@ -56,36 +55,38 @@ class rlShape_ui(QtGui.QDialog):
                 column = 0
                 row += 1
 
-        # Shape Option layout
+        # Shape Options
         self.shapeOptionLayout = QtGui.QHBoxLayout()
         self.shapeOptionLayout.setAlignment(4)
         self.mainLayout.addLayout(self.shapeOptionLayout)
-
+        # Replace checkbox
         self.replaceCheckBox = QtGui.QCheckBox('Replace')
         self.replaceCheckBox.setChecked(True)
         self.shapeOptionLayout.addWidget(self.replaceCheckBox)
-
+        # Separator
         self.optionSeparator = QtGui.QLabel()
         self.optionSeparator.setMaximumWidth(1)
         self.optionSeparator.setStyleSheet("background-color: #292929")
         self.shapeOptionLayout.addWidget(self.optionSeparator)
-
-        self.colorLabel = QtGui.QLabel('  Color  :')
+        # Color Picker
+        self.colorLabel = QtGui.QLabel(' Color  :')
         self.shapeOptionLayout.addWidget(self.colorLabel)
         self.colorButton = QtGui.QPushButton()
-        self.colorButton.setStyleSheet('background-color: rgb('+str(self.choosenColor[0])+', '+str(self.choosenColor[1])+', '+str(self.choosenColor[2])+')')
+        self.colorButton.setStyleSheet('background-color: rgb('
+                                       + str(self.choosenColor[0]) + ', '
+                                       + str(self.choosenColor[1]) + ', '
+                                       + str(self.choosenColor[2]) + ')')
         self.colorButton.setFixedSize(50, 20)
         self.shapeOptionLayout.addWidget(self.colorButton)
+        # Apply Color button
+        self.applyColorButton = QtGui.QPushButton('Apply Color')
+        self.shapeOptionLayout.addWidget(self.applyColorButton)
 
-        # separator line
+        # Separator line
         self.separator = QtGui.QLabel()
         self.separator.setMaximumHeight(1)
         self.separator.setStyleSheet("background-color: #292929")
         self.mainLayout.addWidget(self.separator)
-
-        # Parent shape button
-        self.parentButton = QtGui.QPushButton('Parent Shapes')
-        self.mainLayout.addWidget(self.parentButton)
 
         # Mirror button Layout
         self.mirrorLayout = QtGui.QHBoxLayout()
@@ -107,39 +108,57 @@ class rlShape_ui(QtGui.QDialog):
         self.sideMirror = QtGui.QPushButton('Mirror other side')
         self.mainLayout.addWidget(self.sideMirror)
 
+        # Parent and copy layout
+        self.parentCopyLayout = QtGui.QHBoxLayout()
+        self.mainLayout.addLayout(self.parentCopyLayout)
+        # Parent shape button
+        self.parentButton = QtGui.QPushButton('Parent Shapes')
+        self.parentCopyLayout.addWidget(self.parentButton)
+
+        # Copy shape button
+        self.copyButton = QtGui.QPushButton('Copy Shapes')
+        self.parentCopyLayout.addWidget(self.copyButton)
+
     def ui_connection(self):
         self.colorButton.clicked.connect(self.get_color)
-        self.parentButton.clicked.connect(parent_shape)
-        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
-        self.mirbutt.clicked.connect(partial(self.mirror_signal, [-1, 1, 1], 'x'))
-        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
-        self.mirbutt.clicked.connect(partial(self.mirror_signal, [1, -1, 1], 'y'))
-        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
-        self.mirbutt.clicked.connect(partial(self.mirror_signal, [1, 1, -1], 'z'))
-        self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
+        self.applyColorButton.clicked.connect(self.apply_color)
 
-    def mirror_signal(self, table, axis):
+        # Mirror buttons
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, 'x'))
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, 'y'))
+        self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
+        self.mirbutt.clicked.connect(partial(self.mirror_signal, 'z'))
+
+        self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
+        self.parentButton.clicked.connect(parent_shape)
+        self.copyButton.clicked.connect(partial(shapeMirror.do_shapeMirror, copy=True))
+
+    def apply_color(self):
+        # TODO, try with : mc.curveRGBColor or the .overrideColorRGB attr
+        print('TO DO')
+        for i in sel:
+            mc.setAttr(i+'.overrideEnabled', True)
+            # todo : find how to set rgb color not index
+            mc.setAttr(i+'.overrideColorRGB', 0.5, 0.6, 0.1)
+
+    def mirror_signal(self, axis):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        solo_mirror(table, axis, ws)
+        shapeMirror.do_shapeMirror(miraxis=axis, ws=ws, solo=True)
 
     def get_color(self):
         self.colorItem = QtGui.QColor()
         self.colorItem.setRgb(*self.choosenColor)
         self.colorPicker = QtGui.QColorDialog()
         self.colorItem = self.colorPicker.getColor(self.colorItem)
-        self.choosenColor = self.colorItem.name()
-        self.colorButton.setStyleSheet("background-color: "+self.colorItem.name())
-        print(self.choosenColor)
-
-
-def solo_mirror(table, axis, ws):
-    sel = mc.ls(sl=True)
-    for each in sel:
-        for shape in get_shape(each):
-            if not mc.objectType(shape, isType='nurbsCurve'):
-                continue
-            shapeMirror.mirror(shape, shape, table, axis, ws)
+        if self.colorItem.isValid():
+            self.choosenColor = self.colorItem.getRgb()
+            self.colorButton.setStyleSheet('background-color: rgb('
+                                           + str(self.choosenColor[0]) + ', '
+                                           + str(self.choosenColor[1]) + ', '
+                                           + str(self.choosenColor[2]) + ')')
 
 
 def parent_shape(parent=None, child=None, freeze=False):

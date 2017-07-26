@@ -36,17 +36,54 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
             mc.xform(slaveshape+cp, os=True, t=pos)
 
 
-def do_shapeMirror(miraxis='x', ws=False, copy=False):
+def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
     """
-    Mirror objects shape on defined axis in world or object space
+    Mirror curves on defined axis in world or object space
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
     :param bool ws: False(default) mirror on object space, True mirror on world space
     :param bool copy: True perform a simple copy of the shape without any mirroring
+    :param bool solo: True perform a miror of each shape to itself
     """
 
     ctrls = mc.ls(sl=True, fl=True)
+    if not ctrls:
+        mc.warning('No curve selected')
+        return
 
-    if not copy:
+    if solo:
+
+        if miraxis == 'z':
+            table = [1, 1, -1]
+        elif miraxis == 'y':
+            table = [1, -1, 1]
+        else:
+            table = [-1, 1, 1]
+
+        for each in ctrls:
+            if mc.objectType(each, isType='nurbsCurve'):
+                mirror(each, each, table, miraxis, ws)
+            for shape in get_shape(each):
+                if not mc.objectType(shape, isType='nurbsCurve'):
+                    continue
+                mirror(shape, shape, table, miraxis, ws)
+
+
+    elif copy:
+        master = ctrls[0]
+        slaves = ctrls[1:]
+        for slave in slaves:
+            if mc.nodeType(master) == 'nurbsCurve':  # if shapes are selected
+                mastershape = [master]
+                slaveshape = slaves
+            else:  # if transforms are selected
+                mastershape = get_shape(master)
+                slaveshape = get_shape(slave)
+            while len(slaveshape) < len(mastershape):
+                mastershape.pop(-1)
+            for i in range(len(mastershape)):
+                mirror(mastershape[i], slaveshape[i], [1, 1, 1])
+
+    else:
         for ctrl in ctrls:
             # checking for namespaces
             nspace = ctrl.split(':')
@@ -85,31 +122,14 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False):
 
             # checking nbr of shapes in master and slave
             while len(master) > len(slave):
-                slave.pop(-1)
+                master.pop(-1)
 
             i = 0
+            if not master or not slave:
+                continue
             for shape in master:
                 mirror(shape, slave[i], table, miraxis, ws)
                 i += 1
-
-    else:
-        master = ctrls[0]
-        slaves = ctrls[1:]
-        for slave in slaves:
-            if mc.nodeType(master) == 'nurbsCurve':  # if shapes are selected
-                mastershape = [master]
-                slaveshape = slaves
-                while len(slaveshape) > len(mastershape):
-                    mastershape.append(mastershape[0])
-            else:  # if transforms are selected
-                mastershape = get_shape(master)
-                slaveshape = get_shape(slave)
-                while len(slaveshape) > len(mastershape):
-                    slaveshape.pop(-1)
-                while len(slaveshape) < len(mastershape):
-                    mastershape.pop(-1)
-            for i in range(len(mastershape)):
-                mirror(mastershape[i], slaveshape[i], [1, 1, 1])
+            print(ctrl+' mirrored')
 
     mc.select(ctrls, r=True)
-    print('__DONE__')
