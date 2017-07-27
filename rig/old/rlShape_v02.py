@@ -19,12 +19,6 @@ class rlShape_ui(QtGui.QDialog):
 
     choosenColor = (255, 255, 0)
 
-    shapesList = ['circle', 'square', 'quad_arrow', 'cross']
-    shapesDict = {'square': [(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (-1.0, 0.0, -1.0), (1.0, 0.0, -1.0), (1.0, 0.0, 1.0)],
-                  'quad_arrow': [(0.0, 0.0, -1.0), (0.4, 0.0, -0.6), (0.2, 0.0, -0.6), (0.2, 0.0, -0.2), (0.6, 0.0, -0.2), (0.6, 0.0, -0.4), (1.0, 0.0, 0.0), (0.6, 0.0, 0.4), (0.6, 0.0, 0.2), (0.2, 0.0, 0.2), (0.2, 0.0, 0.6), (0.4, 0.0, 0.6), (0.0, 0.0, 1.0), (-0.4, 0.0, 0.6), (-0.2, 0.0, 0.6), (-0.2, 0.0, 0.2), (-0.6, 0.0, 0.2), (-0.6, 0.0, 0.4), (-1.0, 0.0, 0.0), (-0.6, 0.0, -0.4), (-0.6, 0.0, -0.2), (-0.2, 0.0, -0.2), (-0.2, 0.0, -0.6), (-0.4, 0.0, -0.6), (0.0, 0.0, -1.0)],
-                  'cross': [(0.5, 0.0, -0.5), (1.0, 0.0, -0.5), (1.0, 0.0, 0.5), (0.5, 0.0, 0.5), (0.5, 0.0, 1.0), (-0.5, 0.0, 1.0), (-0.5, 0.0, 0.5), (-1.0, 0.0, 0.5), (-1.0, 0.0, -0.5), (-0.5, 0.0, -0.5), (-0.5, 0.0, -1.0), (0.5, 0.0, -1.0), (0.5, 0.0, -0.5)]}
-
-
     def __init__(self, parent=getMayaWin()):
         super(rlShape_ui, self).__init__(parent)
 
@@ -77,7 +71,7 @@ class rlShape_ui(QtGui.QDialog):
         # Scale Slider
         self.scaleSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.scaleSlider.setValue(1)
-        self.scaleSlider.setMaximum(11)
+        self.scaleSlider.setMaximum(101)
         self.scaleLayout.addWidget(self.scaleSlider)
         # Shape Options
         self.shapeOptionLayout = QtGui.QHBoxLayout()
@@ -143,10 +137,10 @@ class rlShape_ui(QtGui.QDialog):
 
     def ui_connection(self):
         # Shapes
-        for buttonIndex in range(len(self.shapesList)):
-            shape = self.shapesList[buttonIndex]
+        for buttonIndex in range(len(Shapes.shapesList)):
+            shape = Shapes.shapesList[buttonIndex]
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
-            self.shapeButton.clicked.connect(partial(self.do_shape, shape))
+            self.shapeButton.clicked.connect(partial(Shapes.do_shape, shape))
 
         # Scale Slider
         self.scaleSlider.sliderMoved.connect(self.scaleSlider_update)
@@ -190,20 +184,6 @@ class rlShape_ui(QtGui.QDialog):
         value = self.scaleValue.text()
         self.scaleSlider.setValue(float(value))
 
-    def do_shape(self, shape):
-        scale = float(self.scaleValue.text())
-        if shape == 'circle':
-            crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
-            return crv
-        p = self.shapesDict[shape]
-        p = self.scaleConfo(p, scale)
-        crv = mc.curve(d=1, p=p)
-        return crv
-
-    @staticmethod
-    def scaleConfo(p, scale=1.0):
-        scale = float(scale)
-        return [(x * scale, y * scale, z * scale) for x, y, z in p]
 
 def apply_color():
     def do(shape, color):
@@ -275,6 +255,56 @@ todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arr
       pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
       double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 """
+class Shapes:
+
+    shapesList = ['circle', 'square', 'quad_arrow', 'cross']
+    shapesDict = {'square': [(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (-1.0, 0.0, -1.0), (1.0, 0.0, -1.0), (1.0, 0.0, 1.0)],
+                  'quad_arrow': [(0.0, 0.0, -1.0), (0.4, 0.0, -0.6), (0.2, 0.0, -0.6), (0.2, 0.0, -0.2), (0.6, 0.0, -0.2), (0.6, 0.0, -0.4), (1.0, 0.0, 0.0), (0.6, 0.0, 0.4), (0.6, 0.0, 0.2), (0.2, 0.0, 0.2), (0.2, 0.0, 0.6), (0.4, 0.0, 0.6), (0.0, 0.0, 1.0), (-0.4, 0.0, 0.6), (-0.2, 0.0, 0.6), (-0.2, 0.0, 0.2), (-0.6, 0.0, 0.2), (-0.6, 0.0, 0.4), (-1.0, 0.0, 0.0), (-0.6, 0.0, -0.4), (-0.6, 0.0, -0.2), (-0.2, 0.0, -0.2), (-0.2, 0.0, -0.6), (-0.4, 0.0, -0.6), (0.0, 0.0, -1.0)],
+                  'cross': [(0.5, 0.0, -0.5), (1.0, 0.0, -0.5), (1.0, 0.0, 0.5), (0.5, 0.0, 0.5), (0.5, 0.0, 1.0), (-0.5, 0.0, 1.0), (-0.5, 0.0, 0.5), (-1.0, 0.0, 0.5), (-1.0, 0.0, -0.5), (-0.5, 0.0, -0.5), (-0.5, 0.0, -1.0), (0.5, 0.0, -1.0), (0.5, 0.0, -0.5)]}
+
+    @classmethod
+    def do_shape(cls, shape, scale=1):
+        if shape == 'circle':
+            crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+            return crv
+        p = cls.shapesDict[shape]
+        p = cls.scaleConfo(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
+
+
+    @staticmethod
+    def scaleConfo(p, scale=1):
+        scale = float(scale)
+        return [(x * scale, y * scale, z * scale) for x, y, z in p]
+
+    @staticmethod
+    def circle(scale=1):
+        crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+        return crv
+
+    def square(self, scale=1):
+        p = [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5)]
+        p = self.scaleConfo(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
+
+    def quad_arrow(self, scale=1):
+        p = [(0, 0, -2.5), (1, 0, -1.5), (0.5, 0, -1.5), (0.5, 0, -0.5), (1.5, 0, -0.5), (1.5, 0, -1), (2.5, 0, 0),
+             (1.5, 0, 1), (1.5, 0, 0.5), (0.5, 0, 0.5), (0.5, 0, 1.5), (1, 0, 1.5), (0, 0, 2.5), (-1, 0, 1.5),
+             (-0.5, 0, 1.5), (-0.5, 0, 0.5), (-1.5, 0, 0.5), (-1.5, 0, 1), (-2.5, 0, 0), (-1.5, 0, -1), (-1.5, 0, -0.5),
+             (-0.5, 0, -0.5), (-0.5, 0, -1.5), (-1, 0, -1.5), (0, 0, -2.5)]
+        p = self.scaleConfo(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
+
+    def cross(self, scale=1):
+        p = [(0.25, 0, -0.25), (0.5, 0, -0.25), (0.5, 0, 0.25), (0.25, 0, 0.25), (0.25, 0, 0.5), (-0.25, 0, 0.5),
+             (-0.25, 0, 0.25), (-0.5, 0, 0.25), (-0.5, 0, -0.25), (-0.25, 0, -0.25), (-0.25, 0, -0.5), (0.25, 0, -0.5),
+             (0.25, 0, -0.25)]
+        p = self.scaleConfo(p, scale)
+        crv = mc.curve(d=1, p=p)
+        return crv
 
 def launch_ui():
 
