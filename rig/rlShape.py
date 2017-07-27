@@ -10,12 +10,28 @@ import shapeMirror
 from tbx import get_shape
 
 
+"""
+todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arrow, octo_arrown, double_arrow,
+      quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,
+      pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
+      double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+"""
+
+
+def launch_ui():
+
+    if mc.window('rlShapeCreator', exists=True):
+        mc.deleteUI('rlShapeCreator')
+    ui = RlShape_ui()
+    ui.show()
+
+
 def getMayaWin():
     pointer = mui.MQtUtil.mainWindow()
     return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
 
 
-class rlShape_ui(QtGui.QDialog):
+class RlShape_ui(QtGui.QDialog):
 
     choosenColor = (255, 255, 0)
 
@@ -26,7 +42,7 @@ class rlShape_ui(QtGui.QDialog):
 
 
     def __init__(self, parent=getMayaWin()):
-        super(rlShape_ui, self).__init__(parent)
+        super(RlShape_ui, self).__init__(parent)
 
         self.setWindowTitle('rlShape Creator')
         self.setObjectName('rlShapeCreator')
@@ -50,10 +66,10 @@ class rlShape_ui(QtGui.QDialog):
         row = 0
         column = 0
         shapeDone = 0
-        while shapeDone < len(Shapes.shapesList):
-            if column < ceil(sqrt(len(Shapes.shapesList))):
-                self.shapeButton = QtGui.QPushButton(Shapes.shapesList[shapeDone])
-                self.shapeButton.setObjectName('btn_'+Shapes.shapesList[shapeDone])
+        while shapeDone < len(self.shapesList):
+            if column < ceil(sqrt(len(self.shapesList))):
+                self.shapeButton = QtGui.QPushButton(self.shapesList[shapeDone])
+                self.shapeButton.setObjectName('btn_'+self.shapesList[shapeDone])
                 self.shapeButton.setFixedSize(55, 55)
                 shapeLayout.addWidget(self.shapeButton, row, column)
                 column += 1
@@ -62,23 +78,24 @@ class rlShape_ui(QtGui.QDialog):
                 column = 0
                 row += 1
 
-        # Scale Layout
-        self.scaleLayout = QtGui.QHBoxLayout()
-        self.mainLayout.addLayout(self.scaleLayout)
-        # scale Label
-        self.scaleLabel = QtGui.QLabel(' Scale ')
-        self.scaleLayout.addWidget(self.scaleLabel)
-        # Scale Value
-        self.scaleValue = QtGui.QLineEdit('1')
-        self.scaleValue.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
-        self.scaleValue.setMaximumWidth(50)
-        self.scaleValue.setAlignment(QtCore.Qt.AlignCenter)
-        self.scaleLayout.addWidget(self.scaleValue)
-        # Scale Slider
-        self.scaleSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.scaleSlider.setValue(1)
-        self.scaleSlider.setMaximum(11)
-        self.scaleLayout.addWidget(self.scaleSlider)
+        # Size Layout
+        self.sizeLayout = QtGui.QHBoxLayout()
+        self.mainLayout.addLayout(self.sizeLayout)
+        # Size Label
+        self.sizeLabel = QtGui.QLabel(' Size ')
+        self.sizeLayout.addWidget(self.sizeLabel)
+        # Size Value
+        self.sizeLineEdit = QtGui.QLineEdit('1')
+        self.sizeLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
+        self.sizeLineEdit.setMaximumWidth(50)
+        self.sizeLineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.sizeLayout.addWidget(self.sizeLineEdit)
+        # Size Slider
+        self.sizeSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.sizeSlider.setValue(1)
+        self.sizeSlider.setMaximum(10)
+        self.sizeSlider.setMinimum(1)
+        self.sizeLayout.addWidget(self.sizeSlider)
         # Shape Options
         self.shapeOptionLayout = QtGui.QHBoxLayout()
         self.shapeOptionLayout.setAlignment(QtCore.Qt.AlignCenter)
@@ -149,9 +166,9 @@ class rlShape_ui(QtGui.QDialog):
             self.shapeButton.clicked.connect(partial(self.do_shape, shape))
 
         # Scale Slider
-        self.scaleSlider.sliderMoved.connect(self.scaleSlider_update)
+        self.sizeSlider.valueChanged.connect(self.sizeSlider_update)
         # Scale LineEdit
-        self.scaleValue.textEdited.connect(self.scaleLineEdit_update)
+        self.sizeLineEdit.textEdited.connect(self.sizeLineEdit_update)
         # Shape option
         self.colorButton.clicked.connect(self.get_color)
         self.applyColorButton.clicked.connect(apply_color)
@@ -179,40 +196,46 @@ class rlShape_ui(QtGui.QDialog):
         self.colorPicker = QtGui.QColorDialog()
         self.colorItem = self.colorPicker.getColor(self.colorItem)
         if self.colorItem.isValid():
-            rlShape_ui.choosenColor = self.colorItem.getRgb()
+            RlShape_ui.choosenColor = self.colorItem.getRgb()
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
 
-    def scaleSlider_update(self):
-        value = self.scaleSlider.value()
-        self.scaleValue.setText(str(value))
+    def sizeSlider_update(self):
+        value = self.sizeSlider.value()
+        self.sizeLineEdit.setText(str(value))
 
-    def scaleLineEdit_update(self):
-        value = self.scaleValue.text()
-        self.scaleSlider.setValue(float(value))
+    def sizeLineEdit_update(self):
+        value = self.sizeLineEdit.text()
+        if float(value) > 10:
+            if float(value) < 500:
+                self.sizeSlider.setMaximum(float(value)*2)
+            else:
+                self.sizeSlider.setMaximum(1000)
+        else:
+            self.sizeSlider.setMaximum(10)
+        self.sizeSlider.setValue(float(value))
 
     def do_shape(self, shape):
-        scale = float(self.scaleValue.text())
+        size = float(self.sizeLineEdit.text())
         if shape == 'circle':
-            crv = mc.circle(nr=(0, 1, 0), r=scale, ch=False)
+            crv = mc.circle(nr=(0, 1, 0), r=size, ch=False)
+            apply_color([crv])
             return crv
         p = self.shapesDict[shape]
-        p = self.scaleConfo(p, scale)
+        p = [(x * size, y * size, z * size) for x, y, z in p]
         crv = mc.curve(d=1, p=p)
+        apply_color([crv])
         return crv
 
-    @staticmethod
-    def scaleConfo(p, scale=1.0):
-        scale = float(scale)
-        return [(x * scale, y * scale, z * scale) for x, y, z in p]
 
-def apply_color():
+def apply_color(crvs=None):
     def do(shape, color):
         mc.setAttr(shape + '.overrideEnabled', True)
         mc.setAttr(shape + '.overrideRGBColors', True)
         mc.setAttr(shape + '.overrideColorRGB', *color)
 
-    color = rlShape_ui.choosenColor
-    crvs = mc.ls(sl=True)
+    if not crvs:
+        crvs = mc.ls(sl=True)
+    color = RlShape_ui.choosenColor
     color = [x/255.0 for x in color]
     for crv in crvs:
         if mc.nodeType(crv) == 'nurbsCurve':
@@ -224,40 +247,41 @@ def apply_color():
                     do(shape, color[:3])
 
 
-def parent_shape(parent=None, child=None, freeze=False):
+def parent_shape(parent=None, childs=None, freeze=False):
 
     sel = mc.ls(sl=True)
-    if not parent or not child:
+    if not parent or not childs:
         if len(sel) < 2:
             mc.warning('Select a shape and a parent transform')
             return
-        child = sel[0]
-        parent = sel[1]
-    if not mc.nodeType(parent) == 'transform':
-        mc.warning('Select a shape and a parent transform')
-        return
-    if parent in (mc.listRelatives(child, parent=True) or []):
-        mc.warning(child+' is already a child of '+parent)
-        return
-    if freeze:
-        child_parent = mc.listRelatives(child, parent=True)[0]
-        print(child_parent)
-        child_grd_parent = mc.listRelatives(child_parent, parent=True) or []
-        print(child_grd_parent)
-        child_parent_t = mc.xform(child_parent, q=True, ws=True, t=True)
-        child_parent_ro = mc.xform(child_parent, q=True, ws=True, ro=True)
-        child_parent_s = mc.xform(child_parent, q=True, ws=True, s=True)
-        grp_freeze = mc.group(n='grpfreeze#', em=True, w=True)
-        mc.parent(grp_freeze, parent, r=True)
-        mc.parent(child_parent, grp_freeze)
-        mc.parent(grp_freeze, w=True)
-        for j in 'xyz':
-            for i in 'tr':
-                mc.setAttr(grp_freeze+'.'+i+j, 0)
-            mc.setAttr(grp_freeze+'.s'+j, 1)
-        mc.makeIdentity(child_parent, a=True)
+        childs = sel[:-1]
+        parent = sel[-1]
+    for child in childs:
+        if not mc.nodeType(parent) == 'transform':
+            mc.warning('Select a shape and a parent transform')
+            return
+        if parent in (mc.listRelatives(child, parent=True) or []):
+            mc.warning(child+' is already a child of '+parent)
+            return
+        if freeze:
+            child_parent = mc.listRelatives(child, parent=True)[0]
+            print(child_parent)
+            child_grd_parent = mc.listRelatives(child_parent, parent=True) or []
+            print(child_grd_parent)
+            child_parent_t = mc.xform(child_parent, q=True, ws=True, t=True)
+            child_parent_ro = mc.xform(child_parent, q=True, ws=True, ro=True)
+            child_parent_s = mc.xform(child_parent, q=True, ws=True, s=True)
+            grp_freeze = mc.group(n='grpfreeze#', em=True, w=True)
+            mc.parent(grp_freeze, parent, r=True)
+            mc.parent(child_parent, grp_freeze)
+            mc.parent(grp_freeze, w=True)
+            for j in 'xyz':
+                for i in 'tr':
+                    mc.setAttr(grp_freeze+'.'+i+j, 0)
+                mc.setAttr(grp_freeze+'.s'+j, 1)
+            mc.makeIdentity(child_parent, a=True)
 
-    mc.parent(child, parent, r=True, s=True)
+        mc.parent(child, parent, r=True, s=True)
 
     if freeze:
         if child_grd_parent:
@@ -268,17 +292,3 @@ def parent_shape(parent=None, child=None, freeze=False):
         mc.makeIdentity(child_parent, a=True)
         mc.xform(child_parent, ro=child_parent_ro, t=child_parent_t, s=child_parent_s, ws=True)
         mc.delete(grp_freeze)
-
-"""
-todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arrow, octo_arrown, double_arrow,
-      quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,
-      pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
-      double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
-"""
-
-def launch_ui():
-
-    if mc.window('rlShapeCreator', exists=True):
-        mc.deleteUI('rlShapeCreator')
-    ui = rlShape_ui()
-    ui.show()

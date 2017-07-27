@@ -4,24 +4,28 @@ from functools import partial
 """
 import mayaRigTools_sk.sandBox.laro.fRivet as fr
 reload(fr)
-fr.Launch_ui()
+fr.launch_ui()
 """
 
 
-class Launch_ui:
+def launch_ui():
+    if mc.window('rvtUI', exists=True):
+        mc.deleteUI('rvtUI')
+    FRivet_ui()
 
-    winID = 'rvtUI'
+
+class FRivet_ui:
+
     nbOfColumn = 0
     width = 30
 
     def __init__(self):
         self.ui_layout()
-        mc.showWindow(self.winID)
+        mc.showWindow('rvtUI')
 
     def ui_layout(self):
-        if mc.window(self.winID, exists=True):
-            mc.deleteUI(self.winID)
-        mc.window(self.winID, title='Follicle Rivet creator', w=self.width, s=False, rtf=True)
+
+        mc.window('rvtUI', title='Follicle Rivet creator', w=self.width, s=False, rtf=True)
 
         mc.columnLayout('columnMain', w=self.width)
         mc.rowLayout('rowEdges', nc=100)

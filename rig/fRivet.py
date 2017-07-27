@@ -3,20 +3,24 @@ from tbx import get_shape
 from functools import partial
 
 
-class Launch_ui:
+def launch_ui():
+    if mc.window('rvtUI', exists=True):
+        mc.deleteUI('rvtUI')
+    FRivet_ui()
 
-    winID = 'rvtUI'
+
+class FRivet_ui:
+
     nbOfColumn = 0
     width = 30
 
     def __init__(self):
         self.ui_layout()
-        mc.showWindow(self.winID)
+        mc.showWindow('rvtUI')
 
     def ui_layout(self):
-        if mc.window(self.winID, exists=True):
-            mc.deleteUI(self.winID)
-        mc.window(self.winID, title='Follicle Rivet creator', w=self.width, s=False, rtf=True)
+
+        mc.window('rvtUI', title='Follicle Rivet creator', w=self.width, s=False, rtf=True)
 
         mc.columnLayout('columnMain', w=self.width)
         mc.rowLayout('rowEdges', nc=100)
