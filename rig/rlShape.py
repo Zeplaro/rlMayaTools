@@ -35,11 +35,13 @@ class RlShape_ui(QtGui.QDialog):
 
     choosenColor = (255, 255, 0)
 
-    shapesList = ['circle', 'square', 'quad_arrow', 'cross']
-    shapesDict = {'square': [(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (-1.0, 0.0, -1.0), (1.0, 0.0, -1.0), (1.0, 0.0, 1.0)],
-                  'quad_arrow': [(0.0, 0.0, -1.0), (0.4, 0.0, -0.6), (0.2, 0.0, -0.6), (0.2, 0.0, -0.2), (0.6, 0.0, -0.2), (0.6, 0.0, -0.4), (1.0, 0.0, 0.0), (0.6, 0.0, 0.4), (0.6, 0.0, 0.2), (0.2, 0.0, 0.2), (0.2, 0.0, 0.6), (0.4, 0.0, 0.6), (0.0, 0.0, 1.0), (-0.4, 0.0, 0.6), (-0.2, 0.0, 0.6), (-0.2, 0.0, 0.2), (-0.6, 0.0, 0.2), (-0.6, 0.0, 0.4), (-1.0, 0.0, 0.0), (-0.6, 0.0, -0.4), (-0.6, 0.0, -0.2), (-0.2, 0.0, -0.2), (-0.2, 0.0, -0.6), (-0.4, 0.0, -0.6), (0.0, 0.0, -1.0)],
-                  'cross': [(0.5, 0.0, -0.5), (1.0, 0.0, -0.5), (1.0, 0.0, 0.5), (0.5, 0.0, 0.5), (0.5, 0.0, 1.0), (-0.5, 0.0, 1.0), (-0.5, 0.0, 0.5), (-1.0, 0.0, 0.5), (-1.0, 0.0, -0.5), (-0.5, 0.0, -0.5), (-0.5, 0.0, -1.0), (0.5, 0.0, -1.0), (0.5, 0.0, -0.5)]}
-
+    shapesList = ['circle', 'square', 'cube', 'sphere', 'quad_arrow', 'cross', 'arrow_head']
+    shapesDict = {'square': [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5)],
+                  'quad_arrow': [(0, 0, -0.5), (0.2, 0, -0.3), (0.1, 0, -0.3), (0.1, 0, -0.1), (0.3, 0, -0.1), (0.3, 0, -0.2), (0.5, 0, 0), (0.3, 0, 0.2), (0.3, 0, 0.1), (0.1, 0, 0.1), (0.1, 0, 0.3), (0.2, 0, 0.3), (0, 0, 0.5), (-0.2, 0, 0.3), (-0.1, 0, 0.3), (-0.1, 0, 0.1), (-0.3, 0, 0.1), (-0.3, 0, 0.2), (-0.5, 0, 0), (-0.3, 0, -0.2), (-0.3, 0, -0.1), (-0.1, 0, -0.1), (-0.1, 0, -0.3), (-0.2, 0, -0.3), (0, 0, -0.5)],
+                  'cross': [(0.25, 0, -0.25), (0.5, 0, -0.25), (0.5, 0, 0.25), (0.25, 0, 0.25), (0.25, 0, 0.5), (-0.25, 0, 0.5), (-0.25, 0, 0.25), (-0.5, 0, 0.25), (-0.5, 0, -0.25), (-0.25, 0, -0.25), (-0.25, 0, -0.5), (0.25, 0, -0.5), (0.25, 0, -0.25)],
+                  'arrow_head': [(0, 0, 0), (0, 1.5, 0.5), (0, 1.5, -0.5), (0, 0, 0), (-0.5, 1.5, 0), (0, 1.5, 0), (0.5, 1.5, 0), (0, 0, 0)],
+                  'cube': [(-0.5, 0.5, -0.5), (-0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-0.5, -0.5, -0.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5), (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5), (-0.5, -0.5, 0.5), (-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (0.5, 0.5, 0.5), (0.5, -0.5, 0.5), (0.5, -0.5, -0.5)],
+                  'sphere': [(0, 0.5, 0), (0, 0.46194, 0.1913415), (0, (sqrt(2)/2)/2, (sqrt(2)/2)/2), (0, 0.1913415, 0.46194), (0, 0, 0.5), (0, -0.1913415, 0.46194), (0, -((sqrt(2)/2)/2), (sqrt(2)/2)/2), (0, -0.46194, 0.1913415), (0, -0.5, 0), (0, -0.46194, -0.1913415), (0, -((sqrt(2)/2)/2), -((sqrt(2)/2)/2)), (0, -0.1913415, -0.46194), (0, 0, -0.5), (0, 0.1913415, -0.46194), (0, (sqrt(2)/2)/2, -((sqrt(2)/2)/2)), (0, 0.46194, -0.1913415), (0, 0.5, 0), (0.1913415, 0.46194, 0), ((sqrt(2)/2)/2, (sqrt(2)/2)/2, 0), (0.46194, 0.1913415, 0), (0.5, 0, 0), (0.46194, -0.1913415, 0), ((sqrt(2)/2)/2, -((sqrt(2)/2)/2), 0), (0.1913415, -0.46194, 0), (0, -0.5, 0), (-0.1913415, -0.46194, 0), (-((sqrt(2)/2)/2), -((sqrt(2)/2)/2), 0), (-0.46194, -0.1913415, 0), (-0.5, 0, 0), (-0.46194, 0.1913415, 0), (-((sqrt(2)/2)/2), (sqrt(2)/2)/2, 0), (-0.1913415, 0.46194, 0), (0, 0.5, 0), (0, 0.46194, -0.1913415), (0, (sqrt(2)/2)/2, -((sqrt(2)/2)/2)), (0, 0.1913415, -0.46194), (0, 0, -0.5), (-0.1913415, 0, -0.46194), (-((sqrt(2)/2)/2), 0, -((sqrt(2)/2)/2)), (-0.46194, 0, -0.1913415), (-0.5, 0, 0), (-0.46194, 0, 0.1913415), (-((sqrt(2)/2)/2), 0, (sqrt(2)/2)/2), (-0.1913415, 0, 0.46194), (0, 0, 0.5), (0.1913415, 0, 0.46194), ((sqrt(2)/2)/2, 0, (sqrt(2)/2)/2), (0.46194, 0, 0.1913415), (0.5, 0, 0), (0.46194, 0, -0.1913415), ((sqrt(2)/2)/2, 0, -((sqrt(2)/2)/2)), (0.1913415, 0, -0.46194), (0, 0, -0.5)]}
 
     def __init__(self, parent=getMayaWin()):
         super(RlShape_ui, self).__init__(parent)
@@ -57,7 +59,7 @@ class RlShape_ui(QtGui.QDialog):
 
         # Shapes groupBox
         self.shapeGroupBox = QtGui.QGroupBox('Shapes')
-        self.shapeGroupBox.setAlignment(4)
+        self.shapeGroupBox.setAlignment(QtCore.Qt.AlignCenter)
         self.mainLayout.addWidget(self.shapeGroupBox)
 
         # Shapes buttons Layout
@@ -82,17 +84,17 @@ class RlShape_ui(QtGui.QDialog):
         self.sizeLayout = QtGui.QHBoxLayout()
         self.mainLayout.addLayout(self.sizeLayout)
         # Size Label
-        self.sizeLabel = QtGui.QLabel(' Size ')
+        self.sizeLabel = QtGui.QLabel(' Size :')
         self.sizeLayout.addWidget(self.sizeLabel)
         # Size Value
-        self.sizeLineEdit = QtGui.QLineEdit('1')
+        self.sizeLineEdit = QtGui.QLineEdit('2')
         self.sizeLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
-        self.sizeLineEdit.setMaximumWidth(50)
+        self.sizeLineEdit.setMaximumWidth(40)
         self.sizeLineEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.sizeLayout.addWidget(self.sizeLineEdit)
         # Size Slider
         self.sizeSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.sizeSlider.setValue(1)
+        self.sizeSlider.setValue(2)
         self.sizeSlider.setMaximum(10)
         self.sizeSlider.setMinimum(1)
         self.sizeLayout.addWidget(self.sizeSlider)
@@ -217,7 +219,7 @@ class RlShape_ui(QtGui.QDialog):
     def do_shape(self, shape):
         size = float(self.sizeLineEdit.text())
         if shape == 'circle':
-            crv = mc.circle(nr=(0, 1, 0), r=size, ch=False)
+            crv = mc.circle(nr=(0, 1, 0), r=size/2.0, ch=False)
             apply_color([crv])
             return crv
         p = self.shapesDict[shape]
