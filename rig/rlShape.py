@@ -6,19 +6,14 @@ import shiboken
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
-reload(shapeMirror)
 from tbx import get_shape
 
 
 """
-todo: quad_round_arrow, cube, sphere, cylinder, locator, half_circle, simple_arrow, octo_arrown, double_arrow,
-      quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,
-      pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross,
-      double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+todo: quad_round_arrow, half_circle, simple_arrow, octo_arrown, quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
-todo ui :   replace separator
-            twist
-            axis
+todo : twist
+       axis
 """
 
 
@@ -39,7 +34,7 @@ class RlShape_ui(QtGui.QDialog):
 
     choosenColor = (255, 255, 0)
 
-    shapesList = ['circle', 'square', 'cube', 'sphere', 'quad\narrow', 'cross', 'double\narrow', 'arrow\nhead', 'cylinder','half\narrow\nhead', 'locator', 'quater\ncircle']
+    shapesList = ['circle', 'square', 'cube', 'sphere', 'quad\narrow', 'cross', 'double\narrow', 'pyramide', 'diamond', 'arrow\nhead', 'cylinder','half\narrow\nhead', 'locator', 'quater\ncircle']
     shapesDict = {'square': [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5)],
                   'quad\narrow': [(0, 0, -0.5), (0.2, 0, -0.3), (0.1, 0, -0.3), (0.1, 0, -0.1), (0.3, 0, -0.1), (0.3, 0, -0.2), (0.5, 0, 0), (0.3, 0, 0.2), (0.3, 0, 0.1), (0.1, 0, 0.1), (0.1, 0, 0.3), (0.2, 0, 0.3), (0, 0, 0.5), (-0.2, 0, 0.3), (-0.1, 0, 0.3), (-0.1, 0, 0.1), (-0.3, 0, 0.1), (-0.3, 0, 0.2), (-0.5, 0, 0), (-0.3, 0, -0.2), (-0.3, 0, -0.1), (-0.1, 0, -0.1), (-0.1, 0, -0.3), (-0.2, 0, -0.3), (0, 0, -0.5)],
                   'cross': [(0.25, 0, -0.25), (0.5, 0, -0.25), (0.5, 0, 0.25), (0.25, 0, 0.25), (0.25, 0, 0.5), (-0.25, 0, 0.5), (-0.25, 0, 0.25), (-0.5, 0, 0.25), (-0.5, 0, -0.25), (-0.25, 0, -0.25), (-0.25, 0, -0.5), (0.25, 0, -0.5), (0.25, 0, -0.25)],
@@ -51,6 +46,8 @@ class RlShape_ui(QtGui.QDialog):
                   'double\narrow': [(-0, -0.5, 0), (-0.25, -0.25, -0), (-0.125, -0.25, -0), (-0.125, 0.25, -0), (-0.25, 0.25, -0), (0, 0.5, 0), (0.25, 0.25, 0), (0.125, 0.25, 0), (0.125, -0.25, 0), (0.25, -0.25, 0), (-0, -0.5, 0)],
                   'locator': [(0, 0, 0.5), (0, 0, -0.5), (0, 0, 0), (-0.5, 0, 0), (0.5, 0, 0), (0, 0, 0), (0, 0.5, 0), (0, -0.5, 0)],
                   'half\narrow\nhead': [(0, 0, 0), (-0.5, 1.5, 0), (0.5, 1.5, 0), (0, 0, 0), (0, 1.5, 0.5), (0, 1.5, 0), (0, 0, 0)],
+                  'pyramide': [(-0.5, 1.5, -0.5), (0.5, 1.5, -0.5), (0, 0, 0), (0.5, 1.5, 0.5), (-0.5, 1.5, 0.5), (0, 0, 0), (-0.5, 1.5, -0.5), (-0.5, 1.5, 0.5), (0.5, 1.5, 0.5), (0.5, 1.5, -0.5)],
+                  'diamond': [(0, 1.5, 0), (-0.5, 0, 0.5), (0, -1.5, 0), (0.5, 0, 0.5), (0, 1.5, 0), (0.5, 0, -0.5), (0, -1.5, 0), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0, 1.5, 0)],
                   }
 
     def __init__(self, parent=getMayaWin()):
