@@ -45,11 +45,12 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
     :param bool solo: True perform a miror of each shape to itself
     """
 
-    ctrls = mc.ls(sl=True, fl=True)
+    ctrls = [x for x in mc.ls(sl=True, fl=True) if mc.nodeType(x) == 'nurbsCurve' or mc.nodeType(x) == 'transform' or mc.nodeType(x) == 'joint']
     if not ctrls:
         mc.warning('No curve selected')
         return
 
+    mc.undoInfo(openChunk=True)
     if solo:
 
         if miraxis == 'z':
@@ -60,13 +61,12 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
             table = [-1, 1, 1]
 
         for each in ctrls:
-            if mc.objectType(each, isType='nurbsCurve'):
+            if mc.nodeType(each) == 'nurbsCurve':
                 mirror(each, each, table, miraxis, ws)
             for shape in get_shape(each):
-                if not mc.objectType(shape, isType='nurbsCurve'):
+                if not mc.nodeType(shape) == 'nurbsCurve':
                     continue
                 mirror(shape, shape, table, miraxis, ws)
-
 
     elif copy:
         master = ctrls[0]
@@ -81,6 +81,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
             while len(slaveshape) < len(mastershape):
                 mastershape.pop(-1)
             for i in range(len(mastershape)):
+                if not mc.nodeType(slaveshape[i]) == 'nurbsCurve':
+                    continue
                 mirror(mastershape[i], slaveshape[i], [1, 1, 1])
 
     else:
@@ -133,3 +135,4 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
             print(ctrl+' mirrored')
 
     mc.select(ctrls, r=True)
+    mc.undoInfo(closeChunk=True)
