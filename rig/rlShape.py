@@ -129,7 +129,7 @@ class RlShape_ui(QtGui.QDialog):
         self.sizeSlider.setMinimum(1)
         self.sizeLayout.addWidget(self.sizeSlider)
 
-        #Axis twist layout
+        #Axis and twist layout
         self.axisTwistLayout = QtGui.QHBoxLayout()
         self.axisTwistLayout.setAlignment(QtCore.Qt.AlignCenter)
         self.mainLayout.addLayout(self.axisTwistLayout)
@@ -142,6 +142,7 @@ class RlShape_ui(QtGui.QDialog):
         self.axisComboBox.setFixedWidth(40)
         for i in ['x', 'y', 'z', '-x', '-y', '-z']:
             self.axisComboBox.addItem(i)
+        # self.axisComboBox.setItemText(2)
         self.axisTwistLayout.addWidget(self.axisComboBox)
         # Separator
         self.vSeparator = QtGui.QFrame()
@@ -221,7 +222,7 @@ class RlShape_ui(QtGui.QDialog):
         self.mirbuttY = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
         self.mirbuttY.clicked.connect(partial(self.mirror_signal, 'y'))
         self.mirbuttZ = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
-        self.mirbuttZ.clicked.connect(partial(self.mirror_signal, 'z'))
+        self.mirbuttZ.clicked.connect(partial(self.confoAxis, 'sphere'))
 
         # Tools
         self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
@@ -292,25 +293,32 @@ class RlShape_ui(QtGui.QDialog):
             mc.select(sel)
         mc.undoInfo(closeChunk=True)
 
+    def apply_color(self, crvs=None):
+        def do(shp, color):
+            mc.setAttr(shp + '.overrideEnabled', True)
+            mc.setAttr(shp + '.overrideRGBColors', True)
+            mc.setAttr(shp + '.overrideColorRGB', *color)
 
-def apply_color(crvs=None):
-    def do(shape, color):
-        mc.setAttr(shape + '.overrideEnabled', True)
-        mc.setAttr(shape + '.overrideRGBColors', True)
-        mc.setAttr(shape + '.overrideColorRGB', *color)
+        if not crvs:
+            crvs = mc.ls(sl=True)
+        colorRGB = self.choosenColor
+        colorRGB = [x/255.0 for x in colorRGB]
+        for crv in crvs:
+            if mc.nodeType(crv) == 'nurbsCurve':
+                do(crv, colorRGB)
+            else:
+                shapes = get_shape(crv)
+                for shape in shapes:
+                    if mc.nodeType(shape) == 'nurbsCurve':
+                        do(shape, colorRGB[:3])
 
-    if not crvs:
-        crvs = mc.ls(sl=True)
-    color = RlShape_ui.choosenColor
-    color = [x/255.0 for x in color]
-    for crv in crvs:
-        if mc.nodeType(crv) == 'nurbsCurve':
-            do(crv, color)
-        else:
-            shapes = get_shape(crv)
-            for shape in shapes:
-                if mc.nodeType(shape) == 'nurbsCurve':
-                    do(shape, color[:3])
+    def confoAxis(self, shape):
+        axis = self.axisComboBox.currentText()
+        p = self.shapesDict[shape]
+        if axis == 'y':
+            p = [[z, x, ]]
+
+        print p
 
 
 def parent_shape(parent=None, childs=None, freeze=False):
