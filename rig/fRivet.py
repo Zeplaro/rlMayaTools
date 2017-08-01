@@ -36,6 +36,9 @@ class FRivet_ui:
         mc.setParent('..')
         mc.intSliderGrp('nb', l='Number of rivet', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1,
                         max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=self.width)
+        mc.optionMenu('param', l='   Direction', w=95)
+        mc.menuItem(l='U')
+        mc.menuItem(l='V')
         mc.button('Create Rivet', command=self.launch_fRivet, w=self.width)
 
     @staticmethod
@@ -76,7 +79,8 @@ class FRivet_ui:
         for i in range(self.nbOfColumn):
             edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
         nb = mc.intSliderGrp('nb', q=True, value=True)
-        do_fRivet(edges=edges, nb=nb)
+        param = mc.optionMenu('param', q=True, value=True)
+        do_fRivet(edges=edges, nb=nb, param=param)
 
 
 def do_fRivet(edges=None, nb=1, param='U', mesh=None):
@@ -169,18 +173,6 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
         mc.setAttr(rvtshape+'.visibility', 0)
         mc.reorder(locshape, front=True)
         mc.parent(rvt, rvt_grp)
-
-        # creating a stronger rivet position to be able to group it
-        cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
-        mmx = mc.createNode('multMatrix', n='mmx_rvt#')
-        dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
-        mc.connectAttr(rvtshape+'.outRotate', cmx+'.inputRotate')
-        mc.connectAttr(rvtshape+'.outTranslate', cmx+'.inputTranslate')
-        mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
-        mc.connectAttr(rvt+'.parentInverseMatrix', mmx+'.matrixIn[1]')
-        mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
-        mc.connectAttr(dmx+'.outputTranslate', rvt+'.translate', f=True)
-        mc.connectAttr(dmx+'.outputRotate', rvt+'.rotate', f=True)
         rvts.append(rvt)
 
     return rvts
@@ -214,8 +206,19 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
     mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=True)
     mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=True)
-    mc.connectAttr(follicleshape+'.outRotate', follicle+'.rotate', f=True)
-    mc.connectAttr(follicleshape+'.outTranslate', follicle+'.translate', f=True)
+
+    # creating a stronger follicle position to be able to group it
+    cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
+    mmx = mc.createNode('multMatrix', n='mmx_rvt#')
+    dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
+    mc.connectAttr(follicleshape+'.outRotate', cmx+'.inputRotate')
+    mc.connectAttr(follicleshape+'.outTranslate', cmx+'.inputTranslate')
+    mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
+    mc.connectAttr(follicle+'.parentInverseMatrix', mmx+'.matrixIn[1]')
+    mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
+    mc.connectAttr(dmx+'.outputTranslate', follicle+'.translate', f=True)
+    mc.connectAttr(dmx+'.outputRotate', follicle+'.rotate', f=True)
+
     for manip in 'tr':
         for axis in 'xyz':
             mc.setAttr(follicle+'.'+manip+axis, lock=True)
