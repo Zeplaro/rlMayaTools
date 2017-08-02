@@ -167,41 +167,46 @@ class RlShape_ui(QtGui.QDialog):
         self.hSeparator.setFrameStyle(QtGui.QFrame.HLine)
         self.mainLayout.addWidget(self.hSeparator)
 
-        # Mirror button Layout
-        self.mirrorLayout = QtGui.QHBoxLayout()
-        self.mirrorLayout.setAlignment(QtCore.Qt.AlignCenter)
-        self.mainLayout.addLayout(self.mirrorLayout)
+        # Main Mirror Layout
+        self.mainMirrorLayout = QtGui.QHBoxLayout()
+        self.mainLayout.addLayout(self.mainMirrorLayout)
+        # Mirror buttons layout
+        self.mirrorButtonsLayout = QtGui.QVBoxLayout()
+        self.mainMirrorLayout.addLayout(self.mirrorButtonsLayout)
+        # Mirror solo button Layout
+        self.mirrorSoloLayout = QtGui.QHBoxLayout()
+        self.mirrorSoloLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.mirrorButtonsLayout.addLayout(self.mirrorSoloLayout)
         # Mirror Label
         self.mirrorLabel = QtGui.QLabel('Mirror :')
-        self.mirrorLayout.addWidget(self.mirrorLabel)
+        self.mirrorSoloLayout.addWidget(self.mirrorLabel)
         # Mirror button
         for axe in 'XYZ':
             self.mirrorButton = QtGui.QPushButton(axe)
             self.mirrorButton.setObjectName('mirrorButton{}'.format(axe))
             self.mirrorButton.setFixedSize(25, 20)
-            self.mirrorLayout.addWidget(self.mirrorButton)
-        # Miror Space
+            self.mirrorSoloLayout.addWidget(self.mirrorButton)
+        # Mirror other side
+        self.sideMirror = QtGui.QPushButton('Mirror other side')
+        self.mirrorButtonsLayout.addWidget(self.sideMirror)
+        # Copy shape button
+        self.copyButton = QtGui.QPushButton('Copy Shapes')
+        self.mirrorButtonsLayout.addWidget(self.copyButton)
+        # Mirror Space
         self.spaceCheckBox = QtGui.QCheckBox('Object space')
         self.spaceCheckBox.setObjectName('objectSpace')
         self.spaceCheckBox.setChecked(True)
-        self.mirrorLayout.addWidget(self.spaceCheckBox)
+        self.spaceCheckBox.setFixedWidth(100)
+        self.mainMirrorLayout.addWidget(self.spaceCheckBox)
 
-        # Mirror side Layout
-        self.mirrorCopyLayout = QtGui.QHBoxLayout()
-        self.mainLayout.addLayout(self.mirrorCopyLayout)
-        # Mirror other side
-        self.sideMirror = QtGui.QPushButton('Mirror other side')
-        self.mirrorCopyLayout.addWidget(self.sideMirror)
+        # Separator line
+        self.hSeparator = QtGui.QFrame()
+        self.hSeparator.setFrameStyle(QtGui.QFrame.HLine)
+        self.mainLayout.addWidget(self.hSeparator)
 
-        # Parent and copy layout
-        self.parentCopyLayout = QtGui.QHBoxLayout()
-        self.mainLayout.addLayout(self.parentCopyLayout)
         # Parent shape button
         self.parentButton = QtGui.QPushButton('Parent Shapes')
-        self.parentCopyLayout.addWidget(self.parentButton)
-        # Copy shape button
-        self.copyButton = QtGui.QPushButton('Copy Shapes')
-        self.parentCopyLayout.addWidget(self.copyButton)
+        self.mainLayout.addWidget(self.parentButton)
 
     def ui_connection(self):
         # Shapes
