@@ -5,7 +5,6 @@ from tbx import get_mirrorTable
 # TODO : copy in ws and os
 # TODO : mir with cv
 
-
 def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     """
     :param str mastershape: shape to copy from
@@ -22,23 +21,26 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     else:
         mirindex = 0
 
-    cvs = mc.getAttr(mastershape + '.cp', size=True)
-    print cvs
-    for cv in range(cvs):
-        cp = '.cp['+str(cv)+']'
+    nb_of_cv = mc.getAttr(mastershape+'.spans')
+    if mc.getAttr(mastershape+'.form') < 1:
+        nb_of_cv += mc.getAttr(mastershape+'.degree')
+    for cv in range(nb_of_cv):
+        cv = '.cv['+str(cv)+']'
+        print(cv)
         if ws:  # mirror on world space
-            pos = mc.xform(mastershape + cp, q=True, ws=True, t=True)
+            pos = mc.xform(mastershape + cv, q=True, ws=True, t=True)
             pos[mirindex] *= -1  # mirroring on chosen axis
-            mc.xform(slaveshape+cp, ws=True, t=pos)
+            mc.xform(slaveshape+cv, ws=True, t=pos)
 
         else:  # mirror on object space
-            pos = mc.xform(mastershape + cp, q=True, os=True, t=True)
-            print pos
+            print(mc.objExists(cv))
+            pos = mc.xform(mastershape+cv, q=True, os=True, t=True)
+            print(pos)
             for k in range(3):
                 pos[k] = pos[k]*table[k]
-            print pos
-            print '________________________'
-            mc.xform(slaveshape+cp, os=True, t=pos)
+            print(pos)
+            mc.xform(slaveshape+cv, os=True, t=pos)
+            print('___________________)')
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):

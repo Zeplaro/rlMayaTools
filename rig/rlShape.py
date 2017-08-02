@@ -6,6 +6,7 @@ import shiboken
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
+reload(shapeMirror)
 from tbx import get_shape
 
 
@@ -35,7 +36,8 @@ class RlShape_ui(QtGui.QDialog):
     choosenColor = (255, 255, 0)
 
     shapesList = ['circle', 'square', 'cube', 'sphere', 'quad\narrow', 'cross', 'double\narrow', 'pyramide', 'diamond', 'arrow\nhead', 'cylinder','half\narrow\nhead', 'locator', 'quater\ncircle']
-    shapesDict = {'square': [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5)],
+    shapesDict = {'circleNormal': [(0, 1, 0)],
+                  'square': [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5)],
                   'quad\narrow': [(0, 0, -0.5), (0.2, 0, -0.3), (0.1, 0, -0.3), (0.1, 0, -0.1), (0.3, 0, -0.1), (0.3, 0, -0.2), (0.5, 0, 0), (0.3, 0, 0.2), (0.3, 0, 0.1), (0.1, 0, 0.1), (0.1, 0, 0.3), (0.2, 0, 0.3), (0, 0, 0.5), (-0.2, 0, 0.3), (-0.1, 0, 0.3), (-0.1, 0, 0.1), (-0.3, 0, 0.1), (-0.3, 0, 0.2), (-0.5, 0, 0), (-0.3, 0, -0.2), (-0.3, 0, -0.1), (-0.1, 0, -0.1), (-0.1, 0, -0.3), (-0.2, 0, -0.3), (0, 0, -0.5)],
                   'cross': [(0.25, 0, -0.25), (0.5, 0, -0.25), (0.5, 0, 0.25), (0.25, 0, 0.25), (0.25, 0, 0.5), (-0.25, 0, 0.5), (-0.25, 0, 0.25), (-0.5, 0, 0.25), (-0.5, 0, -0.25), (-0.25, 0, -0.25), (-0.25, 0, -0.5), (0.25, 0, -0.5), (0.25, 0, -0.25)],
                   'arrow\nhead': [(0, 0, 0), (0, 1.5, 0.5), (0, 1.5, -0.5), (0, 0, 0), (-0.5, 1.5, 0), (0, 1.5, 0), (0.5, 1.5, 0), (0, 0, 0)],
@@ -263,7 +265,9 @@ class RlShape_ui(QtGui.QDialog):
     def do_shape(self, shape):
         size = float(self.sizeLineEdit.text())
         if shape == 'circle':
-            crv = mc.circle(nr=(0, 1, 0), r=size/2.0, ch=False)
+            nr = self.confoAxis('circleNormal')[0]
+            print(nr)
+            crv = mc.circle(nr=nr, r=size/2.0, ch=False)
             self.apply_color([crv])
             return crv
         p = self.confoAxis(shape)
@@ -277,7 +281,8 @@ class RlShape_ui(QtGui.QDialog):
         mc.undoInfo(openChunk=True)
         sel = [x for x in mc.ls(sl=True) if mc.nodeType(x) == 'transform' or mc.nodeType(x) == 'joint']
         if not sel:
-            self.do_shape(shape)
+            crv = self.do_shape(shape)
+            mc.select(crv)
         else:
             replace = self.replaceCheckBox.isChecked()
             for i in sel:
@@ -325,11 +330,18 @@ class RlShape_ui(QtGui.QDialog):
         return p
 
     def do_twist(self, crv):
-        degs = mc.getAttr(crv + '.degree')
-        spans = mc.getAttr(crv + '.spans')
-        nb = degs + spans
-        print nb
-        mc.select(crv + '.cv[:' + str(nb) + ']')
+        twist_val = int(self.twistLineEdit.text())
+        nb = mc.getAttr(crv+'.degree') + mc.getAttr(crv+'.spans')
+        axis = self.axisComboBox.currentText()
+        if 'x' in axis:
+            value = (twist_val, 0, 0)
+        elif 'z' in axis:
+            value = (0, 0, twist_val)
+        else:
+            value = (0, twist_val, 0)
+        print(value)
+        mc.select(crv+'.cv[:'+str(nb)+']')
+        mc.rotate(*value, os=True)
 
 
 def parent_shape(parent=None, childs=None, freeze=False):
