@@ -3,7 +3,7 @@ from tbx import get_shape
 from tbx import get_mirrorTable
 
 # TODO : copy in ws and os
-# TODO : mir with cv
+
 
 def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     """
@@ -13,34 +13,28 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
     :param bool ws: False(default) mirror on object space, True mirror on world space
     """
-    # defining index of axis to mirror on chosen axis
-    if miraxis == 'z':
-        mirindex = 2
-    elif miraxis == 'y':
-        mirindex = 1
-    else:
-        mirindex = 0
 
-    nb_of_cv = mc.getAttr(mastershape+'.spans')
-    if mc.getAttr(mastershape+'.form') < 1:
-        nb_of_cv += mc.getAttr(mastershape+'.degree')
-    for cv in range(nb_of_cv):
-        cv = '.cv['+str(cv)+']'
-        print(cv)
-        if ws:  # mirror on world space
-            pos = mc.xform(mastershape + cv, q=True, ws=True, t=True)
-            pos[mirindex] *= -1  # mirroring on chosen axis
-            mc.xform(slaveshape+cv, ws=True, t=pos)
+    nb_of_cv = mc.getAttr(mastershape+'.spans')+mc.getAttr(mastershape+'.degree')
+    if ws:  # mirror on world space
+        pos = [mc.xform(mastershape+'.cv['+str(cv_index)+']', q=True, ws=True, t=True) for cv_index in range(nb_of_cv)]
+        if not miraxis:  # if World space copy:
+            pass
+        elif miraxis == 'z':
+            pos = [(x, y, -z) for x, y, z in pos]
+        elif miraxis == 'y':
+            pos = [(x, -y, z) for x, y, z in pos]
+        else:
+            pos = [(-x, y, z) for x, y, z in pos]
+        for cv_index in range(nb_of_cv):
+            mc.xform(slaveshape+'.cv['+str(cv_index)+']', ws=True, t=pos[cv_index])
 
-        else:  # mirror on object space
-            print(mc.objExists(cv))
-            pos = mc.xform(mastershape+cv, q=True, os=True, t=True)
-            print(pos)
-            for k in range(3):
-                pos[k] = pos[k]*table[k]
-            print(pos)
-            mc.xform(slaveshape+cv, os=True, t=pos)
-            print('___________________)')
+    else:  # mirror on object space
+        pos = [mc.xform(mastershape+'.cv['+str(cv_index)+']', q=True, os=True, t=True) for cv_index in range(nb_of_cv)]
+        for cv_index in range(nb_of_cv):
+            cv_pos = pos[cv_index]
+            for i in range(3):
+                cv_pos[i] *= table[i]
+            mc.xform(slaveshape+'.cv['+str(cv_index)+']', os=True, t=cv_pos)
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
@@ -52,7 +46,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
     :param bool solo: True perform a miror of each shape to itself
     """
 
-    ctrls = [x for x in mc.ls(sl=True, fl=True) if mc.nodeType(x) == 'nurbsCurve' or mc.nodeType(x) == 'transform' or mc.nodeType(x) == 'joint']
+    ctrls = [x for x in mc.ls(sl=True, fl=True)
+             if mc.nodeType(x) == 'nurbsCurve' or mc.nodeType(x) == 'transform' or mc.nodeType(x) == 'joint']
     if not ctrls:
         mc.warning('No curve selected')
         return
@@ -90,7 +85,7 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
             for i in range(len(mastershape)):
                 if not mc.nodeType(slaveshape[i]) == 'nurbsCurve':
                     continue
-                mirror(mastershape[i], slaveshape[i], [1, 1, 1])
+                mirror(mastershape[i], slaveshape[i], table=[1, 1, 1], miraxis=None, ws=ws)
 
     else:
         for ctrl in ctrls:
