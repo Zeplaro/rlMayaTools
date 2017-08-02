@@ -3,6 +3,7 @@ from tbx import get_shape
 from tbx import get_mirrorTable
 
 # TODO : copy in ws and os
+# TODO : mir with cv
 
 
 def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
@@ -22,6 +23,7 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
         mirindex = 0
 
     cvs = mc.getAttr(mastershape + '.cp', size=True)
+    print cvs
     for cv in range(cvs):
         cp = '.cp['+str(cv)+']'
         if ws:  # mirror on world space
@@ -31,8 +33,11 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
 
         else:  # mirror on object space
             pos = mc.xform(mastershape + cp, q=True, os=True, t=True)
+            print pos
             for k in range(3):
                 pos[k] = pos[k]*table[k]
+            print pos
+            print '________________________'
             mc.xform(slaveshape+cp, os=True, t=pos)
 
 

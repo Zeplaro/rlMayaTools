@@ -10,7 +10,7 @@ from tbx import get_shape
 
 
 """
-todo: quad_round_arrow, half_circle, simple_arrow, octo_arrown, quad_bent_arrow, double_bent_arrow, fly, line, pyramide, double_pyramide, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+todo: dome, flat_dome, eye, triangle, octogone, quad_round_arrow, half_circle, simple_arrow, octo_arrown, quad_bent_arrow, double_bent_arrow, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
 todo : twist
        axis
@@ -142,7 +142,7 @@ class RlShape_ui(QtGui.QDialog):
         self.axisComboBox.setFixedWidth(40)
         for i in ['x', 'y', 'z', '-x', '-y', '-z']:
             self.axisComboBox.addItem(i)
-        # self.axisComboBox.setItemText(2)
+        self.axisComboBox.setCurrentIndex(1)
         self.axisTwistLayout.addWidget(self.axisComboBox)
         # Separator
         self.vSeparator = QtGui.QFrame()
@@ -214,7 +214,7 @@ class RlShape_ui(QtGui.QDialog):
         self.sizeLineEdit.textEdited.connect(self.sizeLineEdit_update)
         # Shape option
         self.colorButton.clicked.connect(self.get_color)
-        self.applyColorButton.clicked.connect(apply_color)
+        self.applyColorButton.clicked.connect(self.apply_color)
 
         # Mirror buttons
         self.mirbuttX = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
@@ -222,7 +222,7 @@ class RlShape_ui(QtGui.QDialog):
         self.mirbuttY = self.findChild(QtGui.QPushButton, 'mirrorButtonY')
         self.mirbuttY.clicked.connect(partial(self.mirror_signal, 'y'))
         self.mirbuttZ = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
-        self.mirbuttZ.clicked.connect(partial(self.confoAxis, 'sphere'))
+        self.mirbuttZ.clicked.connect(partial(self.mirror_signal, 'z'))
 
         # Tools
         self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
@@ -264,12 +264,13 @@ class RlShape_ui(QtGui.QDialog):
         size = float(self.sizeLineEdit.text())
         if shape == 'circle':
             crv = mc.circle(nr=(0, 1, 0), r=size/2.0, ch=False)
-            apply_color([crv])
+            self.apply_color([crv])
             return crv
-        p = self.shapesDict[shape]
+        p = self.confoAxis(shape)
         p = [(x * size, y * size, z * size) for x, y, z in p]
         crv = mc.curve(d=1, p=p, n=shape+'#')
-        apply_color([crv])
+        self.apply_color([crv])
+        self.do_twist(crv)
         return crv
 
     def init_do_shape(self, shape):
@@ -315,10 +316,20 @@ class RlShape_ui(QtGui.QDialog):
     def confoAxis(self, shape):
         axis = self.axisComboBox.currentText()
         p = self.shapesDict[shape]
-        if axis == 'y':
-            p = [[z, x, ]]
+        if '-' in axis:
+            p = [(x, -y, z) for x, y, z in p]
+        if 'x' in axis:
+            p = [(y, z, x) for x, y, z in p]
+        if 'z' in axis:
+            p = [(z, x, y) for x, y, z in p]
+        return p
 
-        print p
+    def do_twist(self, crv):
+        degs = mc.getAttr(crv + '.degree')
+        spans = mc.getAttr(crv + '.spans')
+        nb = degs + spans
+        print nb
+        mc.select(crv + '.cv[:' + str(nb) + ']')
 
 
 def parent_shape(parent=None, childs=None, freeze=False):
