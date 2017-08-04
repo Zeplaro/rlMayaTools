@@ -2,8 +2,6 @@ import maya.cmds as mc
 from tbx import get_shape
 from tbx import get_mirrorTable
 
-# TODO : copy in ws and os
-
 
 def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     """

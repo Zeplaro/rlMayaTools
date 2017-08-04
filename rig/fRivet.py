@@ -2,7 +2,6 @@ import maya.cmds as mc
 from tbx import get_shape
 from functools import partial
 
-# todo : param in ui
 
 
 def launch_ui():

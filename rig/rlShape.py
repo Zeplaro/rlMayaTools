@@ -14,6 +14,10 @@ from tbx import get_shape
 todo: pokeball, quad_round_arrow, half_circle, octo_arrown, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
 todo : replace axis combobox by radio button + reverse
+        add get curve color from sel
+        add line width if >= maya 2016.5
+        scale down diamond shape
+        check if mirror other side still works
 """
 
 
