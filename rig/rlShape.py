@@ -18,6 +18,7 @@ todo : replace axis combobox by radio button + reverse
         add line width if >= maya 2016.5
         scale down diamond shape
         check if mirror other side still works
+        pycharm test
 """
 
 
