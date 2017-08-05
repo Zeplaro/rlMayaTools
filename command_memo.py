@@ -8,7 +8,7 @@ mc.addAttr(sel, at='message', ln='L_eye')
 # To append a python script path
 # It can be written in a userSetup.py file in your script folder to be load when maya starts
 import sys
-sys.path.append(r'/datas/laro/rlMayaTools/rig/')
+sys.path.append(r'D:/Robin/Work/Python/rlMayaTools')
 
 
 # Fix the copy/paste problem between pycharm and maya
@@ -35,8 +35,8 @@ qApp.installEventFilter(qApp._clipboard_fix)
 
 
 # Hide node on the channelbox list
-'node'.ihi ou 'node'.isHistoricalyInteresting on ou off
+node.ihi ou node.isHistoricalyInteresting on ou off
 
 # Viewport command
-mc.ogs(r=1) # reset le viewport
+mc.ogs(r=1) # reset/refresh le viewport
 mc.ogs(p=1) # pause le viewport

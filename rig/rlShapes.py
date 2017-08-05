@@ -13,11 +13,11 @@ from tbx import get_shape
 """
 todo: pokeball, quad_round_arrow, half_circle, octo_arrown, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
-todo :  add get curve color from sel
-        add line width if >= maya 2016.5
+todo :  add line width if >= maya 2016.5
         scale down diamond shape
         check if mirror other side still works
         refacto for >= maya 2017
+        apply color to all geoShape
 """
 
 
@@ -25,7 +25,7 @@ def launch_ui():
 
     if mc.window('rlShapeCreator', exists=True):
         mc.deleteUI('rlShapeCreator')
-    ui = RlShape_ui()
+    ui = RlShapes_ui()
     ui.show()
 
 
@@ -34,7 +34,7 @@ def getMayaWin():
     return shiboken.wrapInstance(int(pointer), QtGui.QWidget)
 
 
-class RlShape_ui(QtGui.QDialog):
+class RlShapes_ui(QtGui.QDialog):
 
     choosenColor = (255, 255, 0)
 
@@ -66,7 +66,7 @@ class RlShape_ui(QtGui.QDialog):
                   }
 
     def __init__(self, parent=getMayaWin()):
-        super(RlShape_ui, self).__init__(parent)
+        super(RlShapes_ui, self).__init__(parent)
 
         self.setWindowTitle('rlShape Creator')
         self.setObjectName('rlShapeCreator')
@@ -74,6 +74,8 @@ class RlShape_ui(QtGui.QDialog):
 
         self.ui_layout()
         self.ui_connection()
+        if mc.ls(sl=1):
+            self.get_curve_color()
 
     def ui_layout(self):
         self.mainLayout = QtGui.QVBoxLayout()
@@ -103,27 +105,32 @@ class RlShape_ui(QtGui.QDialog):
                 row += 1
 
         # Shape Options
-        self.shapeOptionLayout = QtGui.QHBoxLayout()
-        self.shapeOptionLayout.setAlignment(QtCore.Qt.AlignCenter)
-        self.mainLayout.addLayout(self.shapeOptionLayout)
+        self.replaceColorLayout = QtGui.QHBoxLayout()
+        self.replaceColorLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.mainLayout.addLayout(self.replaceColorLayout)
         # Replace checkbox
         self.replaceCheckBox = QtGui.QCheckBox('Replace')
         self.replaceCheckBox.setChecked(True)
-        self.shapeOptionLayout.addWidget(self.replaceCheckBox)
+        self.replaceColorLayout.addWidget(self.replaceCheckBox)
         # Separator
         self.vSeparator = QtGui.QLabel()
         self.vSeparator.setFrameStyle(QtGui.QFrame.VLine)
-        self.shapeOptionLayout.addWidget(self.vSeparator)
+        self.replaceColorLayout.addWidget(self.vSeparator)
         # Color Picker
         self.colorLabel = QtGui.QLabel(' Color  :')
-        self.shapeOptionLayout.addWidget(self.colorLabel)
+        self.replaceColorLayout.addWidget(self.colorLabel)
         self.colorButton = QtGui.QPushButton()
         self.colorButton.setStyleSheet('background-color: rgb' + str(self.choosenColor))
         self.colorButton.setFixedSize(50, 20)
-        self.shapeOptionLayout.addWidget(self.colorButton)
+        self.replaceColorLayout.addWidget(self.colorButton)
         # Apply Color button
         self.applyColorButton = QtGui.QPushButton('Apply Color')
-        self.shapeOptionLayout.addWidget(self.applyColorButton)
+        self.replaceColorLayout.addWidget(self.applyColorButton)
+        # Get color button
+        self.getColorButton = QtGui.QPushButton('Get')
+        self.getColorButton.setFixedWidth(30)
+        self.getColorButton.setToolTip('Get the color of the selected curve')
+        self.replaceColorLayout.addWidget(self.getColorButton)
 
         # Size Layout
         self.sizeLayout = QtGui.QHBoxLayout()
@@ -246,13 +253,14 @@ class RlShape_ui(QtGui.QDialog):
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
             self.shapeButton.clicked.connect(partial(self.init_do_shape, shape))
 
+        # Shape option
+        self.colorButton.clicked.connect(self.get_picker_color)
+        self.applyColorButton.clicked.connect(self.apply_color)
+        self.getColorButton.clicked.connect(self.get_curve_color)
         # Scale Slider
         self.sizeSlider.valueChanged.connect(self.sizeSlider_update)
         # Scale LineEdit
         self.sizeLineEdit.textEdited.connect(self.sizeLineEdit_update)
-        # Shape option
-        self.colorButton.clicked.connect(self.get_color)
-        self.applyColorButton.clicked.connect(self.apply_color)
 
         # Mirror buttons
         self.mirbuttX = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
@@ -299,13 +307,43 @@ class RlShape_ui(QtGui.QDialog):
         ws = not space.isChecked()
         shapeMirror.do_shapeMirror(ws=ws, copy=True)
 
-    def get_color(self):
+    def get_picker_color(self):
         self.colorItem = QtGui.QColor()
         self.colorItem.setRgb(*self.choosenColor)
         self.colorPicker = QtGui.QColorDialog()
         self.colorItem = self.colorPicker.getColor(self.colorItem)
         if self.colorItem.isValid():
-            RlShape_ui.choosenColor = self.colorItem.getRgb()
+            RlShapes_ui.choosenColor = self.colorItem.getRgb()
+            self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
+
+    def get_curve_color(self):
+
+        def getColor(node):
+            if mc.getAttr(node+'.overrideEnabled'):
+                if mc.getAttr(node+'.overrideRGBColors'):
+                    color = mc.getAttr(node+'.overrideColorRGB')[0]
+                    color = [x*255 for x in color]
+                    return color
+                else:
+                    mc.warning(node+' Color Override not in RGB mode')
+                    return
+            else:
+                parent = mc.listRelatives(node, parent=True) or []
+                if not parent:
+                    return
+                return getColor(parent[0])
+
+        sel = [x for x in mc.ls(sl=True)
+               if ('geometryShape' in mc.nodeType(x, i=True) or 'transform' in mc.nodeType(x, i=True)) and '.' not in x]
+        if not sel:
+            return
+        obj = sel[0]
+        if 'transform' in mc.nodeType(obj, i=True):
+            if get_shape(obj):
+                obj = get_shape(obj)[0]
+        color = getColor(obj)
+        if color:
+            RlShapes_ui.choosenColor = color
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
 
     def do_shape(self, shape):
@@ -346,9 +384,9 @@ class RlShape_ui(QtGui.QDialog):
 
     def apply_color(self, crvs=None):
         def do(shp, color):
-            mc.setAttr(shp + '.overrideEnabled', True)
-            mc.setAttr(shp + '.overrideRGBColors', True)
-            mc.setAttr(shp + '.overrideColorRGB', *color)
+            mc.setAttr(shp+'.overrideEnabled', True)
+            mc.setAttr(shp+'.overrideRGBColors', True)
+            mc.setAttr(shp+'.overrideColorRGB', *color)
 
         if not crvs:
             crvs = mc.ls(sl=True)

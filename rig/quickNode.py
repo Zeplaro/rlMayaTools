@@ -35,7 +35,7 @@ def nodecreation(node, texte, *arg):
     return newnode
 
 
-def do_quickNode():
+def launch_ui():
 
     winID = 'mainUI'
     if mc.window(winID, exists=True):
