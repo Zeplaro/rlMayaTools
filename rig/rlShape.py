@@ -13,12 +13,11 @@ from tbx import get_shape
 """
 todo: pokeball, quad_round_arrow, half_circle, octo_arrown, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
-todo : replace axis combobox by radio button + reverse
-        add get curve color from sel
+todo :  add get curve color from sel
         add line width if >= maya 2016.5
         scale down diamond shape
         check if mirror other side still works
-        pycharm test
+        refacto for >= maya 2017
 """
 
 
@@ -89,7 +88,7 @@ class RlShape_ui(QtGui.QDialog):
         shapeLayout = QtGui.QGridLayout()
         self.shapeGroupBox.setLayout(shapeLayout)
         row = 0
-        column = 0
+        column = 0.0
         shapeDone = 0
         while shapeDone < len(self.shapesList):
             if column < ceil(sqrt(len(self.shapesList))):
@@ -145,29 +144,35 @@ class RlShape_ui(QtGui.QDialog):
         self.sizeSlider.setMinimum(1)
         self.sizeLayout.addWidget(self.sizeSlider)
 
-        #Axis and twist layout
+        # Axis Twist layout
         self.axisTwistLayout = QtGui.QHBoxLayout()
         self.axisTwistLayout.setAlignment(QtCore.Qt.AlignCenter)
         self.mainLayout.addLayout(self.axisTwistLayout)
         # Axis Label
-        self.axisLabel = QtGui.QLabel('Axis')
-        self.axisLabel.setFixedWidth(25)
+        self.axisLabel = QtGui.QLabel(' Axis :')
+        self.axisLabel.setFixedWidth(35)
         self.axisTwistLayout.addWidget(self.axisLabel)
-        # Axis comboBox
-        self.axisComboBox = QtGui.QComboBox()
-        self.axisComboBox.setFixedWidth(40)
-        for i in ['x', 'y', 'z', '-x', '-y', '-z']:
-            self.axisComboBox.addItem(i)
-        self.axisComboBox.setCurrentIndex(1)
-        self.axisTwistLayout.addWidget(self.axisComboBox)
+        # radio Buttons
+        self.axisButtonGroup = QtGui.QButtonGroup()
+        for axis in 'xyz':
+            self.radioButton = QtGui.QRadioButton(axis)
+            self.radioButton.setFixedWidth(35)
+            if axis == 'y':
+                self.radioButton.setChecked(True)
+            self.axisTwistLayout.addWidget(self.radioButton)
+            self.axisButtonGroup.addButton(self.radioButton)
+        # reverse checkbox
+        self.reverseCheckBox = QtGui.QCheckBox('Reverse')
+        self.reverseCheckBox.setFixedWidth(65)
+        self.axisTwistLayout.addWidget(self.reverseCheckBox)
         # Separator
         self.vSeparator = QtGui.QFrame()
         self.vSeparator.setFrameStyle(QtGui.QFrame.VLine)
-        self.vSeparator.setFixedWidth(25)
+        self.vSeparator.setFixedWidth(10)
         self.axisTwistLayout.addWidget(self.vSeparator)
         # twistLabel
         self.twistLabel = QtGui.QLabel('Twist ')
-        self.twistLabel.setFixedWidth(35)
+        self.twistLabel.setFixedWidth(30)
         self.axisTwistLayout.addWidget(self.twistLabel)
         # Twist Value
         self.twistLineEdit = QtGui.QLineEdit('0')
@@ -306,11 +311,11 @@ class RlShape_ui(QtGui.QDialog):
     def do_shape(self, shape):
         size = float(self.sizeLineEdit.text())
         if shape == 'circle':
-            nr = self.confoAxis('circleNormal')[0]
+            nr = self.confo_axis('circleNormal')[0]
             crv = mc.circle(nr=nr, r=size/2.0, ch=False)
             self.apply_color([crv])
             return crv
-        p = self.confoAxis(shape)
+        p = self.confo_axis(shape)
         p = [(x * size, y * size, z * size) for x, y, z in p]
         crv = mc.curve(d=1, p=p, n=shape+'#')
         self.apply_color([crv])
@@ -358,24 +363,24 @@ class RlShape_ui(QtGui.QDialog):
                     if mc.nodeType(shape) == 'nurbsCurve':
                         do(shape, colorRGB[:3])
 
-    def confoAxis(self, shape):
-        axis = self.axisComboBox.currentText()
+    def confo_axis(self, shape):
+        axis = self.axisButtonGroup.checkedButton().text()
         p = self.shapesDict[shape]
-        if '-' in axis:
+        if self.reverseCheckBox.isChecked():
             p = [(x, -y, z) for x, y, z in p]
-        if 'x' in axis:
+        if axis == 'x':
             p = [(y, z, x) for x, y, z in p]
-        if 'z' in axis:
+        elif axis == 'z':
             p = [(z, x, y) for x, y, z in p]
         return p
 
     def do_twist(self, crv):
         twist_val = int(self.twistLineEdit.text())
         nb = mc.getAttr(crv+'.degree') + mc.getAttr(crv+'.spans')
-        axis = self.axisComboBox.currentText()
-        if 'x' in axis:
+        axis = self.axisButtonGroup.checkedButton().text()
+        if axis == 'x':
             value = (twist_val, 0, 0)
-        elif 'z' in axis:
+        elif axis == 'z':
             value = (0, 0, twist_val)
         else:
             value = (0, twist_val, 0)
