@@ -1,6 +1,9 @@
 import maya.cmds as mc
 from tbx import get_shape
 
+# to do : check undo
+
+
 def do_clstRoot(clsts=None):
 
     if not clsts:

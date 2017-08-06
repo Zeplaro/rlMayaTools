@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_orig(jnt=False, objs=None):
+def do_orig(objs=None, jnt=False):
 
     if not objs:
         objs = mc.ls(sl=True, tr=True, fl=True)
@@ -9,35 +9,32 @@ def do_orig(jnt=False, objs=None):
             mc.warning('Please select an object')
             return
 
-    grps = []
+    origs = []
     for obj in objs:
-        grp = obj+'_orig'
-        if mc.objExists(grp):
-            mc.warning(grp+' already exits')
-            continue
+        orig = obj+'_orig'
         if jnt:
             mc.select(cl=True)
-            grp = mc.joint(n=grp)
+            orig = mc.joint(n=orig)
         else:
-            grp = mc.group(em=True, n=grp)
-        grps += [grp]
+            orig = mc.group(em=True, n=orig)
+        origs += [orig]
 
         if mc.listRelatives(obj, ap=True):
             if jnt:
-                mc.parent(grp, mc.listRelatives(obj, ap=True), r=True)
+                mc.parent(orig, mc.listRelatives(obj, ap=True), r=True)
             else:
-                mc.parent(grp, mc.listRelatives(obj, ap=True))
+                mc.parent(orig, mc.listRelatives(obj, ap=True))
                 sh = mc.xform(obj, q=True, r=True, sh=True)
-                mc.xform(grp, sh=sh, ws=True)
+                mc.xform(orig, sh=sh, ws=True)
         t = mc.xform(obj, q=True, ws=True, t=True)
         ro = mc.xform(obj, q=True, ws=True, ro=True)
         s = mc.xform(obj, q=True, r=True, s=True)
         if jnt:
-            mc.xform(grp, t=t, ro=ro, s=s, ws=True)
-            mc.makeIdentity(grp, apply=True, r=1)
+            mc.xform(orig, t=t, ro=ro, s=s, ws=True)
+            mc.makeIdentity(orig, apply=True, r=True)
         else:
             sh = mc.xform(obj, q=True, r=True, sh=True)
-            mc.xform(grp, t=t, ro=ro, s=s, sh=sh, ws=True)
+            mc.xform(orig, t=t, ro=ro, s=s, sh=sh, ws=True)
 
-        mc.parent(obj, grp)
-    return grps
+        mc.parent(obj, orig)
+    return origs

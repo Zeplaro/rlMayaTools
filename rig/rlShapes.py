@@ -380,9 +380,9 @@ class RlShapes_ui(QtGui.QDialog):
         def getColor(node):
             if mc.getAttr(node+'.overrideEnabled'):
                 if mc.getAttr(node+'.overrideRGBColors'):
-                    color = mc.getAttr(node+'.overrideColorRGB')[0]
-                    color = [x*255 for x in color]
-                    return color
+                    node_color = mc.getAttr(node+'.overrideColorRGB')[0]
+                    node_color = [x*255 for x in node_color]
+                    return node_color
                 else:
                     mc.warning(node+' Color Override not in RGB mode')
                     return
