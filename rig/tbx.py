@@ -7,9 +7,9 @@ def get_skinCluster(obj):
     return sknclust[0] if sknclust else None
 
 
-def get_shape(objs=None):
+def get_shape(obj):
 
-    shapes = mc.listRelatives(objs, s=True, pa=1, ni=True) or []
+    shapes = mc.listRelatives(obj, s=True, pa=1, ni=True) or []
     return shapes
 
 

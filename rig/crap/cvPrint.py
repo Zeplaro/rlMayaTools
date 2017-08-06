@@ -9,5 +9,7 @@ def coord():
     cp = str(cp)
     cp = cp.replace('.0)', ')')
     cp = cp.replace('.0,', ',')
+    cp = cp.replace('-0)', '0)')
+    cp = cp.replace('-0,', '0,')
     print(cp)
 coord()
