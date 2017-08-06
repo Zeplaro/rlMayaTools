@@ -11,13 +11,9 @@ from tbx import get_shape
 
 
 """
-todo: pokeball, quad_round_arrow, half_circle, octo_arrown, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+todo: pokeball, quad_round_arrow, half_circle, fly, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
-todo :  add line width if >= maya 2016.5
-        scale down diamond shape
-        check if mirror other side still works
-        refacto for >= maya 2017
-        apply color to all geoShape
+todo : refacto for >= maya 2017
 """
 
 
@@ -36,9 +32,11 @@ def getMayaWin():
 
 class RlShapes_ui(QtGui.QDialog):
 
+    maya_version = False
+    if mc.about(version=True) == '2016 Extension 2' or int(mc.about(version=True)[:5]) > 2016:
+        maya_version = True
     choosenColor = (255, 255, 0)
-
-    shapesList = ['circle', 'square', 'triangle', 'octogone', 'cube', 'sphere', 'half\nsphere', 'arrow', 'quad\narrow', 'quad\nbent\narrow', 'octo\narrow', 'cross', 'double\narrow', 'double\nbent\narrow', 'pyramide', 'diamond', 'arrow\nhead', 'dome', 'flat\ndome', 'cylinder','half\narrow\nhead', 'eye', 'locator', 'quater\ncircle']
+    shapesList = ['circle', 'square', 'triangle', 'octogone', 'cube', 'sphere', 'half\nsphere', 'arrow', 'quad\narrow', 'quad\nbent\narrow', 'octo\narrow', 'cross', 'double\narrow', 'double\nbent\narrow', 'pyramide', 'diamond', 'arrow\nhead', 'dome', 'flat\ndome', 'cylinder','half\narrow\nhead', 'eye', 'locator', 'quater\ncircle', 'fly']
     shapesDict = {'circleNormal': [(0, 1, 0)],
                   'square': [(0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5)],
                   'quad\narrow': [(0, 0, -0.5), (0.2, 0, -0.3), (0.1, 0, -0.3), (0.1, 0, -0.1), (0.3, 0, -0.1), (0.3, 0, -0.2), (0.5, 0, 0), (0.3, 0, 0.2), (0.3, 0, 0.1), (0.1, 0, 0.1), (0.1, 0, 0.3), (0.2, 0, 0.3), (0, 0, 0.5), (-0.2, 0, 0.3), (-0.1, 0, 0.3), (-0.1, 0, 0.1), (-0.3, 0, 0.1), (-0.3, 0, 0.2), (-0.5, 0, 0), (-0.3, 0, -0.2), (-0.3, 0, -0.1), (-0.1, 0, -0.1), (-0.1, 0, -0.3), (-0.2, 0, -0.3), (0, 0, -0.5)],
@@ -52,17 +50,18 @@ class RlShapes_ui(QtGui.QDialog):
                   'locator': [(0, 0, 0.5), (0, 0, -0.5), (0, 0, 0), (-0.5, 0, 0), (0.5, 0, 0), (0, 0, 0), (0, 0.5, 0), (0, -0.5, 0)],
                   'half\narrow\nhead': [(0, 0, 0), (-0.5, 1.5, 0), (0.5, 1.5, 0), (0, 0, 0), (0, 1.5, 0.5), (0, 1.5, 0), (0, 0, 0)],
                   'pyramide': [(-0.5, 1.5, -0.5), (0.5, 1.5, -0.5), (0, 0, 0), (0.5, 1.5, 0.5), (-0.5, 1.5, 0.5), (0, 0, 0), (-0.5, 1.5, -0.5), (-0.5, 1.5, 0.5), (0.5, 1.5, 0.5), (0.5, 1.5, -0.5)],
-                  'diamond': [(0, 1.5, 0), (-0.5, 0, 0.5), (0, -1.5, 0), (0.5, 0, 0.5), (0, 1.5, 0), (0.5, 0, -0.5), (0, -1.5, 0), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0, 1.5, 0)],
+                  'diamond': [(0, 1, 0), (-0.5, 0, 0.5), (0, -1, 0), (0.5, 0, 0.5), (0, 1, 0), (0.5, 0, -0.5), (0, -1, 0), (-0.5, 0, -0.5), (0.5, 0, -0.5), (0.5, 0, 0.5), (-0.5, 0, 0.5), (-0.5, 0, -0.5), (0, 1, 0)],
                   'half\nsphere': [(-0.5, 0, 0), (-0.483, 0.129, 0), (-0.433, 0.25, 0), (-0.354, 0.354, 0), (-0.25, 0.433, 0), (-0.129, 0.483, 0), (0, 0.5, 0), (0.129, 0.483, 0), (0.25, 0.433, 0), (0.354, 0.354, 0), (0.433, 0.25, 0), (0.483, 0.129, 0), (0.5, 0, 0), (0.483, 0, 0.129), (0.433, 0, 0.25), (0.354, 0, 0.354), (0.25, 0, 0.433), (0.129, 0, 0.483), (0, 0, 0.5), (0, 0.129, 0.483), (0, 0.25, 0.433), (0, 0.354, 0.354), (0, 0.433, 0.25), (0, 0.483, 0.129), (0, 0.5, 0), (0, 0.483, -0.129), (0, 0.433, -0.25), (0, 0.354, -0.354), (0, 0.25, -0.433), (0, 0.129, -0.483), (0, 0, -0.5), (0.129, 0, -0.483), (0.25, 0, -0.433), (0.354, 0, -0.354), (0.433, 0, -0.25), (0.483, 0, -0.129), (0.5, 0, 0), (0.483, 0, 0.129), (0.433, 0, 0.25), (0.354, 0, 0.354), (0.25, 0, 0.433), (0.129, 0, 0.483), (0, 0, 0.5), (-0.129, 0, 0.483), (-0.25, 0, 0.433), (-0.354, 0, 0.354), (-0.433, 0, 0.25), (-0.483, 0, 0.129), (-0.5, 0, 0), (-0.483, 0, -0.129), (-0.433, 0, -0.25), (-0.354, 0, -0.354), (-0.25, 0, -0.433), (-0.129, 0, -0.483), (0, 0, -0.5)],
                   'dome': [(-0.354, 0, -0.354), (-0.342, 0.129, -0.342), (-0.306, 0.25, -0.306), (-0.25, 0.354, -0.25), (-0.177, 0.433, -0.177), (-0.091, 0.483, -0.091), (0, 0.5, 0), (0.091, 0.483, 0.091), (0.177, 0.433, 0.177), (0.25, 0.354, 0.25), (0.306, 0.25, 0.306), (0.342, 0.129, 0.342), (0.354, 0, 0.354), (0.433, 0, 0.25), (0.483, 0, 0.129), (0.5, 0, 0), (0.483, 0.129, 0), (0.433, 0.25, 0), (0.354, 0.354, 0), (0.25, 0.433, 0), (0.129, 0.483, 0), (0, 0.5, 0), (-0.129, 0.483, 0), (-0.25, 0.433, 0), (-0.354, 0.354, 0), (-0.433, 0.25, 0), (-0.483, 0.129, 0), (-0.501, 0, 0), (-0.483, 0, 0.129), (-0.433, 0, 0.25), (-0.354, 0, 0.354), (-0.342, 0.129, 0.342), (-0.306, 0.25, 0.306), (-0.25, 0.354, 0.25), (-0.177, 0.433, 0.177), (-0.091, 0.483, 0.091), (0, 0.5, 0), (0.091, 0.483, -0.091), (0.177, 0.433, -0.177), (0.25, 0.354, -0.25), (0.306, 0.25, -0.306), (0.342, 0.129, -0.342), (0.354, 0, -0.354), (0.25, 0, -0.433), (0.129, 0, -0.483), (0, 0, -0.5), (0, 0.129, -0.483), (0, 0.25, -0.433), (0, 0.354, -0.354), (0, 0.433, -0.25), (0, 0.483, -0.129), (0, 0.5, 0), (0, 0.483, 0.129), (0, 0.433, 0.25), (0, 0.354, 0.354), (0, 0.25, 0.433), (0, 0.129, 0.483), (0, 0, 0.501), (0.129, 0, 0.483), (0.25, 0, 0.433), (0.354, 0, 0.354), (0.433, 0, 0.25), (0.483, 0, 0.129), (0.5, 0, 0), (0.483, 0, -0.129), (0.433, 0, -0.25), (0.354, 0, -0.354), (0.25, 0, -0.433), (0.129, 0, -0.483), (0, 0, -0.5), (-0.129, 0, -0.483), (-0.25, 0, -0.433), (-0.354, 0, -0.354), (-0.433, 0, -0.25), (-0.483, 0, -0.129), (-0.501, 0, 0), (-0.483, 0, 0.129), (-0.433, 0, 0.25), (-0.354, 0, 0.354), (-0.25, 0, 0.433), (-0.129, 0, 0.483), (0, 0, 0.501)],
                   'flat\ndome': [(-0.354, 0, -0.354), (0.354, 0, 0.354), (0.433, 0, 0.25), (0.483, 0, 0.129), (0.5, 0, 0), (-0.501, 0, 0), (-0.483, 0, 0.129), (-0.433, 0, 0.25), (-0.354, 0, 0.354), (0.354, 0, -0.354), (0.25, 0, -0.433), (0.129, 0, -0.483), (0, 0, -0.5), (0, 0, 0.501), (0.129, 0, 0.483), (0.25, 0, 0.433), (0.354, 0, 0.354), (0.433, 0, 0.25), (0.483, 0, 0.129), (0.5, 0, 0), (0.483, 0, -0.129), (0.433, 0, -0.25), (0.354, 0, -0.354), (0.25, 0, -0.433), (0.129, 0, -0.483), (0, 0, -0.5), (-0.129, 0, -0.483), (-0.25, 0, -0.433), (-0.354, 0, -0.354), (-0.433, 0, -0.25), (-0.483, 0, -0.129), (-0.501, 0, 0), (-0.483, 0, 0.129), (-0.433, 0, 0.25), (-0.354, 0, 0.354), (-0.25, 0, 0.433), (-0.129, 0, 0.483), (0, 0, 0.501)],
                   'eye': [(0, 0, -0.25), (0.064, 0, -0.242), (0.125, 0, -0.216), (0.177, 0, -0.177), (0.216, 0, -0.125), (0.242, 0, -0.064), (0.25, 0, 0), (0.242, 0, 0.064), (0.216, 0, 0.125), (0.177, 0, 0.177), (0.125, 0, 0.216), (0.064, 0, 0.242), (0, 0, 0.25), (-0.129, 0, 0.242), (-0.25, 0, 0.216), (-0.354, 0, 0.177), (-0.433, 0, 0.125), (-0.483, 0, 0.064), (-0.5, 0, 0), (-0.483, 0, -0.064), (-0.433, 0, -0.125), (-0.354, 0, -0.177), (-0.25, 0, -0.216), (-0.129, 0, -0.242), (0, 0, -0.25), (0.129, 0, -0.242), (0.25, 0, -0.216), (0.354, 0, -0.177), (0.433, 0, -0.125), (0.483, 0, -0.064), (0.5, 0, 0), (0.483, 0, 0.064), (0.433, 0, 0.125), (0.354, 0, 0.177), (0.25, 0, 0.216), (0.129, 0, 0.242), (0, 0, 0.25), (-0.064, 0, 0.242), (-0.125, 0, 0.216), (-0.177, 0, 0.177), (-0.216, 0, 0.125), (-0.242, 0, 0.064), (-0.25, 0, 0), (-0.242, 0, -0.064), (-0.216, 0, -0.125), (-0.177, 0, -0.177), (-0.125, 0, -0.216), (-0.064, 0, -0.242), (0, 0, -0.25)],
-                  'triangle': [(0.5, 0, 0.433), (-0.5, 0, 0.433), (0, 0, -0.433), (0.5, 0, 0.433)],
+                  'triangle': [(0.5, 0, 0.289), (-0.5, 0, 0.289), (0, 0, -0.577), (0.5, 0, 0.289)],
                   'octogone': [(0, 0, -0.5), (0.354, 0, -0.354), (0.5, 0, 0), (0.354, 0, 0.354), (0, 0, 0.5), (-0.354, 0, 0.354), (-0.5, 0, 0), (-0.354, 0, -0.354), (0, 0, -0.5)],
                   'double\nbent\narrow': [(0.5, 0, 0), (0.449, 0.047, 0.069), (0.393, 0.088, 0.139), (0.333, 0.124, 0.208), (0.271, 0.153, 0.278), (0.271, 0.153, 0.139), (0.205, 0.177, 0.139), (0.138, 0.194, 0.139), (0.069, 0.204, 0.139), (0, 0.207, 0.139), (-0.069, 0.204, 0.139), (-0.138, 0.194, 0.139), (-0.205, 0.177, 0.139), (-0.271, 0.153, 0.139), (-0.271, 0.153, 0.278), (-0.333, 0.124, 0.208), (-0.393, 0.088, 0.139), (-0.449, 0.047, 0.069), (-0.5, 0, 0), (-0.449, 0.047, -0.069), (-0.393, 0.088, -0.139), (-0.333, 0.124, -0.208), (-0.271, 0.153, -0.278), (-0.271, 0.153, -0.139), (-0.205, 0.177, -0.139), (-0.138, 0.194, -0.139), (-0.069, 0.204, -0.139), (0, 0.207, -0.139), (0.069, 0.204, -0.139), (0.138, 0.194, -0.139), (0.205, 0.177, -0.139), (0.271, 0.153, -0.139), (0.271, 0.153, -0.278), (0.333, 0.124, -0.208), (0.393, 0.088, -0.139), (0.449, 0.047, -0.069), (0.5, 0, 0)],
                   'quad\nbent\narrow': [(-0.1106, 0.1898, 0.1093), (-0.1106, 0.1746, 0.1808), (-0.1106, 0.152, 0.2503), (-0.1106, 0.1223, 0.3171), (-0.1651, 0.1126, 0.3122), (-0.2185, 0.0992, 0.3053), (-0.1651, 0.0862, 0.3593), (-0.1106, 0.065, 0.4105), (-0.0555, 0.036, 0.4578), (0, 0, 0.5), (0.0555, 0.036, 0.4578), (0.1106, 0.065, 0.4105), (0.1651, 0.0862, 0.3593), (0.2185, 0.0992, 0.3053), (0.1651, 0.1126, 0.3122), (0.1106, 0.1223, 0.3171), (0.1106, 0.152, 0.2503), (0.1106, 0.1746, 0.1808), (0.1106, 0.1898, 0.1093), (0.183, 0.1746, 0.1068), (0.2534, 0.152, 0.1033), (0.321, 0.1223, 0.0986), (0.321, 0.1126, 0.1471), (0.321, 0.0992, 0.1947), (0.3695, 0.0862, 0.1407), (0.4156, 0.065, 0.0895), (0.4592, 0.036, 0.0422), (0.5, 0, 0), (0.4592, 0.036, -0.0422), (0.4156, 0.065, -0.0895), (0.3695, 0.0862, -0.1407), (0.321, 0.0992, -0.1947), (0.321, 0.1126, -0.1471), (0.321, 0.1223, -0.0986), (0.2534, 0.152, -0.1033), (0.183, 0.1746, -0.1068), (0.1106, 0.1898, -0.1093), (0.1106, 0.1746, -0.1808), (0.1106, 0.152, -0.2503), (0.1106, 0.1223, -0.3171), (0.1651, 0.1126, -0.3122), (0.2185, 0.0992, -0.3053), (0.1651, 0.0862, -0.3593), (0.1106, 0.065, -0.4105), (0.0555, 0.036, -0.4578), (0, 0, -0.5), (-0.0555, 0.036, -0.4578), (-0.1106, 0.065, -0.4105), (-0.1651, 0.0862, -0.3593), (-0.2185, 0.0992, -0.3053), (-0.1651, 0.1126, -0.3122), (-0.1106, 0.1223, -0.3171), (-0.1106, 0.152, -0.2503), (-0.1106, 0.1746, -0.1808), (-0.1106, 0.1898, -0.1093), (-0.183, 0.1746, -0.1068), (-0.2534, 0.152, -0.1033), (-0.321, 0.1223, -0.0986), (-0.321, 0.1126, -0.1471), (-0.321, 0.0992, -0.1947), (-0.3695, 0.0862, -0.1407), (-0.4156, 0.065, -0.0895), (-0.4592, 0.036, -0.0422), (-0.5, 0, 0), (-0.4592, 0.036, 0.0422), (-0.4156, 0.065, 0.0895), (-0.3695, 0.0862, 0.1407), (-0.321, 0.0992, 0.1947), (-0.321, 0.1126, 0.1471), (-0.321, 0.1223, 0.0986), (-0.2534, 0.152, 0.1033), (-0.183, 0.1746, 0.1068), (-0.1106, 0.1898, 0.1093)],
                   'arrow': [(0.125, 0.625, 0), (0.125, 0.25, 0), (0.25, 0.25, 0), (0, 0, 0), (-0.25, 0.25, 0), (-0.125, 0.25, 0), (-0.125, 0.625, 0), (0.125, 0.625, 0)],
                   'octo\narrow': [(0.2357, 0, 0.3143), (0.0556, 0, 0.1341), (0.0556, 0, 0.3889), (0.1111, 0, 0.3889), (0, 0, 0.5), (-0.1111, 0, 0.3889), (-0.0556, 0, 0.3889), (-0.0556, 0, 0.1341), (-0.2357, 0, 0.3143), (-0.1964, 0, 0.3536), (-0.3536, 0, 0.3536), (-0.3536, 0, 0.1964), (-0.3143, 0, 0.2357), (-0.1341, 0, 0.0556), (-0.3889, 0, 0.0556), (-0.3889, 0, 0.1111), (-0.5, 0, 0), (-0.3889, 0, -0.1111), (-0.3889, 0, -0.0556), (-0.1341, 0, -0.0556), (-0.3143, 0, -0.2357), (-0.3536, 0, -0.1964), (-0.3536, 0, -0.3536), (-0.1964, 0, -0.3536), (-0.2357, 0, -0.3143), (-0.0556, 0, -0.1341), (-0.0556, 0, -0.3889), (-0.1111, 0, -0.3889), (0, 0, -0.5), (0.1111, 0, -0.3889), (0.0556, 0, -0.3889), (0.0556, 0, -0.1341), (0.2357, 0, -0.3143), (0.1964, 0, -0.3536), (0.3536, 0, -0.3536), (0.3536, 0, -0.1964), (0.3143, 0, -0.2357), (0.1341, 0, -0.0556), (0.3889, 0, -0.0556), (0.3889, 0, -0.1111), (0.5, 0, 0), (0.3889, 0, 0.1111), (0.3889, 0, 0.0556), (0.1341, 0, 0.0556), (0.3143, 0, 0.2357), (0.3536, 0, 0.1964), (0.3536, 0, 0.3536), (0.1964, 0, 0.3536), (0.2357, 0, 0.3143)],
+                  'fly': [(0, -0, -0.157), (-0.078, 0, -0.047), (-0.005, 0, -0.047), (-0.009, 0, 0.004), (-0.049, 0, 0.004), (-0.095, 0, 0.001), (-0.144, 0, -0.011), (-0.185, 0, -0.034), (-0.215, -0, -0.07), (-0.232, -0, -0.113), (-0.237, -0, -0.159), (-0.237, -0, -0.221), (-0.5, -0, -0.243), (-0.451, -0, -0.173), (-0.264, -0, -0.157), (-0.262, -0, -0.113), (-0.455, -0, -0.072), (-0.404, 0, -0.027), (-0.25, -0, -0.058), (-0.24, 0, -0.037), (-0.229, 0, -0.021), (-0.349, 0, 0.062), (-0.284, 0, 0.083), (-0.186, 0, 0.018), (-0.167, 0, 0.029), (-0.149, 0, 0.036), (-0.195, 0, 0.132), (-0.127, 0, 0.119), (-0.09, 0, 0.046), (-0.016, 0, 0.046), (-0.022, 0, 0.078), (-0.038, 0, 0.113), (-0.067, 0, 0.148), (0, 0, 0.243), (0.067, 0, 0.148), (0.038, 0, 0.113), (0.022, 0, 0.078), (0.016, 0, 0.046), (0.09, 0, 0.046), (0.127, 0, 0.119), (0.195, 0, 0.132), (0.149, 0, 0.036), (0.167, 0, 0.029), (0.186, 0, 0.018), (0.284, 0, 0.083), (0.349, 0, 0.062), (0.229, 0, -0.021), (0.24, 0, -0.037), (0.25, -0, -0.058), (0.404, 0, -0.027), (0.455, -0, -0.072), (0.262, -0, -0.113), (0.264, -0, -0.157), (0.451, -0, -0.173), (0.5, -0, -0.243), (0.237, -0, -0.221), (0.237, -0, -0.159), (0.232, -0, -0.113), (0.215, -0, -0.07), (0.185, 0, -0.034), (0.144, 0, -0.011), (0.095, 0, 0.001), (0.049, 0, 0.004), (0.009, 0, 0.004), (0.005, 0, -0.047), (0.078, 0, -0.047), (0, 0, -0.157)],
                   }
 
     def __init__(self, parent=getMayaWin()):
@@ -136,7 +135,7 @@ class RlShapes_ui(QtGui.QDialog):
         self.sizeLayout = QtGui.QHBoxLayout()
         self.mainLayout.addLayout(self.sizeLayout)
         # Size Label
-        self.sizeLabel = QtGui.QLabel(' Size :')
+        self.sizeLabel = QtGui.QLabel(' Size :    ')
         self.sizeLayout.addWidget(self.sizeLabel)
         # Size Value
         self.sizeLineEdit = QtGui.QLineEdit('2')
@@ -150,6 +149,26 @@ class RlShapes_ui(QtGui.QDialog):
         self.sizeSlider.setMaximum(10)
         self.sizeSlider.setMinimum(1)
         self.sizeLayout.addWidget(self.sizeSlider)
+
+        if self.maya_version:
+            # Width Layout
+            self.widthLayout = QtGui.QHBoxLayout()
+            self.mainLayout.addLayout(self.widthLayout)
+            # Width Label
+            self.widthLabel = QtGui.QLabel(' Width :')
+            self.widthLayout.addWidget(self.widthLabel)
+            # Width Value
+            self.widthLineEdit = QtGui.QLineEdit('1')
+            self.widthLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
+            self.widthLineEdit.setMaximumWidth(40)
+            self.widthLineEdit.setAlignment(QtCore.Qt.AlignCenter)
+            self.widthLayout.addWidget(self.widthLineEdit)
+            # Width Slider
+            self.widthSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
+            self.widthSlider.setValue(1)
+            self.widthSlider.setMaximum(10)
+            self.widthSlider.setMinimum(1)
+            self.widthLayout.addWidget(self.widthSlider)
 
         # Axis Twist layout
         self.axisTwistLayout = QtGui.QHBoxLayout()
@@ -216,11 +235,11 @@ class RlShapes_ui(QtGui.QDialog):
             self.mirrorSoloLayout.addWidget(self.mirrorButton)
         # Mirror other side
         self.sideMirror = QtGui.QPushButton('Mirror other side')
-        self.sideMirror.setFixedWidth(140)
+        self.sideMirror.setFixedWidth(145)
         self.mirrorButtonsLayout.addWidget(self.sideMirror)
         # Copy shape button
         self.copyButton = QtGui.QPushButton('Copy Shapes')
-        self.copyButton.setFixedWidth(140)
+        self.copyButton.setFixedWidth(145)
         self.mirrorButtonsLayout.addWidget(self.copyButton)
         # Separator Layout
         self.separatorLayout = QtGui.QVBoxLayout()
@@ -253,14 +272,19 @@ class RlShapes_ui(QtGui.QDialog):
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
             self.shapeButton.clicked.connect(partial(self.init_do_shape, shape))
 
-        # Shape option
+        # Shape options
         self.colorButton.clicked.connect(self.get_picker_color)
         self.applyColorButton.clicked.connect(self.apply_color)
         self.getColorButton.clicked.connect(self.get_curve_color)
-        # Scale Slider
+        # Size Slider
         self.sizeSlider.valueChanged.connect(self.sizeSlider_update)
-        # Scale LineEdit
+        # Size LineEdit
         self.sizeLineEdit.textEdited.connect(self.sizeLineEdit_update)
+        if self.maya_version:
+            # Width Slider
+            self.widthSlider.valueChanged.connect(self.widthSlider_update)
+            # Width LineEdit
+            self.widthLineEdit.textEdited.connect(self.widthLineEdit_update)
 
         # Mirror buttons
         self.mirbuttX = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
@@ -290,6 +314,21 @@ class RlShapes_ui(QtGui.QDialog):
             self.sizeSlider.setMaximum(10)
         self.sizeSlider.setValue(float(value))
 
+    def widthSlider_update(self):
+        value = self.widthSlider.value()
+        self.widthLineEdit.setText(str(value))
+
+    def widthLineEdit_update(self):
+        value = self.widthLineEdit.text()
+        if float(value) > 10:
+            if float(value) < 500:
+                self.widthSlider.setMaximum(float(value)*2)
+            else:
+                self.widthSlider.setMaximum(1000)
+        else:
+            self.widthSlider.setMaximum(10)
+        self.widthSlider.setValue(float(value))
+
     def mirror_signal(self, axis):
         mc.undoInfo(openChunk=True)
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
@@ -315,6 +354,26 @@ class RlShapes_ui(QtGui.QDialog):
         if self.colorItem.isValid():
             RlShapes_ui.choosenColor = self.colorItem.getRgb()
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
+
+    def apply_color(self, crvs=None):
+        def apply(shp, color):
+            mc.setAttr(shp+'.overrideEnabled', True)
+            mc.setAttr(shp+'.overrideRGBColors', True)
+            mc.setAttr(shp+'.overrideColorRGB', *color)
+
+        if not crvs:
+            crvs = [x for x in mc.ls(sl=True) if ('geometryShape' in mc.nodeType(x, i=True) or 'transform' in mc.nodeType(x, i=True)) and '.' not in x]
+        colorRGB = self.choosenColor
+        colorRGB = [x/255.0 for x in colorRGB]
+        for crv in crvs:
+            if 'geometryShape' in mc.nodeType(crv, i=True):
+                apply(crv, colorRGB)
+            else:
+                if get_shape(crv):
+                    shapes = get_shape(crv)
+                    for shape in shapes:
+                        if 'geometryShape' in mc.nodeType(shape, i=True):
+                            apply(shape, colorRGB[:3])
 
     def get_curve_color(self):
 
@@ -346,23 +405,9 @@ class RlShapes_ui(QtGui.QDialog):
             RlShapes_ui.choosenColor = color
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
 
-    def do_shape(self, shape):
-        size = float(self.sizeLineEdit.text())
-        if shape == 'circle':
-            nr = self.confo_axis('circleNormal')[0]
-            crv = mc.circle(nr=nr, r=size/2.0, ch=False)
-            self.apply_color([crv])
-            return crv
-        p = self.confo_axis(shape)
-        p = [(x * size, y * size, z * size) for x, y, z in p]
-        crv = mc.curve(d=1, p=p, n=shape+'#')
-        self.apply_color([crv])
-        self.do_twist(crv)
-        return crv
-
     def init_do_shape(self, shape):
         mc.undoInfo(openChunk=True)
-        sel = [x for x in mc.ls(sl=True) if mc.nodeType(x) == 'transform' or mc.nodeType(x) == 'joint']
+        sel = [x for x in mc.ls(sl=True) if 'transform' in mc.nodeType(x, i=True)]
         if not sel:
             crv = self.do_shape(shape)
             mc.select(crv)
@@ -376,30 +421,27 @@ class RlShapes_ui(QtGui.QDialog):
                     mc.delete(crv)
                 else:
                     sel_shape = get_shape(i)
-                    [mc.delete(x) for x in sel_shape]
+                    [mc.delete(x) for x in sel_shape if 'nurbsCurve' in mc.nodeType(x, i=True)]
                     parent_shape(i, crv_shape)
                     mc.delete(crv)
             mc.select(sel)
         mc.undoInfo(closeChunk=True)
 
-    def apply_color(self, crvs=None):
-        def do(shp, color):
-            mc.setAttr(shp+'.overrideEnabled', True)
-            mc.setAttr(shp+'.overrideRGBColors', True)
-            mc.setAttr(shp+'.overrideColorRGB', *color)
-
-        if not crvs:
-            crvs = mc.ls(sl=True)
-        colorRGB = self.choosenColor
-        colorRGB = [x/255.0 for x in colorRGB]
-        for crv in crvs:
-            if mc.nodeType(crv) == 'nurbsCurve':
-                do(crv, colorRGB)
-            else:
-                shapes = get_shape(crv)
-                for shape in shapes:
-                    if mc.nodeType(shape) == 'nurbsCurve':
-                        do(shape, colorRGB[:3])
+    def do_shape(self, shape):
+        size = float(self.sizeLineEdit.text())
+        if shape == 'circle':
+            nr = self.confo_axis('circleNormal')[0]
+            crv = mc.circle(nr=nr, r=size/2.0, ch=False)[0]
+        else:
+            p = self.confo_axis(shape)
+            p = [(x * size, y * size, z * size) for x, y, z in p]
+            crv = mc.curve(d=1, p=p, n=shape+'#')
+        if self.maya_version:
+            width = float(self.widthLineEdit.text())
+            mc.setAttr(crv+'.lineWidth', width)
+        self.apply_color([crv])
+        self.do_twist(crv)
+        return crv
 
     def confo_axis(self, shape):
         axis = self.axisButtonGroup.checkedButton().text()
