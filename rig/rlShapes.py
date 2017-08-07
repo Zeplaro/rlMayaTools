@@ -14,6 +14,8 @@ from tbx import get_shape
 todo: pokeball, half_circle, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
 todo : refacto for >= maya 2017
+        add from color index with mc.colorIndex
+        add : add selected custom shape to list
 """
 
 
@@ -33,7 +35,7 @@ def getMayaWin():
 class RlShapes_ui(QtGui.QDialog):
 
     maya_version = False
-    if mc.about(version=True) == '2016 Extension 2' or int(mc.about(version=True)[:5]) > 2016:
+    if '2016 Extension 2' in mc.about(version=True) or int(mc.about(version=True)[:5]) > 2016:
         maya_version = True
     choosenColor = (255, 255, 0)
     shapesList = ['circle', 'square', 'triangle', 'octogone', 'cube', 'sphere', 'half\nsphere', 'arrow', 'quad\narrow', 'quad\nbent\narrow', 'octo\narrow', 'cross', 'double\narrow', 'double\nbent\narrow', 'pyramide', 'diamond', 'arrow\nhead', 'dome', 'flat\ndome', 'cylinder','half\narrow\nhead', 'eye', 'locator', 'quater\ncircle', 'fly']
@@ -135,7 +137,7 @@ class RlShapes_ui(QtGui.QDialog):
         self.sizeLayout = QtGui.QHBoxLayout()
         self.mainLayout.addLayout(self.sizeLayout)
         # Size Label
-        self.sizeLabel = QtGui.QLabel('Size :    ')
+        self.sizeLabel = QtGui.QLabel(' Size :  ')
         self.sizeLayout.addWidget(self.sizeLabel)
         # Size Value
         self.sizeLineEdit = QtGui.QLineEdit('2')
@@ -155,7 +157,7 @@ class RlShapes_ui(QtGui.QDialog):
             self.widthLayout = QtGui.QHBoxLayout()
             self.mainLayout.addLayout(self.widthLayout)
             # Width Label
-            self.widthLabel = QtGui.QLabel('Width :')
+            self.widthLabel = QtGui.QLabel(' Width :')
             self.widthLayout.addWidget(self.widthLabel)
             # Width Value
             self.widthLineEdit = QtGui.QLineEdit('1')
@@ -169,6 +171,11 @@ class RlShapes_ui(QtGui.QDialog):
             self.widthSlider.setMaximum(10)
             self.widthSlider.setMinimum(1)
             self.widthLayout.addWidget(self.widthSlider)
+            # Width apply
+            self.widthButton = QtGui.QPushButton('Apply')
+            self.widthButton.setToolTip('Apply width on selected curves')
+            self.widthButton.setFixedWidth(40)
+            self.widthLayout.addWidget(self.widthButton)
 
         # Axis Twist layout
         self.axisTwistLayout = QtGui.QHBoxLayout()
@@ -285,6 +292,8 @@ class RlShapes_ui(QtGui.QDialog):
             self.widthSlider.valueChanged.connect(self.widthSlider_update)
             # Width LineEdit
             self.widthLineEdit.textEdited.connect(self.widthLineEdit_update)
+            # Width Button
+            self.widthButton.clicked.connect(self.apply_width)
 
         # Mirror buttons
         self.mirbuttX = self.findChild(QtGui.QPushButton, 'mirrorButtonX')
@@ -329,6 +338,17 @@ class RlShapes_ui(QtGui.QDialog):
             self.widthSlider.setMaximum(10)
         self.widthSlider.setValue(float(value))
 
+    def apply_width(self):
+        crvs = [x for x in mc.ls(sl=True) if ('nurbsCurve' in mc.nodeType(x, i=True) or 'transform' in mc.nodeType(x, i=True)) and '.' not in x]
+        width = float(self.widthLineEdit.text())
+        for crv in crvs:
+            if 'transform' in mc.nodeType(crv, i=True):
+                shps = [x for x in get_shape(crv) if 'nurbsCurve' in mc.nodeType(x, i=True)]
+                for shp in shps:
+                    mc.setAttr(shp+'.lineWidth', width)
+            else:
+                mc.setAttr(crv+'.lineWidth', width)
+
     def mirror_signal(self, axis):
         mc.undoInfo(openChunk=True)
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
@@ -356,7 +376,7 @@ class RlShapes_ui(QtGui.QDialog):
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
 
     def apply_color(self, crvs=None):
-        def apply(shp, color):
+        def do_apply_color(shp, color):
             mc.setAttr(shp+'.overrideEnabled', True)
             mc.setAttr(shp+'.overrideRGBColors', True)
             mc.setAttr(shp+'.overrideColorRGB', *color)
@@ -367,13 +387,13 @@ class RlShapes_ui(QtGui.QDialog):
         colorRGB = [x/255.0 for x in colorRGB]
         for crv in crvs:
             if 'geometryShape' in mc.nodeType(crv, i=True):
-                apply(crv, colorRGB)
+                do_apply_color(crv, colorRGB)
             else:
                 if get_shape(crv):
                     shapes = get_shape(crv)
                     for shape in shapes:
                         if 'geometryShape' in mc.nodeType(shape, i=True):
-                            apply(shape, colorRGB[:3])
+                            do_apply_color(shape, colorRGB[:3])
 
     def get_curve_color(self):
 

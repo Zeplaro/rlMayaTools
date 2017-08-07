@@ -21,10 +21,10 @@ def do_clstRoot(clsts=None):
             mc.warning('No cluster node found on '+clst_handle)
             continue
         new_name = clst_handle.replace('Handle', '')
-        ro = mc.xform(clst_handle, q=1, ro=True)
-        roP = mc.xform(clst_handle, q=1, rotatePivot=True)
-        t = mc.xform(clst_handle, q=1, translation=True)
-        t = [x + y for x, y in zip(t, roP)]
+        ro = mc.xform(clst_handle, q=True, ro=True)
+        rop = mc.xform(clst_handle, q=True, rotatePivot=True)
+        t = mc.xform(clst_handle, q=True, translation=True)
+        t = [x + y for x, y in zip(t, rop)]
 
         root_grp = mc.group(em=True, w=True, n=new_name+'_root')
         cluster_grp = mc.group(em=True, parent=root_grp, n=new_name+'#')
