@@ -1,6 +1,5 @@
 import maya.cmds as mc
 import os
-import ast
 
 
 def launch_ui():

@@ -1,6 +1,7 @@
 import maya.cmds as mc
 from tbx import get_skinCluster
 
+# todo : fix try except when bpm already connected
 
 def do_reSkin(*objs):
 
@@ -17,6 +18,9 @@ def do_reSkin(*objs):
             for conn in conns:
                 bpm = conn.replace('matrix', 'bindPreMatrix')
                 wim = mc.getAttr(inf+'.worldInverseMatrix')
-                mc.setAttr(bpm, *wim, type='matrix')
+                try:
+                    mc.setAttr(bpm, *wim, type='matrix')
+                except:
+                    pass
         mc.skinCluster(skn, e=True, rbm=True)
     return objs
