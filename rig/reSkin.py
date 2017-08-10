@@ -18,9 +18,9 @@ def do_reSkin(*objs):
             for conn in conns:
                 bpm = conn.replace('matrix', 'bindPreMatrix')
                 wim = mc.getAttr(inf+'.worldInverseMatrix')
-                try:
+                if not mc.isConnected(bpm):
                     mc.setAttr(bpm, *wim, type='matrix')
-                except:
-                    pass
+                else:
+                    print('{} is already connected'.format(bpm))
         mc.skinCluster(skn, e=True, rbm=True)
     return objs
