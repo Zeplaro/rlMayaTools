@@ -3,7 +3,6 @@ from tbx import get_shape
 from math import sqrt
 
 # todo : do closest if sel is vtx
-# todo : stop button ui if closest
 
 
 def get_dist(a, b):
@@ -25,8 +24,6 @@ def do_snapVtx(objs=None, os=False, closest=False):
 
     mc.select(mc.polyListComponentConversion(master, tv=True))
     master_vtx = mc.ls(sl=True, fl=True)
-    if closest:
-        print('Starting comparision...')
     if closest or not os:
         master_vtx_pos = [mc.xform(x, q=True, ws=True, t=True) for x in master_vtx]
     else:
@@ -43,21 +40,21 @@ def do_snapVtx(objs=None, os=False, closest=False):
                 else:
                     mc.xform(vtx, os=True, t=master_vtx_pos[i])
         else:
-            slave_len = len(slave_vtx)
-            slave_nbr = 0
-            for vtx in slave_vtx:
-                vtx_pos = mc.xform(vtx, q=True, ws=True, t=True)
+            slave_vtx_pos = [mc.xform(x, q=True, ws=True, t=True) for x in slave_vtx]
+            for i, vtx in enumerate(slave_vtx):
+                print(vtx)
+                dists = []
+                for j in master_vtx_pos:
+                    dist = get_dist(slave_vtx_pos[i], j)
+                    dists.append(dist)
                 index = 0
-                dist = get_dist(vtx_pos, master_vtx_pos[0])
-                for mindex, mvtx in enumerate(master_vtx_pos):
-                    new_dist = get_dist(vtx_pos, mvtx)
-                    if dist > new_dist:
-                        dist = new_dist
-                        index = mindex
-                slave_nbr += 1
+                val = dists[0]
+                for k_, dist in enumerate(dists):
+                    if val < dist:
+                        index = k_
+                        val = dist
+                    else:
+                        continue
                 mc.xform(vtx, ws=True, t=master_vtx_pos[index])
-                mc.refresh(cv=True, f=True)
-                print('{}/{}'.format(slave_nbr, slave_len))
-            print('{} comparison done'.format(slave_len*len(master_vtx)))
     mc.select(sel)
 
