@@ -3,12 +3,13 @@ from tbx import get_shape
 from math import sqrt
 
 # todo : do closest if sel is vtx
-# todo : stop button ui if closest
+# todo : better stop button
 
 
 def get_dist(a, b):
     dist = sqrt(pow((b[0]-a[0]), 2)+pow((b[1]-a[1]), 2)+pow((b[2]-a[2]), 2))
     return dist
+
 
 def do_snapVtx(objs=None, os=False, closest=False):
 
@@ -25,8 +26,22 @@ def do_snapVtx(objs=None, os=False, closest=False):
 
     mc.select(mc.polyListComponentConversion(master, tv=True))
     master_vtx = mc.ls(sl=True, fl=True)
+
     if closest:
         print('Starting comparision...')
+        comp = 0
+
+        def do_stop(*args):
+            mc.button('stop', e=True, label='Stoped')
+
+        if mc.window('snapVTX', exists=True):
+            mc.deleteUI('snapVTX')
+        mc.window('snapVTX', s=False, rtf=True)
+        mc.columnLayout('columnMain')
+        mc.text(label='Snaping in progress...', align='center')
+        mc.button('stop', label='Stop', align='center', command=do_stop)
+        mc.showWindow('snapVTX')
+
     if closest or not os:
         master_vtx_pos = [mc.xform(x, q=True, ws=True, t=True) for x in master_vtx]
     else:
@@ -44,8 +59,10 @@ def do_snapVtx(objs=None, os=False, closest=False):
                     mc.xform(vtx, os=True, t=master_vtx_pos[i])
         else:
             slave_len = len(slave_vtx)
-            slave_nbr = 0
-            for vtx in slave_vtx:
+
+            for _i, vtx in enumerate(slave_vtx):
+                if mc.button('stop', q=True, label=True) == 'Stoped':
+                    break
                 vtx_pos = mc.xform(vtx, q=True, ws=True, t=True)
                 index = 0
                 dist = get_dist(vtx_pos, master_vtx_pos[0])
@@ -54,10 +71,12 @@ def do_snapVtx(objs=None, os=False, closest=False):
                     if dist > new_dist:
                         dist = new_dist
                         index = mindex
-                slave_nbr += 1
+                    comp += 1
                 mc.xform(vtx, ws=True, t=master_vtx_pos[index])
                 mc.refresh(cv=True, f=True)
-                print('{}/{}'.format(slave_nbr, slave_len))
-            print('{} comparison done'.format(slave_len*len(master_vtx)))
+                print('{}/{}'.format(_i, slave_len))
+    if closest:
+        print('{} comparison done'.format(comp))
+        mc.deleteUI('snapVTX')
     mc.select(sel)
 

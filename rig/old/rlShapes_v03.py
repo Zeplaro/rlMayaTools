@@ -81,33 +81,14 @@ class RlShapes_ui(QtGui.QDialog):
         self.mainLayout = QtGui.QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        # Shapes menu layout
-        self.shapesMenuLayout = QtGui.QHBoxLayout()
-        self.mainLayout.addLayout(self.shapesMenuLayout)
-        # Shape Menu Button Font
-        self.shapeMenuButtonFont = QtGui.QFont()
-        self.shapeMenuButtonFont.setPointSize(7)
-        self.shapeMenuButtonFont.setBold(True)
-        # Shapes Menu Button
-        self.shapeMenuButton = QtGui.QPushButton('V')
-        self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
-        self.shapeMenuButton.setFixedSize(15, 15)
-        self.shapeMenuButton.setFlat(True)
-        self.shapesMenuLayout.addWidget(self.shapeMenuButton)
-        # Shape Menu Font
-        self.shapeMenuLabelFont = QtGui.QFont()
-        self.shapeMenuLabelFont.setPointSize(8)
-        self.shapeMenuLabelFont.setBold(True)
-        # Shapes Menu Label
-        self.shapeMenuLabel = QtGui.QLabel('Shapes')
-        self.shapeMenuLabel.setFont(self.shapeMenuLabelFont)
-        self.shapesMenuLayout.addWidget(self.shapeMenuLabel)
+        # Shapes groupBox
+        self.shapeGroupBox = QtGui.QGroupBox('Shapes')
+        self.shapeGroupBox.setAlignment(QtCore.Qt.AlignCenter)
+        self.mainLayout.addWidget(self.shapeGroupBox)
 
         # Shapes buttons Layout
-        self.shapeLayoutWidget = QtGui.QWidget()
-        self.mainLayout.addWidget(self.shapeLayoutWidget)
-        self.shapeLayout = QtGui.QGridLayout()
-        self.shapeLayoutWidget.setLayout(self.shapeLayout)
+        shapeLayout = QtGui.QGridLayout()
+        self.shapeGroupBox.setLayout(shapeLayout)
         row = 0
         column = 0.0
         shapeDone = 0
@@ -116,7 +97,7 @@ class RlShapes_ui(QtGui.QDialog):
                 self.shapeButton = QtGui.QPushButton(self.shapesList[shapeDone])
                 self.shapeButton.setObjectName('btn_'+self.shapesList[shapeDone])
                 self.shapeButton.setFixedSize(55, 55)
-                self.shapeLayout.addWidget(self.shapeButton, row, column)
+                shapeLayout.addWidget(self.shapeButton, row, column)
                 column += 1
                 shapeDone += 1
             else:
@@ -292,7 +273,6 @@ class RlShapes_ui(QtGui.QDialog):
 
     def ui_connection(self):
         # Shapes
-        self.shapeMenuButton.clicked.connect(self.shapes_hide)
         for buttonIndex in range(len(self.shapesList)):
             shape = self.shapesList[buttonIndex]
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
@@ -326,19 +306,6 @@ class RlShapes_ui(QtGui.QDialog):
         self.sideMirror.clicked.connect(self.sideMirror_signal)
         self.copyButton.clicked.connect(self.copy_signal)
         self.parentButton.clicked.connect(parent_shape)
-
-    def shapes_hide(self):
-        if self.shapeMenuButton.text() == 'V':
-            self.shapeLayoutWidget.hide()
-            self.shapeMenuButton.setText('>')
-            self.shapeMenuButtonFont.setPointSize(10)
-            self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
-            self.adjustSize()
-        else:
-            self.shapeMenuButton.setText('V')
-            self.shapeMenuButtonFont.setPointSize(7)
-            self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
-            self.shapeLayoutWidget.show()
 
     def sizeSlider_update(self):
         value = self.sizeSlider.value()
@@ -455,6 +422,7 @@ class RlShapes_ui(QtGui.QDialog):
             if get_shape(obj):
                 obj = get_shape(obj)[0]
         color = getColor(obj)
+        print(color)
         if color:
             RlShapes_ui.choosenColor = color
             self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
