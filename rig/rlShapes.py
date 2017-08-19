@@ -83,29 +83,34 @@ class RlShapes_ui(QtGui.QDialog):
 
         # Shapes menu layout
         self.shapesMenuLayout = QtGui.QHBoxLayout()
+        self.shapesMenuLayout.setAlignment(QtCore.Qt.AlignLeft)
+        self.shapesMenuLayout.setSpacing(0)
         self.mainLayout.addLayout(self.shapesMenuLayout)
         # Shape Menu Button Font
         self.shapeMenuButtonFont = QtGui.QFont()
-        self.shapeMenuButtonFont.setPointSize(7)
+        self.shapeMenuButtonFont.setPointSize(6)
         self.shapeMenuButtonFont.setBold(True)
         # Shapes Menu Button
         self.shapeMenuButton = QtGui.QPushButton('V')
         self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
-        self.shapeMenuButton.setFixedSize(15, 15)
+        self.shapeMenuButton.setFixedSize(15, 20)
         self.shapeMenuButton.setFlat(True)
         self.shapesMenuLayout.addWidget(self.shapeMenuButton)
-        # Shape Menu Font
+        # Shape Menu Label Font
         self.shapeMenuLabelFont = QtGui.QFont()
-        self.shapeMenuLabelFont.setPointSize(8)
+        self.shapeMenuLabelFont.setPointSize(7)
         self.shapeMenuLabelFont.setBold(True)
         # Shapes Menu Label
-        self.shapeMenuLabel = QtGui.QLabel('Shapes')
-        self.shapeMenuLabel.setFont(self.shapeMenuLabelFont)
-        self.shapesMenuLayout.addWidget(self.shapeMenuLabel)
+        self.shapeMenuLabelButton = QtGui.QPushButton('Shapes')
+        self.shapeMenuLabelButton.setFixedSize(50, 20)
+        self.shapeMenuLabelButton.setFlat(True)
+        self.shapeMenuLabelButton.setFont(self.shapeMenuLabelFont)
+        self.shapesMenuLayout.addWidget(self.shapeMenuLabelButton)
 
-        # Shapes buttons Layout
+        # Shapes buttons Layout Widget
         self.shapeLayoutWidget = QtGui.QWidget()
         self.mainLayout.addWidget(self.shapeLayoutWidget)
+        # Shapes buttons Layout
         self.shapeLayout = QtGui.QGridLayout()
         self.shapeLayoutWidget.setLayout(self.shapeLayout)
         row = 0
@@ -293,6 +298,7 @@ class RlShapes_ui(QtGui.QDialog):
     def ui_connection(self):
         # Shapes
         self.shapeMenuButton.clicked.connect(self.shapes_hide)
+        self.shapeMenuLabelButton.clicked.connect(self.shapes_hide)
         for buttonIndex in range(len(self.shapesList)):
             shape = self.shapesList[buttonIndex]
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
@@ -331,12 +337,12 @@ class RlShapes_ui(QtGui.QDialog):
         if self.shapeMenuButton.text() == 'V':
             self.shapeLayoutWidget.hide()
             self.shapeMenuButton.setText('>')
-            self.shapeMenuButtonFont.setPointSize(10)
+            self.shapeMenuButtonFont.setPointSize(9)
             self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
             self.adjustSize()
         else:
             self.shapeMenuButton.setText('V')
-            self.shapeMenuButtonFont.setPointSize(7)
+            self.shapeMenuButtonFont.setPointSize(6)
             self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
             self.shapeLayoutWidget.show()
 
