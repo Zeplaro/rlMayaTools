@@ -15,6 +15,7 @@ todo: pokeball, half_circle, line, half_sphere, wobbly_circle, eye, foot,pin_sph
 
 todo : refacto for >= maya 2017
         add : add selected custom shape to list
+        add parent namespace when adding crv shape
 """
 
 
@@ -98,7 +99,7 @@ class RlShapes_ui(QtGui.QDialog):
         self.shapesMenuLayout.addWidget(self.shapeMenuButton)
         # Shape Menu Label Font
         self.shapeMenuLabelFont = QtGui.QFont()
-        self.shapeMenuLabelFont.setPointSize(7)
+        self.shapeMenuLabelFont.setPointSize(9)
         self.shapeMenuLabelFont.setBold(True)
         # Shapes Menu Label
         self.shapeMenuLabelButton = QtGui.QPushButton('Shapes')
