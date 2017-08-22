@@ -21,8 +21,8 @@ def do_snapVtx(objs=None, os=False, closest=False):
         mc.warning("Select at least two mesh")
         return
 
-    master = objs[0]
-    slaves = objs[1:]
+    master = objs[-1]
+    slaves = objs[:-1]
 
     mc.select(mc.polyListComponentConversion(master, tv=True))
     master_vtx = mc.ls(sl=True, fl=True)
