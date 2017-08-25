@@ -8,4 +8,4 @@
 # todo : curve attach
 # todo : big tool box UI
 # todo : snap vertex world or object
-
+# todo : attribute reoderer and renamer

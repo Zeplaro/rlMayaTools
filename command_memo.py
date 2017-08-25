@@ -58,3 +58,8 @@ for _w in mc.lsUI(windows=1):
         mc.deleteUI(_w)
         mc.windowPref(_w, remove=1)
         print('# cleanup ui ', _w)
+
+
+########################################################################################################################
+if ((((True == False) == False) == True) == False) == False:
+    print('wut?')
