@@ -16,6 +16,7 @@ todo: pokeball, half_circle, line, half_sphere, wobbly_circle, eye, foot,pin_sph
 todo : refacto for >= maya 2017
         add : add selected custom shape to list
         add parent namespace when adding crv shape
+        replace pushbutton to toolbutton on shape menu
 """
 
 
@@ -82,31 +83,15 @@ class RlShapes_ui(QtGui.QDialog):
         self.mainLayout = QtGui.QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        # Shapes menu layout
-        self.shapesMenuLayout = QtGui.QHBoxLayout()
-        self.shapesMenuLayout.setAlignment(QtCore.Qt.AlignLeft)
-        self.shapesMenuLayout.setSpacing(0)
-        self.mainLayout.addLayout(self.shapesMenuLayout)
-        # Shape Menu Button Font
+        # Shape Menu Tool Button Font
         self.shapeMenuButtonFont = QtGui.QFont()
-        self.shapeMenuButtonFont.setPointSize(6)
         self.shapeMenuButtonFont.setBold(True)
-        # Shapes Menu Button
-        self.shapeMenuButton = QtGui.QPushButton('V')
-        self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
-        self.shapeMenuButton.setFixedSize(15, 20)
-        self.shapeMenuButton.setFlat(True)
-        self.shapesMenuLayout.addWidget(self.shapeMenuButton)
-        # Shape Menu Label Font
-        self.shapeMenuLabelFont = QtGui.QFont()
-        self.shapeMenuLabelFont.setPointSize(9)
-        self.shapeMenuLabelFont.setBold(True)
-        # Shapes Menu Label
-        self.shapeMenuLabelButton = QtGui.QPushButton('Shapes')
-        self.shapeMenuLabelButton.setFixedSize(50, 20)
-        self.shapeMenuLabelButton.setFlat(True)
-        self.shapeMenuLabelButton.setFont(self.shapeMenuLabelFont)
-        self.shapesMenuLayout.addWidget(self.shapeMenuLabelButton)
+        # Shapes Menu Tool Button
+        self.shapeMenuToolButton = QtGui.QToolButton()
+        self.shapeMenuToolButton.setArrowType(QtCore.Qt.DownArrow)
+        self.shapeMenuToolButton.setText('Shapes')
+        # self.shapeMenuToolButton.setFont(self.shapeMenuButtonFont)
+        self.mainLayout.addWidget(self.shapeMenuToolButton)
 
         # Shapes buttons Layout Widget
         self.shapeLayoutWidget = QtGui.QWidget()
@@ -298,8 +283,7 @@ class RlShapes_ui(QtGui.QDialog):
 
     def ui_connection(self):
         # Shapes
-        self.shapeMenuButton.clicked.connect(self.shapes_hide)
-        self.shapeMenuLabelButton.clicked.connect(self.shapes_hide)
+        self.shapeMenuToolButton.clicked.connect(self.shapes_hide)
         for buttonIndex in range(len(self.shapesList)):
             shape = self.shapesList[buttonIndex]
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
@@ -335,16 +319,12 @@ class RlShapes_ui(QtGui.QDialog):
         self.parentButton.clicked.connect(parent_shape)
 
     def shapes_hide(self):
-        if self.shapeMenuButton.text() == 'V':
+        if self.shapeMenuToolButton.arrowType() == QtCore.Qt.DownArrow:
             self.shapeLayoutWidget.hide()
-            self.shapeMenuButton.setText('>')
-            self.shapeMenuButtonFont.setPointSize(9)
-            self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
+            self.shapeMenuToolButton.setArrowType(QtCore.Qt.RightArrow)
             self.adjustSize()
         else:
-            self.shapeMenuButton.setText('V')
-            self.shapeMenuButtonFont.setPointSize(6)
-            self.shapeMenuButton.setFont(self.shapeMenuButtonFont)
+            self.shapeMenuToolButton.setArrowType(QtCore.Qt.DownArrow)
             self.shapeLayoutWidget.show()
 
     def sizeSlider_update(self):
