@@ -84,16 +84,18 @@ class RlShapes_ui(QtGui.QDialog):
         self.setLayout(self.mainLayout)
 
         # Shapes Menu Tool Button
-        self.shapesButton = QtGui.QToolButton()
-        self.shapesButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.shapesButton.setArrowType(QtCore.Qt.DownArrow)
-        self.shapesButton.setText('Shapes')
-        self.shapesButton.setMinimumWidth(300)
+        self.shapesCollapseLayout = QtGui.QVBoxLayout()
+        self.mainLayout.addLayout(self.shapesCollapseLayout)
+        self.shapesCollapse = QtGui.QToolButton()
+        self.shapesCollapse.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        self.shapesCollapse.setArrowType(QtCore.Qt.DownArrow)
+        self.shapesCollapse.setText('Shapes')
+        self.shapesCollapse.setMinimumWidth(300)
         self.shapesButtonFont = QtGui.QFont()
         self.shapesButtonFont.setBold(True)
         self.shapesButtonFont.setPointSize(8)
-        self.shapesButton.setFont(self.shapesButtonFont)
-        self.mainLayout.addWidget(self.shapesButton)
+        self.shapesCollapse.setFont(self.shapesButtonFont)
+        self.shapesCollapseLayout.addWidget(self.shapesCollapse)
 
         # Shapes buttons Layout Widget
         self.shapesLayoutWidget = QtGui.QWidget()
@@ -285,7 +287,7 @@ class RlShapes_ui(QtGui.QDialog):
 
     def ui_connection(self):
         # Shapes
-        self.shapesButton.clicked.connect(self.shapes_hide)
+        self.shapesCollapse.clicked.connect(self.shapes_hide)
         for buttonIndex in range(len(self.shapesList)):
             shape = self.shapesList[buttonIndex]
             self.shapeButton = self.findChild(QtGui.QPushButton, 'btn_'+shape)
@@ -321,12 +323,12 @@ class RlShapes_ui(QtGui.QDialog):
         self.parentButton.clicked.connect(parent_shape)
 
     def shapes_hide(self):
-        if self.shapesButton.arrowType() == QtCore.Qt.DownArrow:
+        if self.shapesCollapse.arrowType() == QtCore.Qt.DownArrow:
             self.shapesLayoutWidget.hide()
-            self.shapesButton.setArrowType(QtCore.Qt.RightArrow)
+            self.shapesCollapse.setArrowType(QtCore.Qt.RightArrow)
             self.adjustSize()
         else:
-            self.shapesButton.setArrowType(QtCore.Qt.DownArrow)
+            self.shapesCollapse.setArrowType(QtCore.Qt.DownArrow)
             self.shapesLayoutWidget.show()
 
     def sizeSlider_update(self):

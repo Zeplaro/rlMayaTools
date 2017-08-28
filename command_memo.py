@@ -63,3 +63,14 @@ for _w in mc.lsUI(windows=1):
 ########################################################################################################################
 if ((((True == False) == False) == True) == False) == False:
     print('wut?')
+
+
+########################################################################################################################
+# focus une windows docké dans maya a l'ouverture
+"""J'ai trouvé
+my_dockable_win.raise_()
+😑
+Ou sinon
+for dock_widget in mainWindow.findChildren(QtWidgets.QDockWidget):
+mainWindow.tabifyDockWidget(dock_widget, dock_instance)
+break"""
