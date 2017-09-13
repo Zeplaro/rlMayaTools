@@ -29,7 +29,7 @@ def do_snapVtx(objs=None, os=False, closest=False):
 
     if closest:
         print('Starting comparision...')
-        comp = 0
+        completed = 0
 
         def do_stop(*args):
             mc.button('stop', e=True, label='Stoped')
@@ -71,12 +71,12 @@ def do_snapVtx(objs=None, os=False, closest=False):
                     if dist > new_dist:
                         dist = new_dist
                         index = mindex
-                    comp += 1
+                    completed += 1
                 mc.xform(vtx, ws=True, t=master_vtx_pos[index])
                 mc.refresh(cv=True, f=True)
                 print('{}/{}'.format(_i, slave_len))
     if closest:
-        print('{} comparison done'.format(comp))
+        print('{} comparison done'.format(completed))
         mc.deleteUI('snapVTX')
     mc.select(sel)
 
