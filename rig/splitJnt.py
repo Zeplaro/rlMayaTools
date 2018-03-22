@@ -1,4 +1,5 @@
 import maya.cmds as mc
+# todo : ui
 
 
 def do_splitJnt(nb=1, jnts=None):

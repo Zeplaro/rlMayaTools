@@ -6,17 +6,14 @@ import shiboken
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
-# reload(shapeMirror)
 from tbx import get_shape
 
 
 """
 todo: pokeball, half_circle, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
-todo : refacto for >= maya 2017
-        add : add selected custom shape to list
+todo :  add : add selected custom shape to list
         add parent namespace when adding crv shape
-        replace pushbutton to toolbutton on shape menu
 """
 
 
