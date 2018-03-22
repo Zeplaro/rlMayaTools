@@ -3,7 +3,7 @@ from tbx import get_shape
 from math import sqrt
 
 # todo : do closest if sel is vtx
-# todo : better stop button
+# todo : better, stop button
 
 
 def get_dist(a, b):
