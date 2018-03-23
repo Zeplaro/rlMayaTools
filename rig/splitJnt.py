@@ -24,7 +24,7 @@ def splitJnt_ui():
         mc.textField('endJnt', w=250)
         mc.button('endUpdate', l='Update', command=partial(getSel, 'endJnt'))
         mc.setParent('..')
-        mc.intSliderGrp('nb', l='Number of split', cw=(1, 90), cl3=('center', 'center', 'center'), value=1, min=1,
+        mc.intSliderGrp('nb', l='Number of split', cw=((1, 90), (2, 30)), cl3=('center', 'center', 'center'), value=1, min=1,
                         max=10, field=True, fieldMinValue=1, fieldMaxValue=1000, w=400)
         mc.rowLayout('suffixRow', nc=2)
         mc.text('Split suffix :', w=90)
