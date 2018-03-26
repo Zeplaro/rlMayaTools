@@ -1,9 +1,18 @@
 import maya.cmds as mc
-from PySide2 import QtWidgets
-from PySide2 import QtGui
-from PySide2 import QtCore
+
+# import pyside, do qt version check for maya 2017 >
+qtVersion = mc.about(qtVersion=True)
+if qtVersion.startswith("4"):
+    from PySide.QtGui import *
+    from PySide.QtCore import *
+    import shiboken
+else:
+    from PySide2.QtGui import *
+    from PySide2.QtCore import *
+    from PySide2.QtWidgets import *
+    import shiboken2 as shiboken
+
 import maya.OpenMayaUI as mui
-import shiboken2
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
@@ -12,7 +21,7 @@ from tbx import get_shape
 
 
 """
-todo: pokeball, half_circle, line, half_sphere, wobbly_circle, eye, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+todo: pokeball, half_circle, line, half_sphere, wobbly_circle, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
 todo :  add : add selected custom shape to list
         add parent namespace when adding crv shape
@@ -29,14 +38,19 @@ def launch_ui():
 
 def getMayaWin():
     pointer = mui.MQtUtil.mainWindow()
-    return shiboken2.wrapInstance(int(pointer), QtWidgets.QWidget)
+    return shiboken.wrapInstance(int(pointer), QWidget)
 
 
-class RlShapes_ui(QtWidgets.QDialog):
+class RlShapes_ui(QDialog):
 
+    '''
+    Maya version check for 2016 Extension 2 >
+    to add or not width slider.
+    '''
     maya_version = False
     if '2016 Extension 2' in mc.about(version=True) or int(mc.about(version=True)[:5]) > 2016:
         maya_version = True
+
     choosenColor = (255, 255, 0)
     shapesList = ['circle', 'sphere', 'square', 'cube', 'triangle', 'octogone', 'half_sphere', 'arrow', 'quad_arrow', 'quad_bent_arrow', 'octo_arrow', 'cross', 'double_arrow', 'double_bent_arrow', 'pyramide', 'diamond', 'arrow_head', 'dome', 'flat_dome', 'cylinder','half_arrow_head', 'eye', 'locator', 'quater_circle', 'fly']
     shapesDict = {'circleNormal': [(0, 1, 0)],
@@ -71,43 +85,43 @@ class RlShapes_ui(QtWidgets.QDialog):
 
         self.setWindowTitle('rlShape Creator')
         self.setObjectName('rlShapeCreator')
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.ui_layout()
         self.ui_connection()
-        if mc.ls(sl=1):
+        if mc.ls(sl=True):
             self.get_curve_color()
 
     def ui_layout(self):
-        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
 
         # Shapes Menu Tool Button
-        self.shapesCollapseLayout = QtWidgets.QVBoxLayout()
+        self.shapesCollapseLayout = QVBoxLayout()
         self.mainLayout.addLayout(self.shapesCollapseLayout)
-        self.shapesCollapse = QtWidgets.QToolButton()
-        self.shapesCollapse.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.shapesCollapse.setArrowType(QtCore.Qt.DownArrow)
+        self.shapesCollapse = QToolButton()
+        self.shapesCollapse.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.shapesCollapse.setArrowType(Qt.DownArrow)
         self.shapesCollapse.setText('Shapes')
         self.shapesCollapse.setMinimumWidth(300)
-        self.shapesButtonFont = QtGui.QFont()
+        self.shapesButtonFont = QFont()
         self.shapesButtonFont.setBold(True)
         self.shapesButtonFont.setPointSize(8)
         self.shapesCollapse.setFont(self.shapesButtonFont)
         self.shapesCollapseLayout.addWidget(self.shapesCollapse)
 
         # Shapes buttons Layout Widget
-        self.shapesLayoutWidget = QtWidgets.QWidget()
+        self.shapesLayoutWidget = QWidget()
         self.mainLayout.addWidget(self.shapesLayoutWidget)
         # Shapes buttons Layout
-        self.shapesLayout = QtWidgets.QGridLayout()
+        self.shapesLayout = QGridLayout()
         self.shapesLayoutWidget.setLayout(self.shapesLayout)
         row = 0
         column = 0.0
         shapeDone = 0
         while shapeDone < len(self.shapesList):
             if column < ceil(sqrt(len(self.shapesList))):
-                self.shapeButton = QtWidgets.QPushButton(self.shapesList[shapeDone].replace('_', '\n'))
+                self.shapeButton = QPushButton(self.shapesList[shapeDone].replace('_', '\n'))
                 self.shapeButton.setObjectName('btn_'+self.shapesList[shapeDone])
                 self.shapeButton.setFixedSize(50, 50)
                 self.shapesLayout.addWidget(self.shapeButton, row, column)
@@ -118,47 +132,47 @@ class RlShapes_ui(QtWidgets.QDialog):
                 row += 1
 
         # Shape Options
-        self.replaceColorLayout = QtWidgets.QHBoxLayout()
-        self.replaceColorLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.replaceColorLayout = QHBoxLayout()
+        self.replaceColorLayout.setAlignment(Qt.AlignCenter)
         self.mainLayout.addLayout(self.replaceColorLayout)
         # Replace checkbox
-        self.replaceCheckBox = QtWidgets.QCheckBox('Replace')
+        self.replaceCheckBox = QCheckBox('Replace')
         self.replaceCheckBox.setChecked(True)
         self.replaceColorLayout.addWidget(self.replaceCheckBox)
         # Separator
-        self.vSeparator = QtWidgets.QLabel()
-        self.vSeparator.setFrameStyle(QtWidgets.QFrame.VLine)
+        self.vSeparator = QLabel()
+        self.vSeparator.setFrameStyle(QFrame.VLine)
         self.replaceColorLayout.addWidget(self.vSeparator)
         # Color Picker
-        self.colorLabel = QtWidgets.QLabel(' Color  :')
+        self.colorLabel = QLabel(' Color  :')
         self.replaceColorLayout.addWidget(self.colorLabel)
-        self.colorButton = QtWidgets.QPushButton()
+        self.colorButton = QPushButton()
         self.colorButton.setStyleSheet('background-color: rgb' + str(self.choosenColor))
         self.colorButton.setFixedSize(50, 20)
         self.replaceColorLayout.addWidget(self.colorButton)
         # Apply Color button
-        self.applyColorButton = QtWidgets.QPushButton('Apply Color')
+        self.applyColorButton = QPushButton('Apply Color')
         self.replaceColorLayout.addWidget(self.applyColorButton)
         # Get color button
-        self.getColorButton = QtWidgets.QPushButton('Get')
+        self.getColorButton = QPushButton('Get')
         self.getColorButton.setFixedWidth(30)
         self.getColorButton.setToolTip('Get the color of the selected curve')
         self.replaceColorLayout.addWidget(self.getColorButton)
 
         # Size Layout
-        self.sizeLayout = QtWidgets.QHBoxLayout()
+        self.sizeLayout = QHBoxLayout()
         self.mainLayout.addLayout(self.sizeLayout)
         # Size Label
-        self.sizeLabel = QtWidgets.QLabel(' Size :  ')
+        self.sizeLabel = QLabel(' Size :  ')
         self.sizeLayout.addWidget(self.sizeLabel)
         # Size Value
-        self.sizeLineEdit = QtWidgets.QLineEdit('2')
-        self.sizeLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
+        self.sizeLineEdit = QLineEdit('2')
+        self.sizeLineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,3}[.][\d]{0,3}')))
         self.sizeLineEdit.setMaximumWidth(40)
-        self.sizeLineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.sizeLineEdit.setAlignment(Qt.AlignCenter)
         self.sizeLayout.addWidget(self.sizeLineEdit)
         # Size Slider
-        self.sizeSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.sizeSlider = QSlider(Qt.Horizontal)
         self.sizeSlider.setValue(2)
         self.sizeSlider.setMaximum(10)
         self.sizeSlider.setMinimum(1)
@@ -166,122 +180,122 @@ class RlShapes_ui(QtWidgets.QDialog):
 
         if self.maya_version:
             # Width Layout
-            self.widthLayout = QtWidgets.QHBoxLayout()
+            self.widthLayout = QHBoxLayout()
             self.mainLayout.addLayout(self.widthLayout)
             # Width Label
-            self.widthLabel = QtWidgets.QLabel(' Width :')
+            self.widthLabel = QLabel(' Width :')
             self.widthLayout.addWidget(self.widthLabel)
             # Width Value
-            self.widthLineEdit = QtWidgets.QLineEdit('1')
-            self.widthLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
+            self.widthLineEdit = QLineEdit('1')
+            self.widthLineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,3}[.][\d]{0,3}')))
             self.widthLineEdit.setMaximumWidth(40)
-            self.widthLineEdit.setAlignment(QtCore.Qt.AlignCenter)
+            self.widthLineEdit.setAlignment(Qt.AlignCenter)
             self.widthLayout.addWidget(self.widthLineEdit)
             # Width Slider
-            self.widthSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+            self.widthSlider = QSlider(Qt.Horizontal)
             self.widthSlider.setValue(1)
             self.widthSlider.setMaximum(10)
             self.widthSlider.setMinimum(1)
             self.widthLayout.addWidget(self.widthSlider)
             # Width apply
-            self.widthButton = QtWidgets.QPushButton('Apply')
+            self.widthButton = QPushButton('Apply')
             self.widthButton.setToolTip('Apply width on selected curves')
             self.widthButton.setFixedWidth(40)
             self.widthLayout.addWidget(self.widthButton)
 
         # Axis Twist layout
-        self.axisTwistLayout = QtWidgets.QHBoxLayout()
-        self.axisTwistLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.axisTwistLayout = QHBoxLayout()
+        self.axisTwistLayout.setAlignment(Qt.AlignCenter)
         self.mainLayout.addLayout(self.axisTwistLayout)
         # Axis Label
-        self.axisLabel = QtWidgets.QLabel('Axis :')
+        self.axisLabel = QLabel('Axis :')
         self.axisLabel.setFixedWidth(35)
         self.axisTwistLayout.addWidget(self.axisLabel)
         # radio Buttons
-        self.axisButtonGroup = QtWidgets.QButtonGroup()
+        self.axisButtonGroup = QButtonGroup()
         for axis in 'xyz':
-            self.radioButton = QtWidgets.QRadioButton(axis)
+            self.radioButton = QRadioButton(axis)
             self.radioButton.setFixedWidth(35)
             if axis == 'y':
                 self.radioButton.setChecked(True)
             self.axisTwistLayout.addWidget(self.radioButton)
             self.axisButtonGroup.addButton(self.radioButton)
         # reverse checkbox
-        self.reverseCheckBox = QtWidgets.QCheckBox('Reverse')
+        self.reverseCheckBox = QCheckBox('Reverse')
         self.reverseCheckBox.setFixedWidth(65)
         self.axisTwistLayout.addWidget(self.reverseCheckBox)
         # Separator
-        self.vSeparator = QtWidgets.QFrame()
-        self.vSeparator.setFrameStyle(QtWidgets.QFrame.VLine)
+        self.vSeparator = QFrame()
+        self.vSeparator.setFrameStyle(QFrame.VLine)
         self.vSeparator.setFixedWidth(10)
         self.axisTwistLayout.addWidget(self.vSeparator)
         # TwistLabel
-        self.twistLabel = QtWidgets.QLabel('Twist ')
+        self.twistLabel = QLabel('Twist ')
         self.twistLabel.setFixedWidth(30)
         self.axisTwistLayout.addWidget(self.twistLabel)
         # Twist Value
-        self.twistLineEdit = QtWidgets.QLineEdit('0')
-        self.twistLineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,3}[.][\d]{0,3}')))
+        self.twistLineEdit = QLineEdit('0')
+        self.twistLineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,3}[.][\d]{0,3}')))
         self.twistLineEdit.setMaximumWidth(40)
-        self.twistLineEdit.setAlignment(QtCore.Qt.AlignCenter)
+        self.twistLineEdit.setAlignment(Qt.AlignCenter)
         self.axisTwistLayout.addWidget(self.twistLineEdit)
 
         # Separator line
-        self.hSeparator = QtWidgets.QFrame()
-        self.hSeparator.setFrameStyle(QtWidgets.QFrame.HLine)
+        self.hSeparator = QFrame()
+        self.hSeparator.setFrameStyle(QFrame.HLine)
         self.mainLayout.addWidget(self.hSeparator)
 
         # Main Mirror Layout
-        self.mainMirrorLayout = QtWidgets.QHBoxLayout()
-        self.mainMirrorLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.mainMirrorLayout = QHBoxLayout()
+        self.mainMirrorLayout.setAlignment(Qt.AlignCenter)
         self.mainLayout.addLayout(self.mainMirrorLayout)
         # Mirror buttons layout
-        self.mirrorButtonsLayout = QtWidgets.QVBoxLayout()
-        self.mirrorButtonsLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.mirrorButtonsLayout = QVBoxLayout()
+        self.mirrorButtonsLayout.setAlignment(Qt.AlignCenter)
         self.mainMirrorLayout.addLayout(self.mirrorButtonsLayout)
         # Mirror solo button Layout
-        self.mirrorSoloLayout = QtWidgets.QHBoxLayout()
-        self.mirrorSoloLayout.setAlignment(QtCore.Qt.AlignCenter)
+        self.mirrorSoloLayout = QHBoxLayout()
+        self.mirrorSoloLayout.setAlignment(Qt.AlignCenter)
         self.mirrorButtonsLayout.addLayout(self.mirrorSoloLayout)
         # Mirror Label
-        self.mirrorLabel = QtWidgets.QLabel('Mirror :')
+        self.mirrorLabel = QLabel('Mirror :')
         self.mirrorSoloLayout.addWidget(self.mirrorLabel)
         # Mirror button
         for axe in 'XYZ':
-            self.mirrorButton = QtWidgets.QPushButton(axe)
+            self.mirrorButton = QPushButton(axe)
             self.mirrorButton.setObjectName('mirrorButton{}'.format(axe))
             self.mirrorButton.setFixedSize(25, 20)
             self.mirrorSoloLayout.addWidget(self.mirrorButton)
         # Mirror other side
-        self.sideMirror = QtWidgets.QPushButton('Mirror other side')
+        self.sideMirror = QPushButton('Mirror other side')
         self.sideMirror.setFixedWidth(145)
         self.mirrorButtonsLayout.addWidget(self.sideMirror)
         # Copy shape button
-        self.copyButton = QtWidgets.QPushButton('Copy Shapes')
+        self.copyButton = QPushButton('Copy Shapes')
         self.copyButton.setFixedWidth(145)
         self.mirrorButtonsLayout.addWidget(self.copyButton)
         # Separator Layout
-        self.separatorLayout = QtWidgets.QVBoxLayout()
+        self.separatorLayout = QVBoxLayout()
         self.mainMirrorLayout.addLayout(self.separatorLayout)
         # Separator line
         for sep in range(6):
-            self.hSeparator = QtWidgets.QFrame()
-            self.hSeparator.setFrameStyle(QtWidgets.QFrame.VLine)
+            self.hSeparator = QFrame()
+            self.hSeparator.setFrameStyle(QFrame.VLine)
             self.separatorLayout.addWidget(self.hSeparator)
         # Mirror Space
-        self.spaceCheckBox = QtWidgets.QCheckBox('Object space')
+        self.spaceCheckBox = QCheckBox('Object space')
         self.spaceCheckBox.setObjectName('objectSpace')
         self.spaceCheckBox.setChecked(True)
         self.spaceCheckBox.setFixedWidth(100)
         self.mainMirrorLayout.addWidget(self.spaceCheckBox)
 
         # Separator line
-        self.hSeparator = QtWidgets.QFrame()
-        self.hSeparator.setFrameStyle(QtWidgets.QFrame.HLine)
+        self.hSeparator = QFrame()
+        self.hSeparator.setFrameStyle(QFrame.HLine)
         self.mainLayout.addWidget(self.hSeparator)
 
         # Parent shape button
-        self.parentButton = QtWidgets.QPushButton('Parent Shapes')
+        self.parentButton = QPushButton('Parent Shapes')
         self.mainLayout.addWidget(self.parentButton)
 
     def ui_connection(self):
@@ -289,7 +303,7 @@ class RlShapes_ui(QtWidgets.QDialog):
         self.shapesCollapse.clicked.connect(self.shapes_hide)
         for buttonIndex in range(len(self.shapesList)):
             shape = self.shapesList[buttonIndex]
-            self.shapeButton = self.findChild(QtWidgets.QPushButton, 'btn_'+shape)
+            self.shapeButton = self.findChild(QPushButton, 'btn_'+shape)
             self.shapeButton.clicked.connect(partial(self.init_do_shape, shape))
 
         # Shape options
@@ -309,11 +323,11 @@ class RlShapes_ui(QtWidgets.QDialog):
             self.widthButton.clicked.connect(self.apply_width)
 
         # Mirror buttons
-        self.mirbuttX = self.findChild(QtWidgets.QPushButton, 'mirrorButtonX')
+        self.mirbuttX = self.findChild(QPushButton, 'mirrorButtonX')
         self.mirbuttX.clicked.connect(partial(self.mirror_signal, 'x'))
-        self.mirbuttY = self.findChild(QtWidgets.QPushButton, 'mirrorButtonY')
+        self.mirbuttY = self.findChild(QPushButton, 'mirrorButtonY')
         self.mirbuttY.clicked.connect(partial(self.mirror_signal, 'y'))
-        self.mirbuttZ = self.findChild(QtWidgets.QPushButton, 'mirrorButtonZ')
+        self.mirbuttZ = self.findChild(QPushButton, 'mirrorButtonZ')
         self.mirbuttZ.clicked.connect(partial(self.mirror_signal, 'z'))
 
         # Tools
@@ -322,12 +336,12 @@ class RlShapes_ui(QtWidgets.QDialog):
         self.parentButton.clicked.connect(parent_shape)
 
     def shapes_hide(self):
-        if self.shapesCollapse.arrowType() == QtCore.Qt.DownArrow:
+        if self.shapesCollapse.arrowType() == Qt.DownArrow:
             self.shapesLayoutWidget.hide()
-            self.shapesCollapse.setArrowType(QtCore.Qt.RightArrow)
+            self.shapesCollapse.setArrowType(Qt.RightArrow)
             self.adjustSize()
         else:
-            self.shapesCollapse.setArrowType(QtCore.Qt.DownArrow)
+            self.shapesCollapse.setArrowType(Qt.DownArrow)
             self.shapesLayoutWidget.show()
 
     def sizeSlider_update(self):
@@ -373,25 +387,25 @@ class RlShapes_ui(QtWidgets.QDialog):
 
     def mirror_signal(self, axis):
         mc.undoInfo(openChunk=True)
-        space = self.findChild(QtWidgets.QCheckBox, 'objectSpace')
+        space = self.findChild(QCheckBox, 'objectSpace')
         ws = not space.isChecked()
         shapeMirror.do_shapeMirror(miraxis=axis, ws=ws, solo=True)
         mc.undoInfo(closeChunk=True)
 
     def sideMirror_signal(self):
-        space = self.findChild(QtWidgets.QCheckBox, 'objectSpace')
+        space = self.findChild(QCheckBox, 'objectSpace')
         ws = not space.isChecked()
         shapeMirror.do_shapeMirror(ws=ws)
 
     def copy_signal(self):
-        space = self.findChild(QtWidgets.QCheckBox, 'objectSpace')
+        space = self.findChild(QCheckBox, 'objectSpace')
         ws = not space.isChecked()
         shapeMirror.do_shapeMirror(ws=ws, copy=True)
 
     def get_picker_color(self):
-        self.colorItem = QtGui.QColor()
+        self.colorItem = QColor()
         self.colorItem.setRgb(*self.choosenColor)
-        self.colorPicker = QtWidgets.QColorDialog()
+        self.colorPicker = QColorDialog()
         self.colorItem = self.colorPicker.getColor(self.colorItem)
         if self.colorItem.isValid():
             RlShapes_ui.choosenColor = self.colorItem.getRgb()
