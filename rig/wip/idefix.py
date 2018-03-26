@@ -9,3 +9,4 @@
 # todo : big tool box UI
 # todo : snap vertex world or object
 # todo : attribute reoderer and renamer
+# todo : attr default value changer
