@@ -301,8 +301,8 @@ class RlShapes_ui(QDialog):
     def ui_connection(self):
         # Shapes
         self.shapesCollapse.clicked.connect(self.shapes_hide)
-        for buttonIndex in range(len(self.shapesList)):
-            shape = self.shapesList[buttonIndex]
+        for i, buttonIndex in enumerate(self.shapesList):
+            shape = self.shapesList[i]
             self.shapeButton = self.findChild(QPushButton, 'btn_'+shape)
             self.shapeButton.clicked.connect(partial(self.init_do_shape, shape))
 
