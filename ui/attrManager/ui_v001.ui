@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>824</width>
+    <height>552</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="main_layout">
+      <item>
+       <layout class="QVBoxLayout" name="moveArrow_layout">
+        <item>
+         <widget class="QToolButton" name="moveUp_toolButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::UpArrow</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveDown_toolButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::DownArrow</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="main_line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="attributes_layout">
+        <item>
+         <layout class="QHBoxLayout" name="attributeAll_layoutH">
+          <item>
+           <widget class="QRadioButton" name="attributeAll_radioButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="attributeAll_line">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="attributeAll_layoutV">
+            <item>
+             <layout class="QHBoxLayout" name="attribute_layout">
+              <item>
+               <widget class="QToolButton" name="attributeHide_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="popupMode">
+                 <enum>QToolButton::DelayedPopup</enum>
+                </property>
+                <property name="autoRaise">
+                 <bool>false</bool>
+                </property>
+                <property name="arrowType">
+                 <enum>Qt::RightArrow</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="attribute_lineEdit"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="attributeEdits_layout">
+              <item>
+               <layout class="QHBoxLayout" name="attributeNiceName_layout">
+                <item>
+                 <widget class="QCheckBox" name="attributeNiceName_checkBox">
+                  <property name="text">
+                   <string>Nice Name</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="attributeNiceName_lineEdit"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="attributeStatus_layout">
+                <item>
+                 <widget class="QRadioButton" name="attributeKeyable_radioButton">
+                  <property name="text">
+                   <string>Keyable</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="attributeDisplayable_radioButton">
+                  <property name="text">
+                   <string>Displayable</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="attributeHidden_radioButton">
+                  <property name="text">
+                   <string>Hidden</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="attributeLocked_checkBox">
+                  <property name="text">
+                   <string>Locked</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="attributeMinMax_layout">
+                <item>
+                 <widget class="QCheckBox" name="attributeMin_checkBox">
+                  <property name="text">
+                   <string>Min</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="attributeMin_lineEdit"/>
+                </item>
+                <item>
+                 <widget class="Line" name="attributeMinMaxSep_line">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="attributeMax_checkBox">
+                  <property name="text">
+                   <string notr="true">Max</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="attributeMax_lineEdit"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="attributeDValue_layout">
+                <item>
+                 <widget class="QLabel" name="attributeDValue_label">
+                  <property name="text">
+                   <string>Default</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="attributeDValue_lineEdit"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="radioButton_5">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QToolButton" name="toolButton_7">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="popupMode">
+               <enum>QToolButton::DelayedPopup</enum>
+              </property>
+              <property name="autoRaise">
+               <bool>false</bool>
+              </property>
+              <property name="arrowType">
+               <enum>Qt::RightArrow</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="val1_2">
+              <property name="text">
+               <string>Val2</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+   <zorder></zorder>
+   <zorder>val1</zorder>
+   <zorder>attributeKeyable_radioButton</zorder>
+   <zorder>attributeDisplayable_radioButton</zorder>
+   <zorder>attributeHidden_radioButton</zorder>
+   <zorder>attributeHide_toolButton</zorder>
+   <zorder>attributeNiceName_lineEdit</zorder>
+   <zorder>attributeNiceName_checkBox</zorder>
+   <zorder>attributeMin_checkBox</zorder>
+   <zorder>attributeMin_lineEdit</zorder>
+   <zorder>attributeMax_checkBox</zorder>
+   <zorder>attributeMax_lineEdit</zorder>
+   <zorder>attributeMinMaxSep_line</zorder>
+   <zorder>attributeDValue_label</zorder>
+   <zorder>attributeDValue_lineEdit</zorder>
+   <zorder>attributeLocked_checkBox</zorder>
+   <zorder>val1_2</zorder>
+   <zorder>toolButton_7</zorder>
+   <zorder>val1_2</zorder>
+   <zorder>attributeHide_toolButton</zorder>
+   <zorder>toolButton_7</zorder>
+   <zorder>attributeMax_lineEdit</zorder>
+   <zorder>attributeKeyable_radioButton</zorder>
+   <zorder>attributeDValue_label</zorder>
+   <zorder>attributeNiceName_lineEdit</zorder>
+   <zorder>attributeHidden_radioButton</zorder>
+   <zorder>attributeMax_checkBox</zorder>
+   <zorder>attributeDisplayable_radioButton</zorder>
+   <zorder>attributeMinMaxSep_line</zorder>
+   <zorder>attributeMin_checkBox</zorder>
+   <zorder>val1</zorder>
+   <zorder>moveDown_toolButton</zorder>
+   <zorder>attributeMin_lineEdit</zorder>
+   <zorder>moveUp_toolButton</zorder>
+   <zorder>attributeNiceName_checkBox</zorder>
+   <zorder>attributeDValue_lineEdit</zorder>
+   <zorder>attributeLocked_checkBox</zorder>
+   <zorder>val1_2</zorder>
+   <zorder>attributeHide_toolButton</zorder>
+   <zorder>toolButton_7</zorder>
+   <zorder>attributeMax_lineEdit</zorder>
+   <zorder>attributeKeyable_radioButton</zorder>
+   <zorder>attributeDValue_label</zorder>
+   <zorder>attributeNiceName_lineEdit</zorder>
+   <zorder>attributeHidden_radioButton</zorder>
+   <zorder>attributeMax_checkBox</zorder>
+   <zorder>attributeDisplayable_radioButton</zorder>
+   <zorder>attributeMinMaxSep_line</zorder>
+   <zorder>attributeMin_checkBox</zorder>
+   <zorder>val1</zorder>
+   <zorder>moveDown_toolButton</zorder>
+   <zorder>attributeMin_lineEdit</zorder>
+   <zorder>moveUp_toolButton</zorder>
+   <zorder>attributeNiceName_checkBox</zorder>
+   <zorder>attributeDValue_lineEdit</zorder>
+   <zorder>attributeLocked_checkBox</zorder>
+   <zorder>attributeAll_radioButton</zorder>
+   <zorder>attributeAll_radioButton</zorder>
+   <zorder></zorder>
+   <zorder></zorder>
+   <zorder>radioButton_5</zorder>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>moveUp_toolButton</tabstop>
+  <tabstop>moveDown_toolButton</tabstop>
+  <tabstop>attributeNiceName_checkBox</tabstop>
+  <tabstop>attributeNiceName_lineEdit</tabstop>
+  <tabstop>attributeKeyable_radioButton</tabstop>
+  <tabstop>attributeDisplayable_radioButton</tabstop>
+  <tabstop>attributeHidden_radioButton</tabstop>
+  <tabstop>attributeLocked_checkBox</tabstop>
+  <tabstop>attributeMin_checkBox</tabstop>
+  <tabstop>attributeMin_lineEdit</tabstop>
+  <tabstop>attributeMax_checkBox</tabstop>
+  <tabstop>attributeMax_lineEdit</tabstop>
+  <tabstop>attributeDValue_lineEdit</tabstop>
+  <tabstop>toolButton_7</tabstop>
+  <tabstop>val1_2</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>reload_attributes()</slot>
+  <slot>rename()</slot>
+ </slots>
+</ui>
