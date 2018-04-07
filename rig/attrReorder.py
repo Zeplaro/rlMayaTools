@@ -67,7 +67,7 @@ class attrReorder():
         self.radioButton_ui(sel=sel)
 
     def move(self, way, *args):
-        attr = mc.radioCollection('attrs', q=True, sl=True)
+        attr = mc.radioCollection('attrs', q=True, select=True)
         index = self.attrs.index(attr)
         if way == 'up':
             if index > 0:
