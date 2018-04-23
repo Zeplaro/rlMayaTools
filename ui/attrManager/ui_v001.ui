@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>593</width>
-      <height>221</height>
+      <height>319</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="main_layout">
@@ -144,6 +144,37 @@
                  </layout>
                 </item>
                 <item>
+                 <layout class="QHBoxLayout" name="attributeMinMax_layout">
+                  <item>
+                   <widget class="QCheckBox" name="attributeMin_checkBox">
+                    <property name="text">
+                     <string>Min</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="attributeMin_lineEdit"/>
+                  </item>
+                  <item>
+                   <widget class="Line" name="attributeMinMaxSep_line">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="attributeMax_checkBox">
+                    <property name="text">
+                     <string notr="true">Max</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="attributeMax_lineEdit"/>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="attributeStatus_layout">
                   <item>
                    <widget class="QRadioButton" name="attributeKeyable_radioButton">
@@ -176,37 +207,6 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="attributeMinMax_layout">
-                  <item>
-                   <widget class="QCheckBox" name="attributeMin_checkBox">
-                    <property name="text">
-                     <string>Min</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="attributeMin_lineEdit"/>
-                  </item>
-                  <item>
-                   <widget class="Line" name="attributeMinMaxSep_line">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="attributeMax_checkBox">
-                    <property name="text">
-                     <string notr="true">Max</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLineEdit" name="attributeMax_lineEdit"/>
-                  </item>
-                 </layout>
-                </item>
-                <item>
                  <layout class="QHBoxLayout" name="attributeDValue_layout">
                   <item>
                    <widget class="QLabel" name="attributeDValue_label">
@@ -217,6 +217,57 @@
                   </item>
                   <item>
                    <widget class="QLineEdit" name="attributeDValue_lineEdit"/>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout">
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Enum names</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QListWidget" name="listWidget">
+                    <item>
+                     <property name="text">
+                      <string>bla</string>
+                     </property>
+                     <property name="toolTip">
+                      <string notr="true"/>
+                     </property>
+                     <property name="statusTip">
+                      <string notr="true"/>
+                     </property>
+                     <property name="whatsThis">
+                      <string notr="true"/>
+                     </property>
+                     <property name="flags">
+                      <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>bli</string>
+                     </property>
+                     <property name="flags">
+                      <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>blo</string>
+                     </property>
+                     <property name="flags">
+                      <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+                     </property>
+                    </item>
+                   </widget>
                   </item>
                  </layout>
                 </item>

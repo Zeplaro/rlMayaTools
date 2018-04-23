@@ -13,6 +13,7 @@ else:
     from PySide2.QtWidgets import *
     import shiboken2 as shiboken
 
+choice = 0  # todo : This is poorly done and need to be rethinked
 
 def launch_ui():
 
@@ -36,8 +37,8 @@ class attrManager_ui(QDialog):
         self.setObjectName('attrManager')
         self.setAttribute(Qt.WA_DeleteOnClose)
 
-
         self.ui_layout()
+        self.ui_connection()
             
     def ui_layout(self):
         self.main_layout = QVBoxLayout()
@@ -84,10 +85,11 @@ class attrManager_ui(QDialog):
 
             self.attr_move_buttonGrp = QButtonGroup()
 
-        for i, attr in enumerate(self.attributes):
+        self.buttonGroups = list(self.attributes) # Creating a list to create a new QButtonGroup for each attr for the different radioButtons
 
-            attr_infos = self.get_attr_infos(attr)
-            print(attr_infos)
+        self.attributes_infos = self.get_attributes_infos()
+
+        for i, attr in enumerate(self.attributes):
 
             # Attribute HLayout
             self.attr_all_layoutH = QHBoxLayout()
@@ -97,8 +99,8 @@ class attrManager_ui(QDialog):
             # Attribute choice radioButton
             self.attr_move_radioButton = QRadioButton()
             self.attr_move_radioButton.setObjectName('attr_{}_move_radioButton'.format(i))
-            # if i == self.choice:
-            #     self.attr_move_radioButton.setChecked(True)
+            if i == choice:
+                self.attr_move_radioButton.setChecked(True)
             self.attr_move_buttonGrp.addButton(self.attr_move_radioButton)
             self.attr_all_layoutH.addWidget(self.attr_move_radioButton)
             # Attribute choice separator
@@ -113,6 +115,7 @@ class attrManager_ui(QDialog):
             self.attr_all_layoutH.addWidget(self.attr_all_border_frame)
             # Attribute VLayout
             self.attr_all_layoutV = QVBoxLayout()
+            self.attr_all_layoutV.setObjectName('attr_{}_attr_all_layoutV'.format(i))
             self.attr_all_border_frame.setLayout(self.attr_all_layoutV)
             self.attr_layout = QHBoxLayout()
             self.attr_all_layoutV.addLayout(self.attr_layout)
@@ -150,54 +153,52 @@ class attrManager_ui(QDialog):
             self.attr_edits_layout.addLayout(self.attr_niceName_layout)
             self.attr_niceName_checkBox = QCheckBox('Nice Name')
             self.attr_niceName_checkBox.setObjectName('attr_{}_niceName_checkBox'.format(i))
-            self.attr_niceName_checkBox.setChecked(attr_infos['niceNameStatus'])
+            self.attr_niceName_checkBox.setChecked(self.attributes_infos[attr]['niceNameStatus'])
             self.attr_niceName_layout.addWidget(self.attr_niceName_checkBox)
-            self.attr_niceName_lineEdit = QLineEdit(attr_infos['niceName'])
+            self.attr_niceName_lineEdit = QLineEdit(self.attributes_infos[attr]['niceName'])
             self.attr_niceName_lineEdit.setObjectName('attr_{}_niceName_lineEdit'.format(i))
             self.attr_niceName_layout.addWidget(self.attr_niceName_lineEdit)
 
             # Attribute status
-            self.attr_status_buttonGrp = QButtonGroup()
-            self.attr_status_buttonGrp.setObjectName('{}_status_buttonGrp'.format(self.attributes[i]))
+            self.buttonGroups[i] = QButtonGroup()
             self.attr_status_layout = QHBoxLayout()
             self.attr_edits_layout.addLayout(self.attr_status_layout)
             self.attr_keyable_radioButton = QRadioButton('Keyable')
             self.attr_keyable_radioButton.setObjectName('attr_{}_keyable_radioButton'.format(i))
-            self.attr_status_buttonGrp.addButton(self.attr_keyable_radioButton)
-            if attr_infos['status'] == 'keyable':
+            self.buttonGroups[i].addButton(self.attr_keyable_radioButton)
+            if self.attributes_infos[attr]['status'] == 'keyable':
                 self.attr_keyable_radioButton.setChecked(True)
             self.attr_status_layout.addWidget(self.attr_keyable_radioButton)
             self.attr_displayable_radioButton = QRadioButton('Displayable')
             self.attr_displayable_radioButton.setObjectName('attr_{}_displayable_radioButton'.format(i))
-            self.attr_status_buttonGrp.addButton(self.attr_displayable_radioButton)
-            if attr_infos['status'] == 'displayable':
+            self.buttonGroups[i].addButton(self.attr_displayable_radioButton)
+            if self.attributes_infos[attr]['status'] == 'displayable':
                 self.attr_displayable_radioButton.setChecked(True)
             self.attr_status_layout.addWidget(self.attr_displayable_radioButton)
             self.attr_hidden_radioButton = QRadioButton('Hidden')
             self.attr_hidden_radioButton.setObjectName('attr_{}_hidden_radioButton'.format(i))
-            self.attr_status_buttonGrp.addButton(self.attr_hidden_radioButton)
-            if attr_infos['status'] == 'hidden':
+            self.buttonGroups[i].addButton(self.attr_hidden_radioButton)
+            if self.attributes_infos[attr]['status'] == 'hidden':
                 self.attr_hidden_radioButton.setChecked(True)
             self.attr_status_layout.addWidget(self.attr_hidden_radioButton)
             self.attr_locked_checkBox = QCheckBox('Locked')
             self.attr_locked_checkBox.setObjectName('attr_{}_locked_checkBox'.format(i))
-            self.attr_locked_checkBox.setChecked(attr_infos['locked'])
+            self.attr_locked_checkBox.setChecked(self.attributes_infos[attr]['locked'])
             self.attr_status_layout.addWidget(self.attr_locked_checkBox)
 
             # INT / FLOAT-----------------------------------------------------------------------------------------------
-            print('attr is {}'.format(attr_infos['type']))
-            if (attr_infos['type'] == 'long') or (attr_infos['type'] == 'double'):
+            if (self.attributes_infos[attr]['type'] == 'long') or (self.attributes_infos[attr]['type'] == 'double'):
                 # Attribute min max
                 # Min
                 self.attr_minMax_layout = QHBoxLayout()
                 self.attr_edits_layout.addLayout(self.attr_minMax_layout)
                 self.attr_min_checkBox = QCheckBox('Min')
                 self.attr_min_checkBox.setObjectName('attr_{}_min_checkBox'.format(i))
-                self.attr_min_checkBox.setChecked(attr_infos['minStatus'])
+                self.attr_min_checkBox.setChecked(self.attributes_infos[attr]['minStatus'])
                 self.attr_minMax_layout.addWidget(self.attr_min_checkBox)
                 self.attr_min_lineEdit = QLineEdit()
                 self.attr_min_lineEdit.setObjectName('attr_{}_min_lineEdit'.format(i))
-                self.attr_min_lineEdit.setText(str(attr_infos['minValue']))
+                self.attr_min_lineEdit.setText(str(self.attributes_infos[attr]['minValue']))
                 self.attr_min_lineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,9}[.][\d]{0,3}')))
                 self.attr_minMax_layout.addWidget(self.attr_min_lineEdit)
                 # Separator
@@ -208,11 +209,11 @@ class attrManager_ui(QDialog):
                 # Max
                 self.attr_max_checkBox = QCheckBox('Max')
                 self.attr_max_checkBox.setObjectName('attr_{}_max_checkBox'.format(i))
-                self.attr_max_checkBox.setChecked(attr_infos['maxStatus'])
+                self.attr_max_checkBox.setChecked(self.attributes_infos[attr]['maxStatus'])
                 self.attr_minMax_layout.addWidget(self.attr_max_checkBox)
                 self.attr_max_lineEdit = QLineEdit()
                 self.attr_max_lineEdit.setObjectName('attr_{}_max_lineEdit'.format(i))
-                self.attr_max_lineEdit.setText(str(attr_infos['maxValue']))
+                self.attr_max_lineEdit.setText(str(self.attributes_infos[attr]['maxValue']))
                 self.attr_max_lineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,9}[.][\d]{0,3}')))
                 self.attr_minMax_layout.addWidget(self.attr_max_lineEdit)
 
@@ -223,35 +224,65 @@ class attrManager_ui(QDialog):
                 self.attr_dValue_layout.addWidget(self.attr_dValue_label)
                 self.attr_dValue_lineEdit = QLineEdit()
                 self.attr_dValue_lineEdit.setObjectName('attr_{}_dValue_lineEdit'.format(i))
-                self.attr_dValue_lineEdit.setText(str(attr_infos['dValue']))
+                self.attr_dValue_lineEdit.setText(str(self.attributes_infos[attr]['dValue']))
                 self.attr_dValue_lineEdit.setValidator(QRegExpValidator(QRegExp('[\d]{1,9}[.][\d]{0,3}')))
                 self.attr_dValue_layout.addWidget(self.attr_dValue_lineEdit)
 
             # BOOL------------------------------------------------------------------------------------------------------
-            if attr_infos['type'] == 'bool':
+            elif self.attributes_infos[attr]['type'] == 'bool':
                 # Default Value
                 self.attr_dValue_layout = QHBoxLayout()
                 self.attr_edits_layout.addLayout(self.attr_dValue_layout)
                 self.attr_dValue_label = QLabel('Default value')
                 self.attr_dValue_layout.addWidget(self.attr_dValue_label)
 
-                self.attr_dValue_buttonGrp = QButtonGroup()
-                self.attr_dValue_buttonGrp.setObjectName('{}_dValue_buttonGrp'.format(self.attributes[i]))
+                self.buttonGroups[i] = QButtonGroup()
 
                 self.attr_dValue_true_radioButton = QRadioButton('True')
-                self.attr_dValue_buttonGrp.addButton(self.attr_dValue_true_radioButton)
+                self.attr_dValue_true_radioButton.setObjectName('attr_{}_true_radioButton'.format(i))
+                self.buttonGroups[i].addButton(self.attr_dValue_true_radioButton)
+                if self.attributes_infos[attr]['dValue']:
+                    self.attr_dValue_true_radioButton.setChecked(True)
                 self.attr_dValue_layout.addWidget(self.attr_dValue_true_radioButton)
+
                 self.attr_dValue_false_radioButton = QRadioButton('False')
-                self.attr_dValue_buttonGrp.addButton(self.attr_dValue_false_radioButton)
+                self.attr_dValue_false_radioButton.setObjectName('attr_{}_false_radioButton'.format(i))
+                self.buttonGroups[i].addButton(self.attr_dValue_false_radioButton)
+                if not self.attributes_infos[attr]['dValue']:
+                    self.attr_dValue_false_radioButton.setChecked(True)
                 self.attr_dValue_layout.addWidget(self.attr_dValue_false_radioButton)
 
+            # ENUM------------------------------------------------------------------------------------------------------
+            elif self.attributes_infos[attr]['type'] == 'enum':
+                self.attr_enum_layout = QHBoxLayout()
+                self.attr_edits_layout.addLayout(self.attr_enum_layout)
+
+                self.attr_enum_label = QLabel('Enum names')
+                self.attr_enum_layout.addWidget(self.attr_enum_label)
+
+                self.attr_enum_listWidget = QListWidget()
+                self.attr_enum_layout.addWidget(self.attr_enum_listWidget)
+                attr_enums = self.get_enums(attr)
+                self.attr_enum_listWidget.setFixedHeight(16*(len(attr_enums)+1))
+                print(len(attr_enums))
+                print(attr_enums)
+                for enum in attr_enums:
+                    item = QListWidgetItem(enum)
+                    self.attr_enum_listWidget.addItem(item)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled)
+                item = QListWidgetItem('')
+                self.attr_enum_listWidget.addItem(item)
+                item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)
+
+
+        if self.attributes:
+            # Apply All
+            self.attrs_applyAll_button = QPushButton('Apply all')
+            self.main_layout.addWidget(self.attrs_applyAll_button)
         if self.obj:
             # Add attribute------------------------------
             self.add_attr_button = QPushButton('Add Attribute')
             self.main_layout.addWidget(self.add_attr_button)
-
-        # --------------Launch UI connections-------------
-        self.ui_connection()
 
     def ui_connection(self):
         # Move button
@@ -261,14 +292,16 @@ class attrManager_ui(QDialog):
         for i, attr in enumerate(self.attributes):
             # Apply Button
             apply_button = self.findChild(QPushButton, 'attr_{}_apply_button'.format(i))
-            apply_button.clicked.connect(partial(self.apply_changes, i))
+            apply_button.clicked.connect(partial(self.apply_changes, attr))
             # Hide button
             hide_button = self.findChild(QToolButton, 'attr_{}_hide_toolButton'.format(i))
             hide_button.clicked.connect(partial(self.hide_attrEdits, i))
         # Add attribute button
-        self.add_attr_button.clicked.connect(self.add_attr)
+        if self.obj:
+            self.add_attr_button.clicked.connect(self.add_attr)
 
     def reload_ui(self):
+        # todo : this porrly done and need to be rethinked
         launch_ui()
         return
 
@@ -309,29 +342,33 @@ class attrManager_ui(QDialog):
         else:
             newIndex = attrIndex+1
 
+        # Creating a new list with the new attributes order
         new_attributes = list(self.attributes)
         new_attributes.pop(attrIndex)
         new_attributes.insert(newIndex, self.attributes[attrIndex])
-        print(new_attributes)
 
+        # Deleting and undeleting attributes to reorder them
         for attribute in new_attributes:
-            if mc.getAttr('{}.{}'.format(self.obj, attribute), lock=True):
+            if mc.getAttr('{}.{}'.format(self.obj, attribute), lock=True):  # If the attr is locked : unlock it
                 lock = True
                 mc.setAttr('{}.{}'.format(self.obj, attribute), lock=False)
             else:
                 lock = False
             mc.deleteAttr('{}.{}'.format(self.obj, attribute))
             mc.undo()
-            if lock:
+            if lock:  # If the attr was locked : relock it
                 mc.setAttr('{}.{}'.format(self.obj, attribute), lock=True)
+
+        global choice
+        choice = newIndex
 
         self.reload_ui()
         return
 
-    def hide_attrEdits(self, index):
-        hide_toolButton = self.findChild(QToolButton, 'attr_{}_hide_toolButton'.format(index))
-        hide_widget = self.findChild(QWidget, 'attr_{}_edits_widget'.format(index))
-        apply_button = self.findChild(QPushButton, 'attr_{}_apply_button'.format(index))
+    def hide_attrEdits(self, attrIndex):
+        hide_toolButton = self.findChild(QToolButton, 'attr_{}_hide_toolButton'.format(attrIndex))
+        hide_widget = self.findChild(QWidget, 'attr_{}_edits_widget'.format(attrIndex))
+        apply_button = self.findChild(QPushButton, 'attr_{}_apply_button'.format(attrIndex))
 
         if hide_toolButton.arrowType() == Qt.DownArrow:
             hide_widget.hide()
@@ -341,30 +378,30 @@ class attrManager_ui(QDialog):
             hide_toolButton.setArrowType(Qt.DownArrow)
             apply_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
             hide_widget.show()
-
         self.adjustSize()
 
-    def apply_changes(self, attrIndex):
-        self.attributes = self.get_attributes()
-        self.rename_attribute(attrIndex)
-        self.set_niceName(attrIndex)
-        self.set_status(attrIndex)
-        self.set_locked(attrIndex)
-        self.set_min(attrIndex)
-        self.set_max(attrIndex)
-        self.set_dValue(attrIndex)
+    def apply_changes(self, attr):
+        self.set_name(attr)
+        self.set_niceName(attr)
+        self.set_status(attr)
+        self.set_locked(attr)
+        if (self.attributes_infos[attr]['type'] == 'long') or (self.attributes_infos[attr]['type'] == 'double'):
+            self.set_min(attr)
+            self.set_max(attr)
+        self.set_dValue(attr)
 
-    def rename_attribute(self, attrIndex):
+    def set_name(self, attr):
+        attrIndex = self.attributes.index(attr)
         attr_lineEdit = self.findChild(QLineEdit, 'attr_{}_lineEdit'.format(attrIndex))
         newName = attr_lineEdit.text()
 
-        if newName == self.attributes[attrIndex]:
+        if newName == attr:
             return
         try:
-            mc.renameAttr(self.obj + '.' + self.attributes[attrIndex], newName)
+            mc.renameAttr(self.obj + '.' + attr, newName)
         except:
             mc.warning('New attribute name invalid or already used')
-            attr_lineEdit.setText(self.attributes[attrIndex])
+            attr_lineEdit.setText(attr)
             return
         self.refresh_sel()
         self.attributes = self.get_attributes()
@@ -377,17 +414,18 @@ class attrManager_ui(QDialog):
         niceName = mc.attributeQuery(attr, node=self.obj, niceName=True)
         return niceName_status, niceName
 
-    def set_niceName(self, attrIndex):
+    def set_niceName(self, attr):
+        attrIndex = self.attributes.index(attr)
         niceName_checkBox = self.findChild(QCheckBox, 'attr_{}_niceName_checkBox'.format(attrIndex))
         niceName_checkBox_status = niceName_checkBox.isChecked()
         niceName_lineEdit = self.findChild(QLineEdit, 'attr_{}_niceName_lineEdit'.format(attrIndex))
         niceName_lineEdit_text = niceName_lineEdit.text()
         if niceName_checkBox_status:
             newNiceName = niceName_lineEdit_text
-            mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, niceName=newNiceName)
+            mc.addAttr('{}.{}'.format(self.obj, attr), e=True, niceName=newNiceName)
         else:
-            mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, niceName='')
-            newNiceName = self.get_niceName_info(self.attributes[attrIndex])[1]
+            mc.addAttr('{}.{}'.format(self.obj, attr), e=True, niceName='')
+            newNiceName = self.get_niceName_info(attr)[1]
             niceName_lineEdit.setText(newNiceName)
         self.refresh_sel()
         return
@@ -403,37 +441,38 @@ class attrManager_ui(QDialog):
         else:
             return 'hidden'
 
-    def get_checked_status_radioButton(self, attrIndex):
+    def get_checked_status_radioButton(self, attr):
+        attrIndex = self.attributes.index(attr)
         for i, status in enumerate(('keyable', 'displayable', 'hidden')):
             attr_radioButton = self.findChild(QRadioButton, 'attr_{}_{}_radioButton'.format(attrIndex, status))
             attr_radioButton_status = attr_radioButton.isChecked()
             if attr_radioButton_status:
                 return attr_radioButton.text()
-        print('No radio Button checked')
         return None
 
-    def set_status(self, attrIndex):
-        attr_radioButton_status = self.get_checked_status_radioButton(attrIndex)
+    def set_status(self, attr):
+        attr_radioButton_status = self.get_checked_status_radioButton(attr)
         if attr_radioButton_status == 'Keyable':
-            mc.setAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), keyable=True)
+            mc.setAttr('{}.{}'.format(self.obj, attr), keyable=True)
         elif attr_radioButton_status == 'Displayable':
-            mc.setAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), channelBox=True)
+            mc.setAttr('{}.{}'.format(self.obj, attr), channelBox=True)
         else:
-            mc.setAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), keyable=False)
-            mc.setAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), channelBox=False)
+            mc.setAttr('{}.{}'.format(self.obj, attr), keyable=False)
+            mc.setAttr('{}.{}'.format(self.obj, attr), channelBox=False)
         return
 
     def get_locked(self, attr):
         locked = mc.getAttr('{}.{}'.format(self.obj, attr), lock=True)
         return locked
 
-    def set_locked(self, attrIndex):
-        attr_locked_status = mc.getAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), lock=True)
+    def set_locked(self, attr):
+        attrIndex = self.attributes.index(attr)
+        attr_locked_status = mc.getAttr('{}.{}'.format(self.obj, attr), lock=True)
         attr_locked_checkBox = self.findChild(QCheckBox, 'attr_{}_locked_checkBox'.format(attrIndex))
         attr_locked_checkBox_status = attr_locked_checkBox.isChecked()
 
         if attr_locked_checkBox_status != attr_locked_status:
-            mc.setAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), lock=attr_locked_checkBox_status)
+            mc.setAttr('{}.{}'.format(self.obj, attr), lock=attr_locked_checkBox_status)
         else:
             return
         return
@@ -454,49 +493,51 @@ class attrManager_ui(QDialog):
         else:
             return max_status, 0.0
 
-    def set_min(self, attrIndex):
+    def set_min(self, attr):
         '''
         Maya can only toggle between having minValue enabled or not, and can not set it to a certain state, which
         implies the following over complicated way of setting it.
         '''
+        attrIndex = self.attributes.index(attr)
         attr_min_checkbox = self.findChild(QCheckBox, 'attr_{}_min_checkBox'.format(attrIndex))
         attr_min_checkbox_status = attr_min_checkbox.isChecked()
-        attr_min_status = self.get_min_info(self.attributes[attrIndex])[0]
+        attr_min_status = self.get_min_info(attr)[0]
         attr_min_lineEdit = self.findChild(QLineEdit, 'attr_{}_min_lineEdit'.format(attrIndex))
         attr_min_lineEdit_text = attr_min_lineEdit.text()
 
         if attr_min_checkbox_status != attr_min_status:
-            mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), edit=True, hasMinValue=False)
+            mc.addAttr('{}.{}'.format(self.obj, attr), edit=True, hasMinValue=False)
             if attr_min_checkbox_status:
-                mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, minValue=float(attr_min_lineEdit_text))
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, minValue=float(attr_min_lineEdit_text))
             else:
                 return
         else:
             if attr_min_checkbox_status:
-                mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, minValue=float(attr_min_lineEdit_text))
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, minValue=float(attr_min_lineEdit_text))
             else:
                 return
 
-    def set_max(self, attrIndex):
+    def set_max(self, attr):
         '''
         Maya can only toggle between having maxValue enabled or not, and can not set it to a certain state, which
         implies the following over complicated way of setting it.
         '''
+        attrIndex = self.attributes.index(attr)
         attr_max_checkbox = self.findChild(QCheckBox, 'attr_{}_max_checkBox'.format(attrIndex))
         attr_max_checkbox_status = attr_max_checkbox.isChecked()
-        attr_max_status = self.get_max_info(self.attributes[attrIndex])[0]
+        attr_max_status = self.get_max_info(attr)[0]
         attr_max_lineEdit = self.findChild(QLineEdit, 'attr_{}_max_lineEdit'.format(attrIndex))
         attr_max_lineEdit_text = attr_max_lineEdit.text()
 
         if attr_max_checkbox_status != attr_max_status:
-            mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), edit=True, hasMaxValue=False)
+            mc.addAttr('{}.{}'.format(self.obj, attr), edit=True, hasMaxValue=False)
             if attr_max_checkbox_status:
-                mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, maxValue=float(attr_max_lineEdit_text))
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, maxValue=float(attr_max_lineEdit_text))
             else:
                 return
         else:
             if attr_max_checkbox_status:
-                mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, maxValue=float(attr_max_lineEdit_text))
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, maxValue=float(attr_max_lineEdit_text))
             else:
                 return
 
@@ -504,38 +545,66 @@ class attrManager_ui(QDialog):
         dv = mc.addAttr('{}.{}'.format(self.obj, attr), q=True, defaultValue=True)
         return dv
 
-    def set_dValue(self, attrIndex):
-        attr_lineEdit = self.findChild(QLineEdit, 'attr_{}_dValue_lineEdit'.format(attrIndex))
-        attr_lineEdit_text = attr_lineEdit.text()
-        if not attr_lineEdit_text:
-            attr_lineEdit_text = '0.0'
-        mc.addAttr('{}.{}'.format(self.obj, self.attributes[attrIndex]), e=True, defaultValue=float(attr_lineEdit_text))
-        return
+    def get_checked_dValue_radioButton(self, attr):
+        attrIndex = self.attributes.index(attr)
+
+        attr_radioButton = self.findChild(QRadioButton, 'attr_{}_true_radioButton'.format(attrIndex))
+        if attr_radioButton.isChecked():
+            return True
+        else:
+            return False
+
+    def set_dValue(self, attr):
+        attrIndex = self.attributes.index(attr)
+
+        # if int or float
+        if (self.attributes_infos[attr]['type'] == 'long') or (self.attributes_infos[attr]['type'] == 'double'):
+            attr_lineEdit = self.findChild(QLineEdit, 'attr_{}_dValue_lineEdit'.format(attrIndex))
+            attr_lineEdit_text = attr_lineEdit.text()
+            if not attr_lineEdit_text:
+                attr_lineEdit_text = '0.0'
+            mc.addAttr('{}.{}'.format(self.obj, attr), e=True, defaultValue=float(attr_lineEdit_text))
+
+        elif self.attributes_infos[attr]['type'] == 'bool':  # if bool
+            if self.get_checked_dValue_radioButton(attr):
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, dv=1.0)
+            else:
+                mc.addAttr('{}.{}'.format(self.obj, attr), e=True, dv=0.0)
 
     def get_type(self, attr):
-        print('attributes = {}.{}'.format(self.obj, attr))
         attr_type = mc.getAttr('{}.{}'.format(self.obj, attr), type=True)
-        print(attr_type)
         return str(attr_type)
+
+    def get_enums(self, attr):
+        enums = mc.attributeQuery(attr, node=self.obj, listEnum=True)
+        if enums:
+            enums = enums[0].split(':')
+            return enums
+        else:
+            return []
 
     @staticmethod
     def add_attr():
         mel.eval('AddAttribute;')
 
-    #Dict attr
-    def get_attr_infos(self, attr):
-        attr_infos = {'niceNameStatus': self.get_niceName_info(attr)[0],
-                      'niceName': self.get_niceName_info(attr)[1],
-                      'status': self.get_status(attr),
-                      'locked': self.get_locked(attr),
-                      'dValue': self.get_dValue(attr),
-                      'type': self.get_type(attr)}
-        if (attr_infos['type'] == 'long') or (attr_infos['type'] == 'double'):  # if integer or float
-            attr_infos['minStatus'] = self.get_min_info(attr)[0]
-            attr_infos['minValue'] = self.get_min_info(attr)[1]
-            attr_infos['maxStatus'] = self.get_max_info(attr)[0]
-            attr_infos['maxValue'] = self.get_max_info(attr)[1]
-        elif attr_infos['type'] == 'enum':
-            # todo : add enum attributes support
-            pass
-        return attr_infos
+    def get_attributes_infos(self):
+        attributes_infos = {}
+
+        for attr in self.attributes:
+            attr_infos = {'niceNameStatus': self.get_niceName_info(attr)[0],
+                          'niceName': self.get_niceName_info(attr)[1],
+                          'status': self.get_status(attr),
+                          'locked': self.get_locked(attr),
+                          'dValue': self.get_dValue(attr),
+                          'type': self.get_type(attr)}
+            if (attr_infos['type'] == 'long') or (attr_infos['type'] == 'double'):  # if integer or float
+                attr_infos['minStatus'] = self.get_min_info(attr)[0]
+                attr_infos['minValue'] = self.get_min_info(attr)[1]
+                attr_infos['maxStatus'] = self.get_max_info(attr)[0]
+                attr_infos['maxValue'] = self.get_max_info(attr)[1]
+            elif attr_infos['type'] == 'enum':
+                # todo : add enum attributes support
+                pass
+            attributes_infos[attr] = attr_infos
+
+        return attributes_infos
