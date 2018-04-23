@@ -10,7 +10,7 @@ def do_resetPivot(*objs):
         return
 
     for obj in objs:
-        pivot = mc.group(em=True, w=True, n=obj+'Pivot#')
+        pivot = mc.group(em=True, w=True, n='{}Pivot#'.format(obj))
         mc.delete(mc.parentConstraint(obj, pivot, mo=False))
         dad = mc.listRelatives(obj, ap=True, f=True)
         mc.parent(obj, pivot)

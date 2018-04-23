@@ -79,7 +79,7 @@ def do_splitJnt(nb=1, jnts=None, suffix='_split_'):
     pos = splitpos[:]
     for i in range(nb):
         mc.select(cl=True)
-        split = mc.joint(n=start+suffix+'#', rad=rad)
+        split = mc.joint(n='{}{}#'.format(start, suffix), rad=rad)
         mc.parent(split, start, r=True)
         mc.xform(split, r=True, t=pos)
         for j in range(3):

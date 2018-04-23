@@ -12,9 +12,9 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
     :param bool ws: False(default) mirror on object space, True mirror on world space
     """
 
-    nb_of_cv = mc.getAttr(mastershape+'.spans')+mc.getAttr(mastershape+'.degree')
+    nb_of_cv = mc.getAttr('{}.spans'.format(mastershape)) + mc.getAttr('{}.degree'.format(mastershape))
     if ws:  # mirror on world space
-        pos = [mc.xform(mastershape+'.cv['+str(cv_index)+']', q=True, ws=True, t=True) for cv_index in range(nb_of_cv)]
+        pos = [mc.xform('{}.cv[{}]'.format(mastershape, cv_index), q=True, ws=True, t=True) for cv_index in range(nb_of_cv)]
         if not miraxis:  # if World space copy:
             pass
         elif miraxis == 'z':
@@ -24,15 +24,15 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
         else:
             pos = [(-x, y, z) for x, y, z in pos]
         for cv_index in range(nb_of_cv):
-            mc.xform(slaveshape+'.cv['+str(cv_index)+']', ws=True, t=pos[cv_index])
+            mc.xform('{}.cv[{}]'.format(slaveshape, cv_index), ws=True, t=pos[cv_index])
 
     else:  # mirror on object space
-        pos = [mc.xform(mastershape+'.cv['+str(cv_index)+']', q=True, os=True, t=True) for cv_index in range(nb_of_cv)]
+        pos = [mc.xform('{}.cv[{}]'.format(mastershape, cv_index), q=True, os=True, t=True) for cv_index in range(nb_of_cv)]
         for cv_index in range(nb_of_cv):
             cv_pos = pos[cv_index]
             for i in range(3):
                 cv_pos[i] *= table[i]
-            mc.xform(slaveshape+'.cv['+str(cv_index)+']', os=True, t=cv_pos)
+            mc.xform('{}.cv[{}]'.format(slaveshape, cv_index), os=True, t=cv_pos)
 
 
 def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
@@ -40,8 +40,8 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
     Mirror curves on defined axis in world or object space
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'
     :param bool ws: False(default) mirror on object space, True mirror on world space
-    :param bool copy: True perform a simple copy of the shape without any mirroring
-    :param bool solo: True perform a miror of each shape to itself
+    :param bool copy: True, performs a simple copy of the shape without any mirroring
+    :param bool solo: True, performs a miror of each shape to itself
     """
 
     ctrls = [x for x in mc.ls(sl=True, fl=True)
@@ -132,7 +132,7 @@ def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
             for shape in master:
                 mirror(shape, slave[i], table, miraxis, ws)
                 i += 1
-            print(ctrl+' mirrored')
+            print('{} mirrored'.format(ctrl))
 
     mc.select(ctrls, r=True)
     mc.undoInfo(closeChunk=True)

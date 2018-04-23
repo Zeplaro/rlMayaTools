@@ -8,8 +8,8 @@ def do_avLoc():
         return
     bb = mc.exactWorldBoundingBox(sel)
 
-    av = [(bb[0]+bb[3])/2, (bb[1]+bb[4])/2, (bb[2]+bb[5])/2]
+    avPos = [(bb[0]+bb[3])/2, (bb[1]+bb[4])/2, (bb[2]+bb[5])/2]
     loc = mc.spaceLocator(n='avLoc#')
-    mc.xform(loc, ws=True, t=av)
+    mc.xform(loc, ws=True, t=avPos)
     mc.select(sel, r=True)
     return loc

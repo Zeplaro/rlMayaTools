@@ -42,7 +42,7 @@ class FRivet_ui:
 
     @staticmethod
     def update_edges(*args):
-        name = 'edges'+str(args[0])
+        name = 'edges{}'.format(args[0])
         mc.textScrollList(name, e=True, ra=True)
         edges = [x for x in mc.ls(sl=True, fl=True) if '.e' in x]
         mc.textScrollList(name, e=True, append=edges)
@@ -72,11 +72,11 @@ class FRivet_ui:
             mc.window('rvtUI', e=True, w=cls.width)
 
     def launch_fRivet(self, *args):
-        while not mc.textScrollList('edges'+str(self.nbOfColumn), q=True, ai=True) and self.nbOfColumn > 2:
+        while not mc.textScrollList('edges{}'.format(self.nbOfColumn), q=True, ai=True) and self.nbOfColumn > 2:
             self.del_column()
         edges = []
         for i in range(self.nbOfColumn):
-            edges.append(mc.textScrollList('edges'+str(i+1), q=True, ai=True))
+            edges.append(mc.textScrollList('edges{}'.format(i+1), q=True, ai=True))
         nb = mc.intSliderGrp('nb', q=True, value=True)
         param = mc.optionMenu('param', q=True, value=True)
         do_fRivet(edges=edges, nb=nb, param=param)
@@ -135,8 +135,8 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
 
     # grpWorld with curves and surface to clean
     grp_w = mc.group(em=True, n='rvtWorld#')
-    mc.setAttr(grp_w+'.inheritsTransform', 0)
-    mc.setAttr(grp_w+'.visibility', 0)
+    mc.setAttr('{}.inheritsTransform'.format(grp_w), 0)
+    mc.setAttr('{}.visibility'.format(grp_w), 0)
     mc.parent(get_shape(surface), grp_w, r=True, s=True)
     mc.delete(surface)
     for crv in crvs:
@@ -144,7 +144,7 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
         mc.delete(crv)
     for i in 'trs':
         for axe in 'xyz':
-            mc.setAttr(grp_w+'.'+i+axe, lock=True)
+            mc.setAttr('{}.{}{}'.format(grp_w, i, axe), lock=True)
 
     rvt_grp = mc.group(em=True, n='rvtGrp_#')
     mc.parent(grp_w, rvt_grp)
@@ -169,7 +169,7 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
         mc.delete(loc)
         rvt = mc.rename(rvt, 'rivet_#')
         rvtshape = get_shape(rvt)[0]
-        mc.setAttr(rvtshape+'.visibility', 0)
+        mc.setAttr('{}.visibility'.format(rvtshape), 0)
         mc.reorder(locshape, front=True)
         mc.parent(rvt, rvt_grp)
         rvts.append(rvt)
@@ -179,7 +179,7 @@ def do_fRivet(edges=None, nb=1, param='U', mesh=None):
 
 def convert_int_edges(mesh, edges):
     for i, edge in enumerate(edges):
-        edges[i] = mesh + '.e[' + str(edge) + ']'
+        edges[i] = '{}.e[{}]'.format(mesh, edge)
     return edges
 
 
@@ -200,28 +200,28 @@ def do_follicle(surface=None, pos=0.5, param='U'):
         mc.warning('No nurbs surface given')
         return
 
-    follicleshape = mc.createNode('follicle', n=surface+'_follicleShape#')
+    follicleshape = mc.createNode('follicle', n='{}_follicleShape#'.format(surface))
     follicle = mc.listRelatives(follicleshape, p=True)[0]
-    follicle = mc.rename(follicle, surface+'_follicle', ignoreShape=True)
-    mc.connectAttr(surfaceshape+'.local', follicleshape+'.inputSurface', f=True)
-    mc.connectAttr(surfaceshape+'.worldMatrix[0]', follicleshape+'.inputWorldMatrix', f=True)
+    follicle = mc.rename(follicle, '{}_follicle'.format(surface), ignoreShape=True)
+    mc.connectAttr('{}.local'.format(surfaceshape), '{}.inputSurface'.format(follicleshape), f=True)
+    mc.connectAttr('{}.worldMatrix[0]'.format(surfaceshape), '{}.inputWorldMatrix'.format(follicleshape), f=True)
 
     # creating a stronger follicle position to be able to group it
     cmx = mc.createNode('composeMatrix', n='cmx_rvt#')
     mmx = mc.createNode('multMatrix', n='mmx_rvt#')
     dmx = mc.createNode('decomposeMatrix', n='dmx_rvt#')
-    mc.connectAttr(follicleshape+'.outRotate', cmx+'.inputRotate')
-    mc.connectAttr(follicleshape+'.outTranslate', cmx+'.inputTranslate')
-    mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]')
-    mc.connectAttr(follicle+'.parentInverseMatrix', mmx+'.matrixIn[1]')
-    mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix')
-    mc.connectAttr(dmx+'.outputTranslate', follicle+'.translate', f=True)
-    mc.connectAttr(dmx+'.outputRotate', follicle+'.rotate', f=True)
+    mc.connectAttr('{}.outRotate'.format(follicleshape), '{}.inputRotate'.format(cmx))
+    mc.connectAttr('{}.outTranslate'.format(follicleshape), '{}.inputTranslate'.format(cmx))
+    mc.connectAttr('{}.outputMatrix'.format(cmx), '{}.matrixIn[0]'.format(mmx))
+    mc.connectAttr('{}.parentInverseMatrix'.format(follicle), '{}.matrixIn[1]'.format(mmx))
+    mc.connectAttr('{}.matrixSum'.format(mmx), '{}.inputMatrix'.format(dmx))
+    mc.connectAttr('{}.outputTranslate'.format(dmx), '{}.translate'.format(follicle), f=True)
+    mc.connectAttr('{}.outputRotate'.format(dmx), '{}.rotate'.format(follicle), f=True)
 
     for manip in 'tr':
         for axis in 'xyz':
-            mc.setAttr(follicle+'.'+manip+axis, lock=True)
-    mc.setAttr(follicleshape+'.parameter'+paramlist[0], pos)
-    mc.setAttr(follicleshape+'.parameter'+paramlist[1], 0.5)
+            mc.setAttr('{}.{}'.format(follicle, manip, axis), lock=True)
+    mc.setAttr('{}.parameter'.format(follicleshape, paramlist[0]), pos)
+    mc.setAttr('{}.parameter'.format(follicleshape, paramlist[1]), 0.5)
 
     return follicle

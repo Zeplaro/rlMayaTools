@@ -80,15 +80,15 @@ class attrReorder():
         self.attrs.insert(newIndex, attr)
 
         for attribute in self.attrs:
-            if mc.getAttr(self.obj+'.'+attribute, lock=True):
+            if mc.getAttr('{}.{}'.format(self.obj, attribute), lock=True):
                 lock = True
-                mc.setAttr(self.obj+'.'+attribute, lock=False)
+                mc.setAttr('{}.{}'.format(self.obj, attribute), lock=False)
             else:
                 lock = False
-            mc.deleteAttr(self.obj+'.'+attribute)
+            mc.deleteAttr('{}.{}'.format(self.obj, attribute))
             mc.undo()
             if lock:
-                mc.setAttr(self.obj+'.'+attribute, lock=True)
+                mc.setAttr('{}.{}'.format(self.obj, attribute), lock=True)
 
         self.reload_sel(attr)
         return

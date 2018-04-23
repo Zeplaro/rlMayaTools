@@ -18,7 +18,7 @@ def do_clstRoot(clsts=None):
         cluster = mc.listConnections(clst_handle, d=True, scn=True)[0]
         clst_handle_shape = get_shape(clst_handle)[0]
         if not cluster or not clst_handle_shape:
-            mc.warning('No cluster node found on '+clst_handle)
+            mc.warning('No cluster node found on {}'.format(clst_handle))
             continue
         new_name = clst_handle.replace('Handle', '')
         ro = mc.xform(clst_handle, q=True, ro=True)
@@ -26,15 +26,15 @@ def do_clstRoot(clsts=None):
         t = mc.xform(clst_handle, q=True, translation=True)
         t = [x + y for x, y in zip(t, rop)]
 
-        root_grp = mc.group(em=True, w=True, n=new_name+'_root')
-        cluster_grp = mc.group(em=True, parent=root_grp, n=new_name+'#')
+        root_grp = mc.group(em=True, w=True, n='{}_root'.format(new_name))
+        cluster_grp = mc.group(em=True, parent=root_grp, n='{}#'.format(new_name))
         mc.xform(root_grp, ws=True, t=t)
         mc.xform(cluster_grp, ws=True, ro=ro)
 
-        mc.connectAttr(cluster_grp+'.worldMatrix[0]', cluster+'.matrix', force=True)
-        mc.connectAttr(cluster_grp+'.matrix', cluster+'.weightedMatrix', force=True)
-        mc.connectAttr(root_grp+'.worldInverseMatrix[0]', cluster+'.bindPreMatrix', force=True)
-        mc.connectAttr(root_grp+'.worldInverseMatrix[0]', cluster+'.preMatrix', force=True)
+        mc.connectAttr('{}.worldMatrix[0]'.format(cluster_grp), '{}.matrix'.format(cluster), force=True)
+        mc.connectAttr('{}.matrix'.format(cluster_grp), '{}.weightedMatrix'.format(cluster), force=True)
+        mc.connectAttr('{}.worldInverseMatrix[0]'.format(root_grp), '{}.bindPreMatrix'.format(cluster), force=True)
+        mc.connectAttr('{}.worldInverseMatrix[0]'.format(root_grp), '{}.preMatrix'.format(cluster), force=True)
 
-        mc.disconnectAttr(clst_handle_shape+'.clusterTransforms[0]', cluster+'.clusterXforms')
+        mc.disconnectAttr('{}.clusterTransforms[0]'.format(clst_handle_shape), '{}.clusterXforms'.format(cluster))
         mc.delete(clst_handle_shape, clst_handle)

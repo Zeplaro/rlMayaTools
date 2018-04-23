@@ -10,15 +10,15 @@ def do_hook(*objs):
             return
     hooks = []
     for obj in objs:
-        hook = mc.group(em=True, n=obj + '_hook')
-        mmx = mc.createNode('multMatrix', n='mmx_' + obj)
-        dmx = mc.createNode('decomposeMatrix', n='dmx_' + obj)
-        mc.connectAttr(obj + '.worldMatrix[0]', mmx + '.matrixIn[1]', f=True)
-        mc.connectAttr(hook + '.parentInverseMatrix[0]', mmx + '.matrixIn[2]', f=True)
-        mc.connectAttr(mmx + '.matrixSum', dmx + '.inputMatrix', f=True)
-        mc.connectAttr(dmx + '.outputShear', hook + '.shear', f=True)
-        mc.connectAttr(dmx + '.outputTranslate', hook + '.translate', f=True)
-        mc.connectAttr(dmx + '.outputScale', hook + '.scale', f=True)
-        mc.connectAttr(dmx + '.outputRotate', hook + '.rotate', f=True)
+        hook = mc.group(em=True, n='{}_hook'.format(obj))
+        mmx = mc.createNode('multMatrix', n='mmx_{}'.format(obj))
+        dmx = mc.createNode('decomposeMatrix', n='dmx_{}'.format(obj))
+        mc.connectAttr('{}.worldMatrix[0]'.format(obj), '{}.matrixIn[1]'.format(mmx), f=True)
+        mc.connectAttr('{}.parentInverseMatrix[0]'.format(hook), '{}.matrixIn[2]'.format(mmx), f=True)
+        mc.connectAttr('{}.matrixSum'.format(mmx), '{}.inputMatrix'.format(dmx), f=True)
+        mc.connectAttr('{}.outputShear'.format(dmx), '{}.shear'.format(hook), f=True)
+        mc.connectAttr('{}.outputTranslate'.format(dmx), '{}.translate'.format(hook), f=True)
+        mc.connectAttr('{}.outputScale'.format(dmx), '{}.scale'.format(hook), f=True)
+        mc.connectAttr('{}.outputRotate'.format(dmx), '{}.rotate'.format(hook), f=True)
         hooks.append(hook)
     return hooks

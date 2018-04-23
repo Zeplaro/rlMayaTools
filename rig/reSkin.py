@@ -13,10 +13,10 @@ def do_reSkin(*objs):
         skn = get_skinCluster(obj)
         infs = mc.skinCluster(skn, q=True, inf=True)
         for inf in infs:
-            conns = mc.listConnections(inf+'.worldMatrix', type='skinCluster', p=True)
+            conns = mc.listConnections('{}.worldMatrix'.format(inf), type='skinCluster', p=True)
             for conn in conns:
                 bpm = conn.replace('matrix', 'bindPreMatrix')
-                wim = mc.getAttr(inf+'.worldInverseMatrix')
+                wim = mc.getAttr('{}.worldInverseMatrix'.format(inf))
                 if not mc.listConnections(bpm):
                     mc.setAttr(bpm, *wim, type='matrix')
                 else:

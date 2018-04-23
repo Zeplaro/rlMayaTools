@@ -11,7 +11,7 @@ def do_orig(objs=None, jnt=False):
 
     origs = []
     for obj in objs:
-        orig = obj+'_orig'
+        orig = '{}_orig'.format(obj)
         if jnt:
             mc.select(cl=True)
             orig = mc.joint(n=orig)

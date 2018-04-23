@@ -13,33 +13,33 @@ def do_mxCnst(master=None, slave=None):
         target.append(master)
         target.append(slave)
 
-    mmx = mc.createNode('multMatrix', n='mmx_'+target[0])
-    dmx = mc.createNode('decomposeMatrix', n='dmx_'+target[0])
-    cmx = mc.createNode('composeMatrix', n='cmx_'+target[0])
-    mc.connectAttr(cmx+'.outputMatrix', mmx+'.matrixIn[0]', f=True)
-    mc.connectAttr(target[0]+'.worldMatrix[0]', mmx+'.matrixIn[1]', f=True)
-    mc.connectAttr(target[1]+'.parentInverseMatrix[0]', mmx+'.matrixIn[2]', f=True)
-    mc.connectAttr(mmx+'.matrixSum', dmx+'.inputMatrix', f=True)
+    mmx = mc.createNode('multMatrix', n='mmx_{}'.format(target[0]))
+    dmx = mc.createNode('decomposeMatrix', n='dmx_{}'.format(target[0]))
+    cmx = mc.createNode('composeMatrix', n='cmx_{}'.format(target[0]))
+    mc.connectAttr('{}.outputMatrix'.format(cmx), '{}.matrixIn[0]'.format(mmx), f=True)
+    mc.connectAttr('{}.worldMatrix[0]'.format(target[0]), '{}.matrixIn[1]'.format(mmx), f=True)
+    mc.connectAttr('{}.parentInverseMatrix[0]'.format(target[1]), '{}.matrixIn[2]'.format(mmx), f=True)
+    mc.connectAttr('{}.matrixSum'.format(mmx), '{}.inputMatrix'.format(dmx), f=True)
 
-    loc1 = mc.spaceLocator(n=target[0]+'_loc')[0]
+    loc1 = mc.spaceLocator(n='{}_loc'.format(target[0]))[0]
     ro = mc.xform(target[0], q=True, ws=True, ro=True)
     t = mc.xform(target[0], q=True, ws=True, t=True)
     mc.xform(loc1, ws=True, ro=ro, t=t)
-    loc2 = mc.spaceLocator(n=target[1]+'_loc')[0]
+    loc2 = mc.spaceLocator(n='{}_loc'.format(target[1]))[0]
     ro = mc.xform(target[1], q=True, ws=True, ro=True)
     t = mc.xform(target[1], q=True, ws=True, t=True)
     mc.xform(loc2, ws=True, ro=ro, t=t)
     mc.parent(loc2, loc1)
 
-    mc.setAttr(cmx+'.inputTranslate', *mc.getAttr(loc2+'.translate')[0])
-    mc.setAttr(cmx+'.inputRotate', *mc.getAttr(loc2+'.rotate')[0])
-    mc.setAttr(cmx+'.inputScale', *mc.getAttr(loc2+'.scale')[0])
-    mc.setAttr(cmx+'.inputShear', *mc.getAttr(loc2+'.shear')[0])
+    mc.setAttr('{}.inputTranslate'.format(cmx), *mc.getAttr('{}.translate'.format(loc2))[0])
+    mc.setAttr('{}.inputRotate'.format(cmx), *mc.getAttr('{}.rotate'.format(loc2))[0])
+    mc.setAttr('{}.inputScale'.format(cmx), *mc.getAttr('{}.scale'.format(loc2))[0])
+    mc.setAttr('{}.inputShear'.format(cmx), *mc.getAttr('{}.shear'.format(loc2))[0])
 
-    mc.connectAttr(dmx+'.outputTranslate', target[1]+'.translate', f=True)
-    mc.connectAttr(dmx+'.outputRotate', target[1]+'.rotate', f=True)
-    mc.connectAttr(dmx+'.outputScale', target[1]+'.scale', f=True)
-    mc.connectAttr(dmx+'.outputShear', target[1]+'.shear', f=True)
+    mc.connectAttr('{}.outputTranslate'.format(dmx), '{}.translate'.format(target[1]), f=True)
+    mc.connectAttr('{}.outputRotate'.format(dmx), '{}.rotate'.format(target[1]), f=True)
+    mc.connectAttr('{}.outputScale'.format(dmx), '{}.scale'.format(target[1]), f=True)
+    mc.connectAttr('{}.outputShear'.format(dmx), '{}.shear'.format(target[1]), f=True)
 
     mc.delete(loc1, loc2)
 

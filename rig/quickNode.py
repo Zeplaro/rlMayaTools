@@ -12,26 +12,26 @@ le nom exact entre guillemets)
 
 def nodecreation(node, texte, *arg):
     nom = mc.textField(texte, query=True, tx=True)
-    sel = mc.ls(sl=True)
+    sel = mc.ls(sl=True, type='transform')
     if node == 'curveInfo' and sel:
         newnode = mc.arclen(ch=True)
     elif node == 'distanceBetween' and len(sel) == 2:
         newnode = mc.shadingNode('distanceBetween', au=True, n='distance')
-        mc.connectAttr(sel[0] + '.worldMatrix', newnode + '.inMatrix1')
-        mc.connectAttr(sel[1] + '.worldMatrix', newnode + '.inMatrix2')
-        mc.connectAttr(sel[0] + '.rotatePivotTranslate', newnode + '.point1')
-        mc.connectAttr(sel[1] + '.rotatePivotTranslate', newnode + '.point2')
+        mc.connectAttr('{}.worldMatrix'.format(sel[0]), '{}.inMatrix1'.format(newnode))
+        mc.connectAttr('{}.worldMatrix'.format(sel[1]), '{}.inMatrix2'.format(newnode))
+        mc.connectAttr('{}.rotatePivotTranslate'.format(sel[0]), '{}.point1'.format(newnode))
+        mc.connectAttr('{}.rotatePivotTranslate'.format(sel[1]), '{}.point2'.format(newnode))
     else:
         if nom != '':
             newnode = mc.shadingNode(node, asUtility=True, n=nom)
         else:
             newnode = mc.shadingNode(node, asUtility=True)
         if node == 'condition':
-            mc.setAttr(newnode + '.secondTerm', 1)
+            mc.setAttr('{}.secondTerm'.format(newnode), 1)
             for color in 'RGB':
-                mc.setAttr(newnode + '.colorIfTrue'+color, 1)
-                mc.setAttr(newnode + '.colorIfFalse'+color, 0)
-    print(newnode + ' node created')
+                mc.setAttr('{}.colorIfTrue{}'.format(newnode, color), 1)
+                mc.setAttr('{}.colorIfFalse{}'.format(newnode, color), 0)
+    print('{} node created'.format(newnode))
     return newnode
 
 
@@ -52,7 +52,7 @@ def launch_ui():
              'curveInfo', 'addDoubleLinear', 'clamp', 'blendColors', 'remapValue', 'angleBetween']
     for node in nodes:
         try:
-            mc.symbolButton(i='//'+mc.resourceManager(nf=node+'.svg')[0], h=40, w=40, ann=node, command=partial(nodecreation, node, texte))
+            mc.symbolButton(i='//'.format(mc.resourceManager(nf='{}.svg'.format(node))[0]), h=40, w=40, ann=node, command=partial(nodecreation, node, texte))
         except:
             buttonName = node
             while len(buttonName) > 6:
