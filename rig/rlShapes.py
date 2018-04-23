@@ -21,7 +21,7 @@ from tbx import get_shape
 
 
 """
-todo: pokeball, half_circle, line, half_sphere, wobbly_circle, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
+todo: puppy, cat, pokeball, half_circle, line, half_sphere, wobbly_circle, foot,pin_sphere, pin_cube, pin_pyramide, pin_double_pyramide, pin_circle_crossed, star, circle_cross, double_pin_circle_crossed, u_turn_arrow, pin_arrow, cross_axis, sparkle
 
 todo :  add : add selected custom shape to list
         add parent namespace when adding crv shape
@@ -122,7 +122,7 @@ class RlShapes_ui(QDialog):
         while shapeDone < len(self.shapesList):
             if column < ceil(sqrt(len(self.shapesList))):
                 self.shapeButton = QPushButton(self.shapesList[shapeDone].replace('_', '\n'))
-                self.shapeButton.setObjectName('btn_'+self.shapesList[shapeDone])
+                self.shapeButton.setObjectName('btn_{}'.format(self.shapesList[shapeDone]))
                 self.shapeButton.setFixedSize(50, 50)
                 self.shapesLayout.addWidget(self.shapeButton, row, column)
                 column += 1
@@ -147,7 +147,7 @@ class RlShapes_ui(QDialog):
         self.colorLabel = QLabel(' Color  :')
         self.replaceColorLayout.addWidget(self.colorLabel)
         self.colorButton = QPushButton()
-        self.colorButton.setStyleSheet('background-color: rgb' + str(self.choosenColor))
+        self.colorButton.setStyleSheet('background-color: rgb{}'.format(self.choosenColor))
         self.colorButton.setFixedSize(50, 20)
         self.replaceColorLayout.addWidget(self.colorButton)
         # Apply Color button
@@ -303,7 +303,7 @@ class RlShapes_ui(QDialog):
         self.shapesCollapse.clicked.connect(self.shapes_hide)
         for i, buttonIndex in enumerate(self.shapesList):
             shape = self.shapesList[i]
-            self.shapeButton = self.findChild(QPushButton, 'btn_'+shape)
+            self.shapeButton = self.findChild(QPushButton, 'btn_{}'.format(shape))
             self.shapeButton.clicked.connect(partial(self.init_do_shape, shape))
 
         # Shape options
@@ -381,9 +381,9 @@ class RlShapes_ui(QDialog):
             if 'transform' in mc.nodeType(crv, i=True):
                 shps = [x for x in get_shape(crv) if 'nurbsCurve' in mc.nodeType(x, i=True)]
                 for shp in shps:
-                    mc.setAttr(shp+'.lineWidth', width)
+                    mc.setAttr('{}.lineWidth'.format(shp), width)
             else:
-                mc.setAttr(crv+'.lineWidth', width)
+                mc.setAttr('{}.lineWidth'.format(crv), width)
 
     def mirror_signal(self, axis):
         mc.undoInfo(openChunk=True)
@@ -409,13 +409,13 @@ class RlShapes_ui(QDialog):
         self.colorItem = self.colorPicker.getColor(self.colorItem)
         if self.colorItem.isValid():
             RlShapes_ui.choosenColor = self.colorItem.getRgb()
-            self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
+            self.colorButton.setStyleSheet('background-color: rgb{}'.format(tuple(self.choosenColor)))
 
     def apply_color(self, crvs=None):
         def do_apply_color(shp, color):
-            mc.setAttr(shp+'.overrideEnabled', True)
-            mc.setAttr(shp+'.overrideRGBColors', True)
-            mc.setAttr(shp+'.overrideColorRGB', *color)
+            mc.setAttr('{}.overrideEnabled'.format(shp), True)
+            mc.setAttr('{}.overrideRGBColors'.format(shp), True)
+            mc.setAttr('{}.overrideColorRGB'.format(shp), *color)
 
         if not crvs:
             crvs = [x for x in mc.ls(sl=True) if ('geometryShape' in mc.nodeType(x, i=True) or 'transform' in mc.nodeType(x, i=True)) and '.' not in x]
@@ -434,13 +434,13 @@ class RlShapes_ui(QDialog):
     def get_curve_color(self):
 
         def getColor(node):
-            if mc.getAttr(node+'.overrideEnabled'):
-                if mc.getAttr(node+'.overrideRGBColors'):
-                    node_color = mc.getAttr(node+'.overrideColorRGB')[0]
+            if mc.getAttr('{}.overrideEnabled'.format(node)):
+                if mc.getAttr('{}.overrideRGBColors'.format(node)):
+                    node_color = mc.getAttr('{}.overrideColorRGB'.format(node))[0]
                     node_color = [x*255 for x in node_color]
                     return node_color
                 else:
-                    color_index = mc.getAttr(node+'.overrideColor')
+                    color_index = mc.getAttr('{}.overrideColor'.format(node))
                     rgb_color = mc.colorIndex(color_index, q=True)
                     node_color = [x*255 for x in rgb_color]
                     return node_color
@@ -461,7 +461,7 @@ class RlShapes_ui(QDialog):
         color = getColor(obj)
         if color:
             RlShapes_ui.choosenColor = color
-            self.colorButton.setStyleSheet('background-color: rgb' + str(tuple(self.choosenColor)))
+            self.colorButton.setStyleSheet('background-color: rgb{}'.format(tuple(self.choosenColor)))
 
     def init_do_shape(self, shape):
         mc.undoInfo(openChunk=True)
@@ -493,10 +493,10 @@ class RlShapes_ui(QDialog):
         else:
             p = self.confo_axis(shape)
             p = [(x * size, y * size, z * size) for x, y, z in p]
-            crv = mc.curve(d=1, p=p, n=shape+'#')
+            crv = mc.curve(d=1, p=p, n='{}#'.format(shape))
         if self.maya_version:
             width = float(self.widthLineEdit.text())
-            mc.setAttr(crv+'.lineWidth', width)
+            mc.setAttr('{}.lineWidth'.format(crv), width)
         self.apply_color([crv])
         self.do_twist(crv)
         return crv
@@ -514,7 +514,7 @@ class RlShapes_ui(QDialog):
 
     def do_twist(self, crv):
         twist_val = float(self.twistLineEdit.text())
-        nb = mc.getAttr(crv+'.degree') + mc.getAttr(crv+'.spans')
+        nb = mc.getAttr('{}.degree'.format(crv)) + mc.getAttr('{}.spans'.format(crv))
         axis = self.axisButtonGroup.checkedButton().text()
         if axis == 'x':
             value = (twist_val, 0, 0)
@@ -522,7 +522,7 @@ class RlShapes_ui(QDialog):
             value = (0, 0, twist_val)
         else:
             value = (0, twist_val, 0)
-        mc.select(crv+'.cv[:'+str(nb)+']')
+        mc.select('{}.cv[:{}]'.format(crv, nb))
         mc.rotate(*value, os=True)
 
 
@@ -543,7 +543,7 @@ def parent_shape(parent=None, childs=None, freeze=False):
             mc.undoInfo(closeChunk=True)
             return
         if parent in (mc.listRelatives(child, parent=True) or []):
-            mc.warning(child+' is already a child of '+parent)
+            mc.warning("{} is already a child of {}".format(child, parent))
             mc.undoInfo(closeChunk=True)
             return
         if freeze:
@@ -558,8 +558,8 @@ def parent_shape(parent=None, childs=None, freeze=False):
             mc.parent(grp_freeze, w=True)
             for j in 'xyz':
                 for i in 'tr':
-                    mc.setAttr(grp_freeze+'.'+i+j, 0)
-                mc.setAttr(grp_freeze+'.s'+j, 1)
+                    mc.setAttr('{}.{}{}'.format(grp_freeze, i, j), 0)
+                mc.setAttr('{}.s{}'.format(grp_freeze, j), 1)
             mc.makeIdentity(child_parent, a=True)
 
         mc.parent(child, parent, r=True, s=True)
