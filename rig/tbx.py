@@ -13,104 +13,53 @@ def get_shape(obj):
     return shapes
 
 
-def get_mirrorTable (master, slave, miraxis='x'):
+def get_mirrorTable (left, right, miraxis='x'):
     """
     Return a mirror table between two object on chosen axis
-    :param str master: object to compare to slave
-    :param str slave: object to compare to master
+    :param str left: object to compare to slave
+    :param str right: object to compare to master
     :param str miraxis: 'x'(default) chosen world axis on wich mirror is wanted
     :return: list: return a mirror table list, e.g.:[-1, 1, 1]
     """
-
-    m = get_axisDir(master)
-    s = get_axisDir(slave)
+    leftOrient = get_axisOrientation(left)
+    rightOrient = get_axisOrientation(right)
     mirtable = [1, 1, 1]
     for i in range(3):
-        if m[i][-1] == s[i][-1]:
-            if not m[i][0] == s[i][0]:
+        if leftOrient[i][-1] == rightOrient[i][-1]:
+            if not leftOrient[i][0] == rightOrient[i][0]:
                 mirtable[i] = -1
-            if m[i][-1] == miraxis:
+            if leftOrient[i][-1] == miraxis:
                 mirtable[i] *= -1
         else:
             mirtable[i] = 0
     return mirtable
 
 
-def get_axis(obj, os=False, exact=False):
+def get_axisOrientation(obj, os=False):
     """
-    Find objects axis direction compared to world or parent axis
-    :param str obj: object to query
-    :param bool os: False(default) query direction compared to world, True query direction compared to parent
-    :param bool exact: True return exact direction value for each axis
-    :return: axis direction in a list, e.g.:[1, 1, 1]
-    """
-
-    vp = mc.createNode('vectorProduct', n='_vp')
-    mc.setAttr(vp+'.operation', 3)
-    if os:
-        mc.connectAttr(obj+'.matrix', vp+'.matrix', f=True)
-    else:
-        mc.connectAttr(obj+'.worldMatrix', vp+'.matrix', f=True)
-    axis = [1, 1, 1]
-    val = [1, 0, 0]
-    xyz = 'XYZ'
-    fullval = []
-    for i in range(3):
-        j = 0
-        for axe in 'XYZ':
-            mc.setAttr(vp+'.input1'+axe, val[j])
-            j += 1
-        for axe in 'XYZ':
-            fullval.append(mc.getAttr(vp+'.output'+axe))
-        axis[i] = mc.getAttr(vp+'.output'+xyz[i])
-        if axis[i] < 0:
-            axis[i] = -1
-        else:
-            axis[i] = 1
-        val = val[-1:]+val[:-1]
-    fullval = [fullval[:3]]+[fullval[3:6]]+[fullval[6:]]
-    mc.delete(vp)
-    if exact:
-        return axis, fullval
-    else:
-        return axis
-
-
-def get_axisDir(obj):
-    """
-    Return a list of axis direction compared to world
+    Return a list of axis direction compared to world or parent
     :param str obj: object on wich to check the axis
+    :param bool os: False if compared to the world, True if compared to the parent
     :return: list: return an axis direction list compared to world,
                     first index giving the x axis direction and so on e.g.:[y, -z, -x],
                     for a object matching world axis it will return : [x, y, z]
     """
+    if not os:
+        mx = mc.getAttr('{}.worldMatrix'.format(obj))
+    else:
+        mx = mc.getAttr('{}.matrix'.format(obj))
+    mxRot = mx[:3], mx[4:7], mx[8:11]
 
-    objdir = get_axis(obj, exact=True)[-1]
-    axe = []
-    for i in range(3):
-        val = []
-        for j in range(3):
-            val.append(objdir[i][j])
-        if abs(val[0]) > abs(val[1]):
-            if abs(val[0]) > abs(val[2]):
-                if val[0] < 0:
-                    axe.append('-x')
-                else:
-                    axe.append('x')
-            else:
-                if val[2] < 0:
-                    axe.append('-z')
-                else:
-                    axe.append('z')
+    axisDir = [0, 0, 0]
+    for axis in range(3):
+        vals = mxRot[0][axis], mxRot[1][axis], mxRot[2][axis]  # Gathering values for each axis
+        index = vals.index(max(vals, key=abs))  # Getting the index of the highest absolute value in vals
+        if index == 0:
+            axisDir[axis] = 'x'
+        elif index == 1:
+            axisDir[axis] = 'y'
         else:
-            if abs(val[1]) > abs(val[2]):
-                if val[1] < 0:
-                    axe.append('-y')
-                else:
-                    axe.append('y')
-            else:
-                if val[2] < 0:
-                    axe.append('-z')
-                else:
-                    axe.append('z')
-    return axe
+            axisDir[axis] = 'z'
+        if vals[index] < 0:
+            axisDir[axis] = '-{}'.format(axisDir[axis])
+    return axisDir
