@@ -15,6 +15,7 @@ else:
 
 choice = 0  # todo : This is poorly done and need to be rethinked
 
+
 def launch_ui():
 
     if mc.window('attrManager', exists=True):

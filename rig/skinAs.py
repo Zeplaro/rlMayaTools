@@ -19,11 +19,11 @@ def do_skinAs(slaveNamespace=None, master=None, *slaves):
     infs = mc.skinCluster(masterskn, q=True, inf=True)
     if slaveNamespace is not None:
         infs = ['{}{}'.format(slaveNamespace, inf) for inf in infs]
-    sm = mc.skinCluster(masterskn, q=True, sm=True)
-    mi = mc.skinCluster(masterskn, q=True, mi=True)
-    nw = mc.skinCluster(masterskn, q=True, nw=True)
-    omi = mc.skinCluster(masterskn, q=True, omi=True)
-    wd = mc.skinCluster(masterskn, q=True, wd=True)
+    sm = mc.skinCluster(masterskn, q=True, skinMethod=True)
+    mi = mc.skinCluster(masterskn, q=True, maximumInfluences=True)
+    nw = mc.skinCluster(masterskn, q=True, normalizeWeights=True)
+    omi = mc.skinCluster(masterskn, q=True, obeyMaxInfluences=True)
+    wd = mc.skinCluster(masterskn, q=True, weightDistribution=True)
     done = []
     for slave in slaves:
         if get_skinCluster(slave):
