@@ -1,5 +1,6 @@
 import maya.cmds as mc
 # todo : don't do anything if attr connected
+# todo : don't do anything on message and vector attrs
 
 
 def do_resetAttr(*objs):

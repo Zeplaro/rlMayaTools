@@ -1,6 +1,8 @@
 import maya.cmds as mc
-from tbx import get_shape
-from tbx import get_mirrorTable
+# from tbx import get_shape
+# from tbx import get_mirrorTable
+from old.tbx import get_shape
+from old.tbx import get_mirrorTable
 
 
 def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):

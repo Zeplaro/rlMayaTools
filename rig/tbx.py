@@ -35,19 +35,15 @@ def get_mirrorTable (left, right, miraxis='x'):
     return mirtable
 
 
-def get_axisOrientation(obj, os=False):
+def get_axisOrientation(obj):
     """
-    Return a list of axis direction compared to world or parent
+    Return a list of axis direction compared to the world
     :param str obj: object on wich to check the axis
-    :param bool os: False if compared to the world, True if compared to the parent
     :return: list: return an axis direction list compared to world,
                     first index giving the x axis direction and so on e.g.:[y, -z, -x],
                     for a object matching world axis it will return : [x, y, z]
     """
-    if not os:
-        mx = mc.getAttr('{}.worldMatrix'.format(obj))
-    else:
-        mx = mc.getAttr('{}.matrix'.format(obj))
+    mx = mc.getAttr('{}.worldMatrix'.format(obj))
     mxRot = mx[:3], mx[4:7], mx[8:11]
 
     axisDir = [0, 0, 0]

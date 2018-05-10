@@ -16,7 +16,7 @@ import maya.OpenMayaUI as mui
 from functools import partial
 from math import sqrt, ceil
 import shapeMirror
-# reload(shapeMirror)
+reload(shapeMirror)
 from tbx import get_shape
 
 
