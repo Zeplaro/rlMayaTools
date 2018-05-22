@@ -1,6 +1,7 @@
 import maya.cmds as mc
 import os
 import json
+import math
 
 
 def nodeToClass(node):
@@ -13,12 +14,14 @@ def nodeToClass(node):
         return Mesh(node)
     elif node_type == 'nurbsCurve':
         return NurbsCurve(node)
+    elif node_type == 'skinCluster':
+        return NurbsCurve(node)
     else:
         return DepNode(node)
 
 
-def get_sel(flatten=True, intermediateObjects=False, long=True):
-    return mc.sl(sl=True, flatten=flatten, intermediateObjects=intermediateObjects, long=long)
+def get_sel(flatten=True, long=True):
+    return mc.sl(sl=True, flatten=flatten, long=long)
 
 
 class DepNode(object):
@@ -27,6 +30,25 @@ class DepNode(object):
 
     def __repr__(self):
         return self.name
+
+    def __getitem__(self, keys):
+        if isinstance(keys, basestring):
+            keys = [keys]
+        values = []
+        keys = keys
+        for key in keys:
+            values.append(mc.getAttr('{}.{}'.format(self.name, key)))
+        return values
+
+    def __setitem__(self, keys, values):
+        if isinstance(keys, basestring):
+            keys = [keys]
+            values = [values]
+        for key, value in zip(keys, values):
+            mc.setAttr('{}.{}'.format(self.name, key), value)
+
+    def __bool__(self):
+        return mc.objExists(self.name)
 
     @property
     def name(self):
@@ -37,11 +59,14 @@ class DepNode(object):
         name = mc.rename(self.name, new_name)
         self._name = name
 
+    @property
+    def type(self):
+        return mc.nodeType(self.name)
+
 
 class DagNode(DepNode):
     def __init__(self, node):
-        super(DepNode, self).__init__()
-        self._name = node
+        super(DagNode, self).__init__(node)
 
     @property
     def parent(self):
@@ -49,7 +74,9 @@ class DagNode(DepNode):
 
     @parent.setter
     def parent(self, parent):
-        if not parent == '|':
+        if hasattr(parent, 'name'):
+            parent = parent.name
+        if parent:
             mc.parent(self.name, parent)
         else:
             mc.parent(self.name, w=True)
@@ -57,15 +84,10 @@ class DagNode(DepNode):
     def children(self):
         return mc.listRelatives(self.name, c=True, fullPath=True)
 
-    def rename(self, new_name):
-        return mc.rename(self.name, new_name)
-
 
 class Transform(DagNode):
     def __init__(self, obj):
-        super(DagNode, self).__init__(obj)
-        self._name = obj
-        self.type = 'transform'
+        super(Transform, self).__init__(obj)
         print('Transform node initialized')
 
     @property
@@ -77,7 +99,7 @@ class Transform(DagNode):
         return mc.getAttr('{}.matrix'.format(self.name))
 
     @property
-    def wolrdMatrix(self):
+    def worldMatrix(self):
         return mc.getAttr('{}.worldMatrix'.format(self.name))
 
     @property
@@ -152,6 +174,21 @@ class Transform(DagNode):
     def shear(self, value):
         mc.xform(self.name, r=True, sh=value)
 
+    @property
+    def magnitude(self):
+        obj = self.translation
+        mag = math.sqrt(pow(obj[0], 2) + pow(obj[1], 2) + pow(obj[2], 2))
+        return mag
+
+    def distance(self, obj):
+        if hasattr(obj, 'worldTranslation'):
+            obj = obj.worldTranslation
+        else:
+            obj = nodeToClass(obj).worldTranslation
+        node = self.worldTranslation
+        dist = math.sqrt(pow((obj[0] - node[0]), 2) + pow((obj[1] - node[1]), 2) + pow((obj[2] - node[2]), 2))
+        return dist
+
     def add_shape(self, shape):
         mc.parent(shape, self.name, r=True, s=True)
 
@@ -189,7 +226,7 @@ class Transform(DagNode):
             grps.append(grp)
         return grps
 
-    def get_mirror_table (self, mir_node, miraxis='x'):
+    def get_mirror_table(self, mir_node, miraxis='x'):
         """
         Return a mirror table between two object on chosen axis
         :param str mir_node: object to compare to self
@@ -197,7 +234,8 @@ class Transform(DagNode):
         :return: list: return a mirror table list, e.g.:[-1, 1, 1]
         """
         orient = self.get_world_orientation()
-        mir_node = nodeToClass(mir_node)
+        if not hasattr(mir_node, 'worldMatrix'):
+            mir_node = nodeToClass(mir_node)
         mir_node_orient = mir_node.get_world_orientation()
         mirtable = [1, 1, 1]
         for i in range(3):
@@ -210,7 +248,6 @@ class Transform(DagNode):
                 mirtable[i] = 0
         return mirtable
 
-
     def get_world_orientation(self):
         """
         Return a list of axis direction compared to the world
@@ -218,20 +255,20 @@ class Transform(DagNode):
                         first index giving the x axis direction and so on e.g.:[y, -z, -x],
                         for a object matching world axis it will return : [x, y, z]
         """
-        mx = mc.getAttr('{}.worldMatrix'.format(self.name))
+        mx = self.worldMatrix
         mxRot = mx[:3], mx[4:7], mx[8:11]
 
         axisDir = [0, 0, 0]
         for axis in range(3):
-            vals = mxRot[0][axis], mxRot[1][axis], mxRot[2][axis]  # Gathering values for each axis
-            index = vals.index(max(vals, key=abs))  # Getting the index of the highest absolute value in vals
+            values = mxRot[0][axis], mxRot[1][axis], mxRot[2][axis]  # Gathering values for each axis
+            index = values.index(max(values, key=abs))  # Getting the index of the highest absolute value in values
             if index == 0:
                 axisDir[axis] = 'x'
             elif index == 1:
                 axisDir[axis] = 'y'
             else:
                 axisDir[axis] = 'z'
-            if vals[index] < 0:
+            if values[index] < 0:
                 axisDir[axis] = '-{}'.format(axisDir[axis])
         return axisDir
 
@@ -239,21 +276,21 @@ class Transform(DagNode):
 
 class Joint(Transform):
     def __init__(self, jnt):
-        super(Transform, self).__init__(jnt)
-        self._name = jnt
-        self.type = 'joint'
+        super(Joint, self).__init__(jnt)
         print('Joint node initialized')
 
     @property
     def jointOrient(self):
         return mc.getAttr('{}.jointOrient'.format(self.name))
 
+    @jointOrient.setter
+    def jointOrient(self, values):
+        mc.setAttr('{}.jointOrient'.format(self.name), values)
+
 
 class Shape(DagNode):
     def __init__(self, shape):
-        super(DagNode, self).__init__(shape)
-        self._name = shape
-        self.type = 'shape'
+        super(Shape, self).__init__(shape)
         print('Shape node initialized')
 
     @property
@@ -275,9 +312,7 @@ class Shape(DagNode):
 
 class NurbsCurve(Shape):
     def __init__(self, crv):
-        super(Shape, self).__init__(crv)
-        self._name = crv
-        self.type = 'nurbsCurve'
+        super(NurbsCurve, self).__init__(crv)
         print('nurbsCurve node initialized')
 
     def __len__(self):
@@ -285,12 +320,12 @@ class NurbsCurve(Shape):
 
 
 class Mesh(Shape):
-
-    def __init__(self, obj):
-        super(Shape, self).__init__(obj)
-        self._name = obj
-        self.type = 'mesh'
+    def __init__(self, mesh):
+        super(Mesh, self).__init__(mesh)
         print('Mesh node initialized')
+
+    def __len__(self):
+        return self.vtxs
 
     @property
     def vtxs(self):
@@ -306,18 +341,13 @@ class Mesh(Shape):
 
 
 class SkinCluster(DepNode):
-
     def __init__(self, skn):
-        super(DepNode, self).__init__()
-        self._name = skn
+        super(SkinCluster, self).__init__(skn)
+        print('SkinCluster node initialized')
 
     @property
     def infs(self):
-        sel = mc.ls(sl=True)
-        mc.select(mc.skinCluster(self.name, q=True, inf=True))
-        infs = mc.ls(sl=True, fl=True, long=True)
-        mc.select(sel)
-        return infs
+        return mc.skinCluster(self.name, q=True, inf=True)
 
     @property
     def skinData(self):
@@ -426,3 +456,4 @@ class SkinCluster(DepNode):
                 else:
                     print('{} is connected'.format(bpm))
         mc.skinCluster(self.name, e=True, rbm=True)
+
