@@ -7,7 +7,7 @@ class Mesh(shp.Shape):
         super(Mesh, self).__init__(mesh)
 
     def __len__(self):
-        return self.vtxs
+        return len(self.vtxs)
 
     @property
     def vtxs(self):

@@ -5,7 +5,6 @@ import node.dag as dag
 class Shape(dag.Dag):
     def __init__(self, obj):
         super(Shape, self).__init__(obj)
-        print('shape init!!!!')
 
     @property
     def skinCluster(self):

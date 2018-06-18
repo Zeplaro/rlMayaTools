@@ -1,9 +1,7 @@
 import maya.cmds as mc
-# todo : don't do anything if attr connected
-# todo : don't do anything on message and vector attrs
 
 
-def do_resetAttr(*objs):
+def do_reset_attr(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
@@ -21,10 +19,10 @@ def do_resetAttr(*objs):
         if mc.getAttr('{}.v'.format(obj), settable=True):
             mc.setAttr('{}.v'.format(obj), True)
 
-        attrs = mc.listAttr(obj, ud=True, visible=True) or []
+        attrs = mc.listAttr(obj, ud=True, scalar=True, visible=True) or []
         for attr in attrs:
-            if not mc.getAttr('{}.'.format(obj, attr), settable=True):
+            if not mc.getAttr('{}.{}'.format(obj, attr), settable=True):
                 continue
-            dv = mc.addAttr('{].{]'.format(obj, attr), q=True, dv=True)
-            mc.setAttr('{}.'.format(obj, attr), dv)
+            dv = mc.addAttr('{}.{}'.format(obj, attr), q=True, dv=True)
+            mc.setAttr('{}.{}'.format(obj, attr), dv)
     return objs
