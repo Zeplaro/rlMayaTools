@@ -53,6 +53,7 @@ class MainUi(QtWidgets.QDialog, object):
         self.win_layout.addWidget(self.main_widget)
 
         self.main_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_widget.setLayout(self.main_layout)
 
         if not self.obj:
@@ -67,6 +68,8 @@ class MainUi(QtWidgets.QDialog, object):
         self.main_layout.addWidget(self.main_frame)
 
         self.sec_layout = QtWidgets.QHBoxLayout()
+        self.sec_layout.setSpacing(10)
+        self.sec_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.addLayout(self.sec_layout)
 
         self.addAttr_layout = QtWidgets.QHBoxLayout()
@@ -90,6 +93,7 @@ class MainUi(QtWidgets.QDialog, object):
 
             # ATTRIBUTES-------------------------------------------
             self.attrs_layout = QtWidgets.QVBoxLayout()
+            self.attrs_layout.setSpacing(10)
             self.sec_layout.addLayout(self.attrs_layout)
 
             self.attrs_groupButton = QtWidgets.QButtonGroup()
@@ -186,6 +190,8 @@ class Attr(QtWidgets.QWidget, object):
 
     def ui_layout(self):
         self.main_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.setSpacing(6)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_layout)
         if not self.data.parent:
             self.select_layout()
@@ -197,6 +203,8 @@ class Attr(QtWidgets.QWidget, object):
         self.main_layout.addWidget(self.border_frame)
         # Data Layout
         self.attr_layout = QtWidgets.QVBoxLayout()
+        self.attr_layout.setSpacing(0)
+        self.attr_layout.setContentsMargins(6, 6, 6, 6)
         self.border_frame.setLayout(self.attr_layout)
         # Name line Layout
         self.name_layout = QtWidgets.QHBoxLayout()
@@ -229,6 +237,8 @@ class Attr(QtWidgets.QWidget, object):
         self.attr_layout.addWidget(self.data_widget)
         # Attribute data layout
         self.data_layout = QtWidgets.QVBoxLayout()
+        self.data_layout.setSpacing(6)
+        self.data_layout.setContentsMargins(0, 6, 0, 0)
         self.data_widget.setLayout(self.data_layout)
 
         # Attribute nice Name
