@@ -430,9 +430,8 @@ class RlShapesUi(QDialog):
                     return node_color
             else:
                 parent = mc.listRelatives(node, parent=True, fullPath=True) or []
-                if not parent:
-                    return
-                return getColor(parent[0])
+                if parent:
+                    return getColor(parent[0])
 
         sel = [x for x in mc.ls(sl=True)
                if ('geometryShape' in mc.nodeType(x, i=True) or 'transform' in mc.nodeType(x, i=True)) and '.' not in x]
