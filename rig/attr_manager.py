@@ -1,4 +1,4 @@
-# encoding: UTF8
+# encoding: utf8
 
 import maya.cmds as mc
 import maya.OpenMayaUI as mui
@@ -29,172 +29,221 @@ class MainUi(QtWidgets.QDialog, object):
         self.setWindowTitle('Attribute Manager')
         self.setObjectName('attr_manager')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.win_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.win_layout)
-
-        self.reloadSel_button = QtWidgets.QPushButton('Reload selected')
-        self.win_layout.addWidget(self.reloadSel_button)
-        self.reloadSel_button.clicked.connect(self.reload_ui)
+        self.setMinimumSize(225, 300)
 
         self.obj = get_sel()
-        self.attributes = []
-        if self.obj:
-            self.attributes = [x for x in get_attributes(self.obj) if not AttrData(x, self.obj).parent]
-            self.ui_layout()
-            self.ui_connections()
-
-    def adjustSize(self):
-        mc.refresh()
-        super(MainUi, self).adjustSize()
-
-    def ui_layout(self):
-        self.main_widget = QtWidgets.QWidget()
-        self.main_widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.win_layout.addWidget(self.main_widget)
-
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_widget.setLayout(self.main_layout)
-
-        if not self.obj:
-            mc.warning('Nothing selected')
-            return
+        self.attributes = OrderedDict([(x, None) for x in get_attributes(self.obj)
+                                       if not AttrData(x, self.obj).parent])
+        print(list(self.attributes))
         if not self.attributes:
             mc.warning('No attributes on selection')
+        if not self.obj:
+            mc.warning('Nothing selected')
+        self.ui_layout()
+        self.ui_connections()
 
+    def ui_layout(self):
+        main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setSpacing(7)
+        main_layout.setContentsMargins(6, 8, 6, 6)
+        self.setLayout(main_layout)
+
+        reload_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(reload_layout)
+
+        self.reloadSel_button = QtWidgets.QPushButton('Reload selected')
+        reload_layout.addWidget(self.reloadSel_button)
+        # Add attribute
+        self.addAttr_button = QtWidgets.QPushButton('Add Attribute')
+        self.addAttr_button.setFixedWidth(85)
+        reload_layout.addWidget(self.addAttr_button)
         # Main separator
-        self.main_frame = QtWidgets.QFrame()
-        self.main_frame.setFrameShape(QtWidgets.QFrame.HLine)
-        self.main_layout.addWidget(self.main_frame)
+        main_frame = QtWidgets.QFrame()
+        main_frame.setFrameShape(QtWidgets.QFrame.HLine)
+        main_layout.addWidget(main_frame)
 
         self.sec_layout = QtWidgets.QHBoxLayout()
-        self.sec_layout.setSpacing(10)
+        self.sec_layout.setSpacing(0)
         self.sec_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.addLayout(self.sec_layout)
+        main_layout.addLayout(self.sec_layout)
 
-        self.addAttr_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.addLayout(self.addAttr_layout)
-        # Add attribute------------------------------
-        self.addAttr_button = QtWidgets.QPushButton('Add Attribute')
-        self.addAttr_button.setMaximumWidth(90)
-        self.addAttr_layout.addWidget(self.addAttr_button)
+        # Move arrow layout
+        move_arrow_layout = QtWidgets.QVBoxLayout()
+        move_arrow_layout.setContentsMargins(0, 0, 0, 0)
+        self.moveUp_toolButton = QtWidgets.QToolButton()
+        self.moveUp_toolButton.setArrowType(QtCore.Qt.UpArrow)
+        self.moveUp_toolButton.setFixedWidth(22)
+        move_arrow_layout.addWidget(self.moveUp_toolButton)
+        self.moveDown_toolButton = QtWidgets.QToolButton()
+        self.moveDown_toolButton.setArrowType(QtCore.Qt.DownArrow)
+        self.moveDown_toolButton.setFixedWidth(22)
+        move_arrow_layout.addWidget(self.moveDown_toolButton)
+        self.sec_layout.addLayout(move_arrow_layout)
 
-        if self.attributes:
-            # Move arrow layout
-            self.moveArrow_layout = QtWidgets.QVBoxLayout()
-            self.moveUp_toolButton = QtWidgets.QToolButton()
-            self.moveUp_toolButton.setArrowType(QtCore.Qt.UpArrow)
-            self.moveArrow_layout.addWidget(self.moveUp_toolButton)
+        # Advanced
+        advance_layout = QtWidgets.QHBoxLayout()
+        advance_layout.setAlignment(QtCore.Qt.AlignLeft)
+        main_layout.addLayout(advance_layout)
+        self.advance_checkbox = QtWidgets.QCheckBox('Advance mode')
+        self.advance_checkbox.setFixedWidth(100)
+        advance_layout.addWidget(self.advance_checkbox)
+        self.applyAll_button = QtWidgets.QPushButton('Apply all')
+        self.applyAll_button.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        advance_layout.addWidget(self.applyAll_button)
+        self.applyAll_button.hide()
 
-            self.moveDown_toolButton = QtWidgets.QToolButton()
-            self.moveDown_toolButton.setArrowType(QtCore.Qt.DownArrow)
-            self.moveArrow_layout.addWidget(self.moveDown_toolButton)
-            self.sec_layout.addLayout(self.moveArrow_layout)
+        # Attributes Group
+        self.group_layout()
 
-            # ATTRIBUTES-------------------------------------------
-            self.attrs_layout = QtWidgets.QVBoxLayout()
-            self.attrs_layout.setSpacing(10)
-            self.sec_layout.addLayout(self.attrs_layout)
+    def group_layout(self):
+        self.attrs_group = QtWidgets.QGroupBox('Attributes')
+        self.attrs_group.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.sec_layout.addWidget(self.attrs_group)
+        group_layout = QtWidgets.QVBoxLayout()
+        group_layout.setSpacing(0)
+        group_layout.setContentsMargins(0, 0, 0, 0)
+        self.attrs_group.setLayout(group_layout)
 
-            self.attrs_groupButton = QtWidgets.QButtonGroup()
+        self.attrs_groupButton = QtWidgets.QButtonGroup()
 
-            self.attr_objects = {}
-            for attribute in self.attributes:
-                attr_object = Attr(parent=self, attr=attribute)
-                attr_object.setObjectName(attribute)
-                self.attrs_layout.addWidget(attr_object)
-                self.attr_objects[attribute] = attr_object
+        scroll = QtWidgets.QScrollArea()
+        group_layout.addWidget(scroll)
+        container = QtWidgets.QWidget()
+        scroll.setWidget(container)
+        scroll.setWidgetResizable(True)
 
-            # Apply All
-            self.applyAll_button = QtWidgets.QPushButton('Apply all')
-            self.addAttr_layout.addWidget(self.applyAll_button)
+        self.attrs_layout = QtWidgets.QVBoxLayout()
+        self.attrs_layout.setAlignment(QtCore.Qt.AlignTop)
+        container.setLayout(self.attrs_layout)
+        self.attrs_layout.setSpacing(0)
+        self.attrs_layout.setContentsMargins(0, 0, 0, 0)
+
+        for attribute in self.attributes:
+            ui = AttrUI(parent=self, attr=attribute, advance=self.advance_checkbox.isChecked())
+            self.attributes[attribute] = ui
+            self.attrs_layout.addWidget(ui)
 
     def ui_connections(self):
+        self.reloadSel_button.clicked.connect(self.reload_ui)
         self.addAttr_button.clicked.connect(partial(add_attr_maya, self.obj))
-        if self.attributes:
-            self.moveDown_toolButton.clicked.connect(partial(self.move_attr, 'down'))
-            self.moveUp_toolButton.clicked.connect(partial(self.move_attr, 'up'))
+        self.moveDown_toolButton.clicked.connect(partial(self.move_attr, 'down'))
+        self.moveUp_toolButton.clicked.connect(partial(self.move_attr, 'up'))
+        self.advance_checkbox.clicked.connect(self.reload_ui)
+        self.applyAll_button.clicked.connect(self.apply_all)
 
     def reload_ui(self):
         try:
-            self.main_widget.close()
-        except RuntimeError:
+            self.attrs_group.close()
+        except:
             pass
         self.obj = get_sel()
         if self.obj:
             print(u'On prend pas les même et on recommence!')
-            self.attributes = [x for x in get_attributes(self.obj) if not AttrData(x, self.obj).parent]
-            self.ui_layout()
-            self.ui_connections()
+            self.attributes = OrderedDict([(x, None) for x in get_attributes(self.obj)
+                                           if not AttrData(x, self.obj).parent])
+            self.group_layout()
         else:
             mc.warning('Select an object')
-        self.adjustSize()
 
     @property
     def selected(self):
-        for attr in self.attr_objects:
-            if self.attr_objects[attr].select_status:
-                return self.attr_objects[attr].name
+        for i, attr in enumerate(self.attributes):
+            if self.attributes[attr].selected_status:
+                return i, attr
 
     @selected.setter
-    def selected(self, value):
-        for attr in self.attr_objects:
-            if attr == self.attr_objects[value].name:
-                self.attr_objects[attr].select_radioButton.setChecked(True)
+    def selected(self, attr):
+        self.attributes[attr].select_radioButton.setChecked(True)
 
     def move_attr(self, way):
-        attr = self.selected
-        if not attr:
+        index, attr = self.selected
+        if index is None:
             return
-        attr_index = self.attributes.index(attr)
 
         if way == 'up':
-            if attr_index == 0:
+            if index == 0:
                 return
-            new_index = attr_index - 1
+            new_index = index - 1
         else:
-            new_index = attr_index + 1
+            new_index = index + 1
 
         # Creating a new list with the new attributes order
+        attributes = list(self.attributes)
         new_attributes = list(self.attributes)
-        new_attributes.pop(attr_index)
-        new_attributes.insert(new_index, self.attributes[attr_index])
+        new_attributes.pop(index)
+        new_attributes.insert(new_index, attributes[index])
 
         # Deleting and undeleting attributes to reorder them
         for attribute in new_attributes:
-            if mc.getAttr('{}.{}'.format(self.obj, attribute), lock=True):  # If the attr is locked : unlock it
+            real_name = self.attributes[attribute].data.name
+            if mc.getAttr('{}.{}'.format(self.obj, real_name), lock=True):  # If the attr is locked : unlock it
                 lock = True
-                mc.setAttr('{}.{}'.format(self.obj, attribute), lock=False)
+                mc.setAttr('{}.{}'.format(self.obj, real_name), lock=False)
             else:
                 lock = False
-            mc.deleteAttr('{}.{}'.format(self.obj, attribute))
+            mc.deleteAttr('{}.{}'.format(self.obj, real_name))
             mc.undo()
-            mc.setAttr('{}.{}'.format(self.obj, attribute), lock=lock)
+            mc.setAttr('{}.{}'.format(self.obj, real_name), lock=lock)
+        real_name = self.attributes[attr].data.name
         self.reload_ui()
-        self.selected = attr
+        self.selected = real_name
+
+    def apply_all(self):
+        for attr, ui in self.attributes.items():
+            ui.apply_changes()
 
 
-class Attr(QtWidgets.QWidget, object):
-    def __init__(self, parent, attr):
-        super(Attr, self).__init__(parent)
+class AttrUI(QtWidgets.QWidget, object):
+    def __init__(self, parent, attr, advance):
+        super(AttrUI, self).__init__(parent)
         self.parent = parent
         self.obj = parent.obj
-        self.name = attr
-        self.data = AttrData(self.name, self.obj)
-        self.ui_layout()
-        self.ui_connections()
+        self.data = AttrData(attr, self.obj)
+        self.children = None
+        if self.data.children:
+            self.children = OrderedDict()
+            for child in self.data.children:
+                self.children[child] = AttrUI(parent=parent, attr=child, advance=parent.advance_checkbox.isChecked())
+        if advance:
+            self.advance_layout()
+        else:
+            self.simple_layout()
 
-    def adjustSize(self, *args, **kwargs):
-        mc.refresh()
-        super(Attr, self).adjustSize()
+    def simple_layout(self):
+        self.parent.applyAll_button.hide()
 
-    def ui_layout(self):
         self.main_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.setSpacing(6)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        self.main_layout.setContentsMargins(4, 6, 4, 2)
+        self.setLayout(self.main_layout)
+        self.selection_layout()
+
+        self.name_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.addLayout(self.name_layout)
+        self.name_lineEdit = QtWidgets.QLineEdit(self.data.name)
+        self.main_layout.addWidget(self.name_lineEdit)
+
+        if self.children:
+            self.children_layout()
+
+        self.simple_connection()
+        mc.refresh()
+        self.parent.adjustSize()
+
+    def simple_connection(self):
+        self.name_lineEdit.editingFinished.connect(partial(self.apply_changes, True))
+
+    def advance_layout(self):
+        self.parent.setMinimumSize(600, 500)
+        self.parent.applyAll_button.show()
+
+        # self.setMaximumHeight(150)
+
+        self.main_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.setContentsMargins(0, 4, 4, 8)
         self.setLayout(self.main_layout)
         if not self.data.parent:
-            self.select_layout()
+            self.selection_layout()
 
         # Frame border box
         self.border_frame = QtWidgets.QFrame()
@@ -203,37 +252,33 @@ class Attr(QtWidgets.QWidget, object):
         self.main_layout.addWidget(self.border_frame)
         # Data Layout
         self.attr_layout = QtWidgets.QVBoxLayout()
-        self.attr_layout.setSpacing(0)
-        self.attr_layout.setContentsMargins(6, 6, 6, 6)
         self.border_frame.setLayout(self.attr_layout)
         # Name line Layout
         self.name_layout = QtWidgets.QHBoxLayout()
         self.attr_layout.addLayout(self.name_layout)
-        # Attribute hide button
-        self.hide_toolButton = QtWidgets.QToolButton()
-        self.hide_toolButton.setArrowType(QtCore.Qt.RightArrow)
-        self.hide_toolButton.setFixedSize(20, 20)
-        self.name_layout.addWidget(self.hide_toolButton)
+        # Name label
+        self.name_label = QtWidgets.QLabel('Name ')
+        self.name_layout.addWidget(self.name_label)
         # Attribute name lineEdit
-        self.name_lineEdit = QtWidgets.QLineEdit(self.name)
+        self.name_lineEdit = QtWidgets.QLineEdit(self.data.name)
         self.name_lineEdit.setMinimumWidth(120)
         self.name_layout.addWidget(self.name_lineEdit)
 
-        self.apply_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.addLayout(self.apply_layout)
-        # Apply update button
-        self.apply_button = QtWidgets.QPushButton('Apply')
-        self.apply_button.setFixedWidth(50)
-        self.apply_button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
-        self.apply_layout.addWidget(self.apply_button)
-        self.delete_button = QtWidgets.QPushButton('Delete')
-        self.delete_button.setFixedWidth(50)
-        self.apply_layout.addWidget(self.delete_button)
+        if not self.data.parent:
+            self.apply_layout = QtWidgets.QVBoxLayout()
+            self.main_layout.addLayout(self.apply_layout)
+            # Apply apply button
+            self.apply_button = QtWidgets.QPushButton('Apply')
+            self.apply_button.setFixedWidth(50)
+            self.apply_button.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+            self.apply_layout.addWidget(self.apply_button)
+            self.delete_button = QtWidgets.QPushButton('Delete')
+            self.delete_button.setFixedWidth(50)
+            self.apply_layout.addWidget(self.delete_button)
 
         # Attribute data------------
         # Attribute data Widget
         self.data_widget = QtWidgets.QWidget()
-        self.data_widget.hide()
         self.attr_layout.addWidget(self.data_widget)
         # Attribute data layout
         self.data_layout = QtWidgets.QVBoxLayout()
@@ -276,20 +321,23 @@ class Attr(QtWidgets.QWidget, object):
 
         extra_data = getattr(self, '{}_layout'.format(self.data.type))
         extra_data()
-        self.adjustSize()
 
-    def select_layout(self):
+        if not self.data.parent:
+            self.advance_connections()
+
+    def selection_layout(self):
         # Attribute choice radioButton
         self.select_radioButton = QtWidgets.QRadioButton()
         self.parent.attrs_groupButton.addButton(self.select_radioButton)
         self.main_layout.addWidget(self.select_radioButton)
-        # Attribute choice separator
-        self.main_frame = QtWidgets.QFrame()
-        self.main_frame.setFrameShape(QtWidgets.QFrame.VLine)
-        self.main_layout.addWidget(self.main_frame)
+
+    def children_layout(self):
+        for child, ui in self.children.items():
+            self.main_layout.addWidget(ui)
+
 
     @property
-    def select_status(self):
+    def selected_status(self):
         return self.select_radioButton.isChecked()
 
     def double_layout(self):
@@ -397,35 +445,29 @@ class Attr(QtWidgets.QWidget, object):
         self.string_layout.addWidget(self.value_lineEdit)
 
     def double3_layout(self):
-        for sub in self.data.children:
-            sub_attr = Attr(self, sub)
-            self.data_layout.addWidget(sub_attr)
+        for child, ui in self.children.items():
+            self.data_layout.addWidget(ui)
 
-    def ui_connections(self):
-        # Hide button
-        self.hide_toolButton.clicked.connect(self.hide_data)
+    def advance_connections(self):
         # Apply Button
         self.apply_button.clicked.connect(self.apply_changes)
         self.delete_button.clicked.connect(self.delete_attr)
 
     def delete_attr(self):
-        mc.deleteAttr(self.obj, attribute=self.name)
+        mc.deleteAttr(self.obj, attribute=self.data.name)
         self.parent.reload_ui()
 
-    def hide_data(self):
-        if self.hide_toolButton.arrowType() == QtCore.Qt.DownArrow:
-            self.data_widget.hide()
-            self.hide_toolButton.setArrowType(QtCore.Qt.RightArrow)
+    def apply_changes(self, simple=False, *args):
+        if not simple:
+            for attr, value in self.widget_data.items():
+                setattr(self.data, attr, value)
+            self.widget_data = dict(self.data)
+            if self.children:
+                for child, ui in self.children.items():
+                    ui.apply_changes()
         else:
-            self.hide_toolButton.setArrowType(QtCore.Qt.DownArrow)
-            self.data_widget.show()
-        self.adjustSize()
-        self.parent.adjustSize()
-
-    def apply_changes(self):
-        for attr, value in self.widget_data.items():
-            setattr(self.data, attr, value)
-        self.widget_data = dict(self.data)
+            self.data.name = self.name_lineEdit.text()
+            self.name_lineEdit.setText(self.data.name)
         refresh_channel_box()
 
     @property
@@ -523,17 +565,17 @@ def get_sel():
 
 
 def get_attributes(obj):
-    if not obj:
-        return
-    attrs = mc.listAttr(obj, ud=True, visible=True)
-    if attrs:
-        return attrs
+    if obj:
+        attrs = mc.listAttr(obj, ud=True, visible=True)
+        if attrs:
+            return attrs
     return []
 
 
 def add_attr_maya(obj):
-    mc.select(obj)
-    mel.eval('AddAttribute;')
+    if obj:
+        mc.select(obj)
+        mel.eval('AddAttribute;')
 
 
 def refresh_channel_box():
