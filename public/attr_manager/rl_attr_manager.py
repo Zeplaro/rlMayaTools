@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# coding:utf-8
 
 """ Attribute Manager for Maya 2017 and up.
 
@@ -7,8 +7,8 @@ The Attribute Manager will also work on 2016 and below if the user has Qt.py ava
 The Attribute Manager allows you to quickly manage your custom attributes properties with a simple interface.
 
 run command:
-import attr_manager
-attr_manager.launch_ui()
+import rl_attr_manager
+rl_attr_manager.launch_ui()
 
 """
 
@@ -29,8 +29,8 @@ __email__ = "contact@robinlavigne.com"
 
 
 def launch_ui():
-    if mc.window('attr_manager', exists=True):
-        mc.deleteUI('attr_manager')
+    if mc.window('rl_attr_manager', exists=True):
+        mc.deleteUI('rl_attr_manager')
     ui = MainUi()
     ui.show()
     return ui
@@ -47,7 +47,7 @@ class MainUi(QtWidgets.QDialog, object):
         self.parent = parent
 
         self.setWindowTitle('Attribute Manager')
-        self.setObjectName('attr_manager')
+        self.setObjectName('rl_attr_manager')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setMinimumSize(225, 300)
 
