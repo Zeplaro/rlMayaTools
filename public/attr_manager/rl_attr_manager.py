@@ -793,3 +793,6 @@ class AttrData(object):
             mc.setAttr('{}.{}'.format(self.obj, self.name), value, type='string')
         else:
             mc.setAttr('{}.{}'.format(self.obj, self.name), value)
+
+if __name__ == '__main__':
+    launch_ui()
