@@ -5,6 +5,7 @@
 
 The Attribute Manager will also work on 2016 and below if the user has Qt.py available.
 The Attribute Manager allows you to quickly manage your custom attributes properties with a simple interface.
+Supported attribute type are: bool, double, double3, long, enum, string
 
 run command:
 import rl_attr_manager
