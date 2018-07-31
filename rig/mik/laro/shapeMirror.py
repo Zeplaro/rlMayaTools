@@ -4,7 +4,7 @@ from marsTools.mirror_table import getMirrorValues
 '''
 import mayaRigTools_sk.sandBox.laro.shapeMirror as sm
 reload(sm)
-sm.do_shapeMirror()
+sm.shape_mirror()
 '''
 
 

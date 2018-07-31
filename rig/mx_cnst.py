@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_mxCnst(master=None, slave=None):
+def mx_cnst(master=None, slave=None):
 
     target = []
     if not master or not slave:

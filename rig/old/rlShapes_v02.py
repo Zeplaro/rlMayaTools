@@ -6,7 +6,7 @@ import shiboken
 
 from functools import partial
 from math import sqrt, ceil
-import shapeMirror
+import shape_mirror
 from tbx import get_shape
 
 
@@ -158,14 +158,14 @@ class rlShape_ui(QtGui.QDialog):
         self.mirbutt = self.findChild(QtGui.QPushButton, 'mirrorButtonZ')
         self.mirbutt.clicked.connect(partial(self.mirror_signal, 'z'))
 
-        self.sideMirror.clicked.connect(shapeMirror.do_shapeMirror)
+        self.sideMirror.clicked.connect(shape_mirror.shape_mirror)
         self.parentButton.clicked.connect(parent_shape)
-        self.copyButton.clicked.connect(partial(shapeMirror.do_shapeMirror, copy=True))
+        self.copyButton.clicked.connect(partial(shape_mirror.shape_mirror, copy=True))
 
     def mirror_signal(self, axis):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        shapeMirror.do_shapeMirror(miraxis=axis, ws=ws, solo=True)
+        shape_mirror.shape_mirror(miraxis=axis, ws=ws, solo=True)
 
     def get_color(self):
         self.colorItem = QtGui.QColor()

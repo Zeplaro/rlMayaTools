@@ -2,13 +2,10 @@ import maya.cmds as mc
 from tbx import get_skinCluster
 
 
-def do_reSkin(*objs):
+def reskin(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
-    if not objs:
-        mc.warning('Select at least one object')
-        return
     for obj in objs:
         skn = get_skinCluster(obj)
         infs = mc.skinCluster(skn, q=True, inf=True)

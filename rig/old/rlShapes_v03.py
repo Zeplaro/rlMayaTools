@@ -5,7 +5,7 @@ import maya.OpenMayaUI as mui
 import shiboken
 from functools import partial
 from math import sqrt, ceil
-import shapeMirror
+import shape_mirror
 # reload(shapeMirror)
 from tbx import get_shape
 
@@ -352,18 +352,18 @@ class RlShapes_ui(QtGui.QDialog):
         mc.undoInfo(openChunk=True)
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        shapeMirror.do_shapeMirror(miraxis=axis, ws=ws, solo=True)
+        shape_mirror.shape_mirror(miraxis=axis, ws=ws, solo=True)
         mc.undoInfo(closeChunk=True)
 
     def sideMirror_signal(self):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        shapeMirror.do_shapeMirror(ws=ws)
+        shape_mirror.shape_mirror(ws=ws)
 
     def copy_signal(self):
         space = self.findChild(QtGui.QCheckBox, 'objectSpace')
         ws = not space.isChecked()
-        shapeMirror.do_shapeMirror(ws=ws, copy=True)
+        shape_mirror.shape_mirror(ws=ws, copy=True)
 
     def get_picker_color(self):
         self.colorItem = QtGui.QColor()

@@ -6,10 +6,10 @@ def launch_ui():
 
     if mc.window('attrReoderUI', exists=True):
         mc.deleteUI('attrReoderUI')
-    attrReorder()
+    AttrReorder()
 
 
-class attrReorder():
+class AttrReorder():
 
     obj = None
     attrs = []
@@ -50,7 +50,8 @@ class attrReorder():
             else:
                 mc.radioButton(attr)
 
-    def get_obj(self):
+    @staticmethod
+    def get_obj():
         sel = mc.ls(sl=True, fl=True)
         if not sel:
             return None
@@ -71,13 +72,13 @@ class attrReorder():
         index = self.attrs.index(attr)
         if way == 'up':
             if index > 0:
-                newIndex = index-1
+                new_index = index-1
             else:
                 return
         else:
-            newIndex = index+1
+            new_index = index+1
         self.attrs.pop(index)
-        self.attrs.insert(newIndex, attr)
+        self.attrs.insert(new_index, attr)
 
         for attribute in self.attrs:
             if mc.getAttr('{}.{}'.format(self.obj, attribute), lock=True):

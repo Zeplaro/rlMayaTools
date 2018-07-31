@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_reset_attr(*objs):
+def reset_attr(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)

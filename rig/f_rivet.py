@@ -3,14 +3,13 @@ from tbx import get_shape
 from functools import partial
 
 
-
 def launch_ui():
     if mc.window('rvtUI', exists=True):
         mc.deleteUI('rvtUI')
-    FRivet_ui()
+    FRivetUI()
 
 
-class FRivet_ui:
+class FRivetUI:
 
     nbOfColumn = 0
     width = 30
@@ -79,10 +78,10 @@ class FRivet_ui:
             edges.append(mc.textScrollList('edges{}'.format(i+1), q=True, ai=True))
         nb = mc.intSliderGrp('nb', q=True, value=True)
         param = mc.optionMenu('param', q=True, value=True)
-        do_fRivet(edges=edges, nb=nb, param=param)
+        f_rivet(edges=edges, nb=nb, param=param)
 
 
-def do_fRivet(edges=None, nb=1, param='U', mesh=None):
+def f_rivet(edges=None, nb=1, param='U', mesh=None):
     """
     :param edges: input edges (number or full name) list, e.g.: [[12,13], [21,22], [33,34]]
     :param nb: number of rivet wanted
@@ -221,7 +220,7 @@ def do_follicle(surface=None, pos=0.5, param='U'):
     for manip in 'tr':
         for axis in 'xyz':
             mc.setAttr('{}.{}'.format(follicle, manip, axis), lock=True)
-    mc.setAttr('{}.parameter'.format(follicleshape, paramlist[0]), pos)
-    mc.setAttr('{}.parameter'.format(follicleshape, paramlist[1]), 0.5)
+    mc.setAttr('{}.parameter{}'.format(follicleshape, paramlist[0]), pos)
+    mc.setAttr('{}.parameter{}'.format(follicleshape, paramlist[1]), 0.5)
 
     return follicle

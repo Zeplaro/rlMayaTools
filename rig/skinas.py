@@ -2,7 +2,7 @@ import maya.cmds as mc
 from tbx import get_skinCluster
 
 
-def do_skinAs(slaveNamespace=None, master=None, *slaves):
+def skinas(slave_namespace=None, master=None, *slaves):
 
     if not master or not slaves:
         objs = mc.ls(sl=True, tr=True, fl=True)
@@ -17,8 +17,8 @@ def do_skinAs(slaveNamespace=None, master=None, *slaves):
         mc.warning('First object as no skinCluster attached')
         return
     infs = mc.skinCluster(masterskn, q=True, inf=True)
-    if slaveNamespace is not None:
-        infs = ['{}{}'.format(slaveNamespace, inf) for inf in infs]
+    if slave_namespace is not None:
+        infs = ['{}{}'.format(slave_namespace, inf) for inf in infs]
     sm = mc.skinCluster(masterskn, q=True, skinMethod=True)
     mi = mc.skinCluster(masterskn, q=True, maximumInfluences=True)
     nw = mc.skinCluster(masterskn, q=True, normalizeWeights=True)

@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_invHier(*objs):
+def inv_hierarchy(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
@@ -16,13 +16,13 @@ def do_invHier(*objs):
         mc.warning('First object not parented to the second')
         return
 
-    grandC = mc.listRelatives(son, c=True) or []
-    grandD = mc.listRelatives(dad, p=True) or []
+    grand_c = mc.listRelatives(son, c=True) or []
+    grand_d = mc.listRelatives(dad, p=True) or []
     temp = []
-    if grandC:
+    if grand_c:
         temp = mc.group(em=True, w=True, n='tempGrp#')
-        mc.parent(grandC, temp)
-    if grandD:
+        mc.parent(grand_c, temp)
+    if grand_d:
         mc.parent(dad, w=True)
 
     ad = mc.listRelatives(dad, ad=True)[::-1]
@@ -31,9 +31,9 @@ def do_invHier(*objs):
     for c in range(len(ad)-1):
         mc.parent(ad[c], ad[c+1])
     mc.parent(dad, ad[:-1])
-    if grandD:
-        mc.parent(son, grandD)
-    if grandC:
-        mc.parent(grandC, dad)
+    if grand_d:
+        mc.parent(son, grand_d)
+    if grand_c:
+        mc.parent(grand_c, dad)
     if temp:
         mc.delete(temp)

@@ -37,10 +37,10 @@ def nodecreation(node, texte, *arg):
 
 def launch_ui():
 
-    winID = 'mainUI'
-    if mc.window(winID, exists=True):
-        mc.deleteUI(winID)
-    mc.window(winID, t='Quick Node', h=100, w=240, s=True, rtf=True)
+    win_id = 'mainUI'
+    if mc.window(win_id, exists=True):
+        mc.deleteUI(win_id)
+    mc.window(win_id, t='Quick Node', h=100, w=240, s=True, rtf=True)
     mc.columnLayout(w=200)
     mc.rowLayout(nc=3)
     mc.text('Name :')
@@ -54,9 +54,9 @@ def launch_ui():
         try:
             mc.symbolButton(i='//'.format(mc.resourceManager(nf='{}.svg'.format(node))[0]), h=40, w=40, ann=node, command=partial(nodecreation, node, texte))
         except:
-            buttonName = node
-            while len(buttonName) > 6:
-                buttonName = buttonName[0:len(buttonName)-1]
-            mc.button(l=buttonName, h=40, w=40, ann=node, command=partial(nodecreation, node))
+            button_name = node
+            while len(button_name) > 6:
+                button_name = button_name[0:len(button_name)-1]
+            mc.button(l=button_name, h=40, w=40, ann=node, command=partial(nodecreation, node))
 
     mc.showWindow()

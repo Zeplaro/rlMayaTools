@@ -13,7 +13,7 @@ def get_shape(obj):
     return shapes
 
 
-def get_mirrorTable (left, right, miraxis='x'):
+def get_mirror_table (left, right, miraxis='x'):
     """
     Return a mirror table between two object on chosen axis
     :param str left: object to compare to slave
@@ -21,21 +21,21 @@ def get_mirrorTable (left, right, miraxis='x'):
     :param str miraxis: 'x'(default) chosen world axis on wich mirror is wanted
     :return: list: return a mirror table list, e.g.:[-1, 1, 1]
     """
-    leftOrient = get_axisOrientation(left)
-    rightOrient = get_axisOrientation(right)
+    left_orient = get_axis_orientation(left)
+    right_orient = get_axis_orientation(right)
     mirtable = [1, 1, 1]
     for i in range(3):
-        if leftOrient[i][-1] == rightOrient[i][-1]:
-            if not leftOrient[i][0] == rightOrient[i][0]:
+        if left_orient[i][-1] == right_orient[i][-1]:
+            if not left_orient[i][0] == right_orient[i][0]:
                 mirtable[i] = -1
-            if leftOrient[i][-1] == miraxis:
+            if left_orient[i][-1] == miraxis:
                 mirtable[i] *= -1
         else:
             mirtable[i] = 0
     return mirtable
 
 
-def get_axisOrientation(obj):
+def get_axis_orientation(obj):
     """
     Return a list of axis direction compared to the world
     :param str obj: object on wich to check the axis
@@ -44,18 +44,18 @@ def get_axisOrientation(obj):
                     for a object matching world axis it will return : [x, y, z]
     """
     mx = mc.getAttr('{}.worldMatrix'.format(obj))
-    mxRot = mx[:3], mx[4:7], mx[8:11]
+    mx_rot = mx[:3], mx[4:7], mx[8:11]
 
-    axisDir = [0, 0, 0]
+    axis_dir = [0, 0, 0]
     for axis in range(3):
-        vals = mxRot[0][axis], mxRot[1][axis], mxRot[2][axis]  # Gathering values for each axis
+        vals = mx_rot[0][axis], mx_rot[1][axis], mx_rot[2][axis]  # Gathering values for each axis
         index = vals.index(max(vals, key=abs))  # Getting the index of the highest absolute value in vals
         if index == 0:
-            axisDir[axis] = 'x'
+            axis_dir[axis] = 'x'
         elif index == 1:
-            axisDir[axis] = 'y'
+            axis_dir[axis] = 'y'
         else:
-            axisDir[axis] = 'z'
+            axis_dir[axis] = 'z'
         if vals[index] < 0:
-            axisDir[axis] = '-{}'.format(axisDir[axis])
-    return axisDir
+            axis_dir[axis] = '-{}'.format(axis_dir[axis])
+    return axis_dir

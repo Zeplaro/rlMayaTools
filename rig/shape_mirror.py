@@ -1,6 +1,6 @@
 import maya.cmds as mc
 # from tbx import get_shape
-# from tbx import get_mirrorTable
+# from tbx import get_mirror_table
 from old.tbx import get_shape
 from old.tbx import get_mirrorTable
 
@@ -37,7 +37,7 @@ def mirror(mastershape, slaveshape, table, miraxis='x', ws=False):
             mc.xform('{}.cv[{}]'.format(slaveshape, cv_index), os=True, t=cv_pos)
 
 
-def do_shapeMirror(miraxis='x', ws=False, copy=False, solo=False):
+def shape_mirror(miraxis='x', ws=False, copy=False, solo=False):
     """
     Mirror curves on defined axis in world or object space
     :param str miraxis: world axis on wich you want to mirror 'x'(default), 'y', 'z'

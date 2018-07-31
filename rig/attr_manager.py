@@ -352,7 +352,7 @@ class AttrUI(QtWidgets.QWidget, object):
         else:
             min_value = '0.0'
         self.min_lineEdit.setText(min_value)
-        self.min_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,9}[.][\d]{0,3}')))
+        self.min_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('-?[\d]{1,9}[.][\d]{0,3}')))
         self.minMax_layout.addWidget(self.min_lineEdit)
         # Separator
         self.minMaxSep_frame = QtWidgets.QFrame()
@@ -369,7 +369,7 @@ class AttrUI(QtWidgets.QWidget, object):
         else:
             max_value = '0.0'
         self.max_lineEdit.setText(max_value)
-        self.max_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,9}[.][\d]{0,3}')))
+        self.max_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('-?[\d]{1,9}[.][\d]{0,3}')))
         self.minMax_layout.addWidget(self.max_lineEdit)
 
         # Default Value
@@ -379,7 +379,7 @@ class AttrUI(QtWidgets.QWidget, object):
         self.defaultValue_layout.addWidget(self.defaultValue_label)
         self.defaultValue_lineEdit = QtWidgets.QLineEdit()
         self.defaultValue_lineEdit.setText(str(self.data.defaultValue))
-        self.defaultValue_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[\d]{1,9}[.][\d]{0,3}')))
+        self.defaultValue_lineEdit.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('-?[\d]{1,9}[.][\d]{0,3}')))
         self.defaultValue_layout.addWidget(self.defaultValue_lineEdit)
 
     def long_layout(self):

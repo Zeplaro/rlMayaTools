@@ -1,10 +1,8 @@
 import maya.cmds as mc
 from tbx import get_shape
 
-# to do : check undo
 
-
-def do_clstRoot(clsts=None):
+def clst_root(clsts=None):
 
     if not clsts:
         clsts = [x for x in mc.ls(sl=True) if 'clusterHandle' in (mc.nodeType(get_shape(x), i=True) or [])]

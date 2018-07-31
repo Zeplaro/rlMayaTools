@@ -1,7 +1,7 @@
 import maya.cmds as mc
 
 
-def do_resetPivot(*objs):
+def reset_pivot(*objs):
 
     if not objs:
         objs = mc.ls(sl=True, fl=True)
