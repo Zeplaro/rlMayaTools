@@ -29,7 +29,7 @@ class MainUI(QtWidgets.QDialog):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
         self.setGeometry(0, 0, 1500, 800)
-        self.setWindowTitle('File Sorter')
+        self.setWindowTitle('Duplicate Sorter')
 
         browse_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(browse_layout)
