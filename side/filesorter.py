@@ -1,12 +1,11 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QApplication
 import sys
 import os
 from functools import partial
 
 
 def launch_ui():
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     ui = MainUI()
     ui.show()
     sys.exit(app.exec_())
@@ -53,18 +52,6 @@ class MainUI(QtWidgets.QDialog):
         self.folder_tree.setFixedWidth(300)
         self.folder_tree.setColumnWidth(0, 200)
 
-        # self.view = QtWidgets.QTreeView()
-        # tree_view_layout.addWidget(self.view)
-        # view_model = QtWidgets.QFileSystemModel()
-        # view_model.setReadOnly(True)
-        # view_model.setFilter(QtCore.QDir.Files)
-        # self.view.setModel(view_model)
-        # self.view.setAlternatingRowColors(True)
-        # self.view.setSortingEnabled(True)
-        # self.view.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        # self.view.setColumnWidth(0, 500)
-        # self.populate_view(self.folder_tree.rootIndex())
-
         self.view = QtWidgets.QTreeWidget()
         tree_view_layout.addWidget(self.view)
         self.view.setAlternatingRowColors(True)
@@ -73,6 +60,7 @@ class MainUI(QtWidgets.QDialog):
         self.view.setColumnCount(3)
         self.view.setHeaderLabels(('Name', 'Type', 'Size'))
         self.view.setColumnWidth(0, 400)
+        self.view.setIndentation(0)
 
         tools_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(tools_layout)
@@ -86,8 +74,15 @@ class MainUI(QtWidgets.QDialog):
         self.extensions = []
         for extension in extensions:
             item = QtWidgets.QCheckBox(extension)
+            item.setTristate(False)
             self.extensions.append(item)
             extension_layout.addWidget(item)
+        extension_btn_layout = QtWidgets.QHBoxLayout()
+        extension_layout.addLayout(extension_btn_layout)
+        self.all_extensions_button = QtWidgets.QPushButton('All')
+        extension_btn_layout.addWidget(self.all_extensions_button)
+        self.no_extensions_button = QtWidgets.QPushButton('None')
+        extension_btn_layout.addWidget(self.no_extensions_button)
 
         ignore_box = QtWidgets.QGroupBox('Ignore')
         tools_layout.addWidget(ignore_box)
@@ -98,8 +93,15 @@ class MainUI(QtWidgets.QDialog):
         self.ignored = []
         for ignore in ignores:
             item = QtWidgets.QCheckBox(ignore)
+            item.setTristate(False)
             self.ignored.append(item)
             ignore_layout.addWidget(item)
+        ignore_btn_layout = QtWidgets.QHBoxLayout()
+        ignore_layout.addLayout(ignore_btn_layout)
+        self.all_ignore_button = QtWidgets.QPushButton('All')
+        ignore_btn_layout.addWidget(self.all_ignore_button)
+        self.no_ignore_button = QtWidgets.QPushButton('None')
+        ignore_btn_layout.addWidget(self.no_ignore_button)
 
         action_box = QtWidgets.QGroupBox('Action')
         tools_layout.addWidget(action_box)
@@ -140,6 +142,19 @@ class MainUI(QtWidgets.QDialog):
         for i, ext in enumerate(self.ignored):
             ext.stateChanged.connect(self.highlight)
             ext.stateChanged.connect(partial(self.lock_extension, i))
+        self.no_extensions_button.clicked.connect(partial(self.check_extensions, 0))
+        self.all_extensions_button.clicked.connect(partial(self.check_extensions, 2))
+        self.no_ignore_button.clicked.connect(partial(self.check_ignore, 0))
+        self.all_ignore_button.clicked.connect(partial(self.check_ignore, 2))
+        self.doit_button.clicked.connect(self.process)
+
+    def check_extensions(self, state):
+        for ext in self.extensions:
+            ext.setCheckState(state)
+
+    def check_ignore(self, state):
+        for i in self.ignored:
+            i.setCheckState(state)
 
     def lock_extension(self, i, state):
         if not state:
@@ -172,7 +187,7 @@ class MainUI(QtWidgets.QDialog):
                     extensions.add(file_splitted[-1])
                     item.setText(0, file)
                     item.setText(1, file_splitted[-1])
-                    item.setText(2, str(size) + ' mb')
+                    item.setText(2, str(size))
                     self.view.addTopLevelItem(item)
                 break
             self.type_label.setText('File types : {}'.format(extensions))
@@ -216,8 +231,12 @@ class MainUI(QtWidgets.QDialog):
         self.selected_label.setText('Selected files : {}'.format(count))
 
     def open_path(self, index):
+        print('Opening in windows exporer')
         file = self.view.model().itemData(index)[0].lower()
         os.startfile(self.data[file.lower()]['root_path'])
+
+    def process(self):
+        print('Processing')
 
 
 def test():
