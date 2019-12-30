@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import sys
 import os
 from functools import partial
+import shutil
 
 
 def launch_ui():
@@ -14,10 +15,15 @@ def launch_ui():
 class MainUI(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        self.ui_layout()
-        self.ui_connections()
         self.data = {}
         self.selected = []
+        self.root_path = ''
+        self.extension_btns = []
+        self.ignore_btns = []
+        self.file_extensions = set()
+
+        self.ui_layout()
+        self.ui_connections()
 
     def ui_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -67,18 +73,11 @@ class MainUI(QtWidgets.QDialog):
 
         extension_box = QtWidgets.QGroupBox('Extension')
         tools_layout.addWidget(extension_box)
-        extension_layout = QtWidgets.QVBoxLayout()
-        extension_box.setLayout(extension_layout)
+        self.extension_layout = QtWidgets.QVBoxLayout()
+        extension_box.setLayout(self.extension_layout)
         extension_box.setFixedWidth(200)
-        extensions = ('jpeg', 'jpg', 'png', 'raf', 'dng', 'tiff', 'xmp')
-        self.extensions = []
-        for extension in extensions:
-            item = QtWidgets.QCheckBox(extension)
-            item.setTristate(False)
-            self.extensions.append(item)
-            extension_layout.addWidget(item)
         extension_btn_layout = QtWidgets.QHBoxLayout()
-        extension_layout.addLayout(extension_btn_layout)
+        self.extension_layout.addLayout(extension_btn_layout)
         self.all_extensions_button = QtWidgets.QPushButton('All')
         extension_btn_layout.addWidget(self.all_extensions_button)
         self.no_extensions_button = QtWidgets.QPushButton('None')
@@ -86,18 +85,11 @@ class MainUI(QtWidgets.QDialog):
 
         ignore_box = QtWidgets.QGroupBox('Ignore')
         tools_layout.addWidget(ignore_box)
-        ignore_layout = QtWidgets.QVBoxLayout()
-        ignore_box.setLayout(ignore_layout)
+        self.ignore_layout = QtWidgets.QVBoxLayout()
+        ignore_box.setLayout(self.ignore_layout)
         ignore_box.setFixedWidth(200)
-        ignores = ('jpeg', 'jpg', 'png', 'raf', 'dng', 'tiff', 'xmp')
-        self.ignored = []
-        for ignore in ignores:
-            item = QtWidgets.QCheckBox(ignore)
-            item.setTristate(False)
-            self.ignored.append(item)
-            ignore_layout.addWidget(item)
         ignore_btn_layout = QtWidgets.QHBoxLayout()
-        ignore_layout.addLayout(ignore_btn_layout)
+        self.ignore_layout.addLayout(ignore_btn_layout)
         self.all_ignore_button = QtWidgets.QPushButton('All')
         ignore_btn_layout.addWidget(self.all_ignore_button)
         self.no_ignore_button = QtWidgets.QPushButton('None')
@@ -114,9 +106,9 @@ class MainUI(QtWidgets.QDialog):
             self.action_button_group.addButton(action_button)
             action_layout.addWidget(action_button)
             action_button.setChecked(True)
-        move_line = QtWidgets.QLineEdit('subfolder')
-        action_layout.addWidget(move_line)
-        move_line.setFixedWidth(150)
+        self.move_line = QtWidgets.QLineEdit('subfolder')
+        action_layout.addWidget(self.move_line)
+        self.move_line.setFixedWidth(150)
 
         stats_layout = QtWidgets.QVBoxLayout()
         tools_layout.addLayout(stats_layout)
@@ -127,52 +119,40 @@ class MainUI(QtWidgets.QDialog):
         self.type_label = QtWidgets.QLabel('File types :')
         stats_layout.addWidget(self.type_label)
 
-        self.doit_button = QtWidgets.QPushButton('Do it')
-        self.doit_button.setFixedHeight(100)
-        self.doit_button.setFixedWidth(100)
-        tools_layout.addWidget(self.doit_button)
+        process_layout = QtWidgets.QVBoxLayout()
+        process_layout.setAlignment(QtCore.Qt.AlignRight)
+        tools_layout.addLayout(process_layout)
+        self.process_button = QtWidgets.QPushButton('Process')
+        self.process_button.setFixedHeight(50)
+        self.process_button.setFixedWidth(100)
+        process_layout.addWidget(self.process_button)
+
+        self.progress = QtWidgets.QProgressBar()
+        main_layout.addWidget(self.progress)
 
     def ui_connections(self):
         self.folder_tree.clicked.connect(self.populate_view)
         self.browse_button.clicked.connect(self.browse)
         self.browse_line.editingFinished.connect(self.set_root_dir)
         self.view.doubleClicked.connect(self.open_path)
-        for ext in self.extensions:
-            ext.stateChanged.connect(self.highlight)
-        for i, ext in enumerate(self.ignored):
-            ext.stateChanged.connect(self.highlight)
-            ext.stateChanged.connect(partial(self.lock_extension, i))
         self.no_extensions_button.clicked.connect(partial(self.check_extensions, 0))
         self.all_extensions_button.clicked.connect(partial(self.check_extensions, 2))
         self.no_ignore_button.clicked.connect(partial(self.check_ignore, 0))
         self.all_ignore_button.clicked.connect(partial(self.check_ignore, 2))
-        self.doit_button.clicked.connect(self.process)
-
-    def check_extensions(self, state):
-        for ext in self.extensions:
-            ext.setCheckState(state)
-
-    def check_ignore(self, state):
-        for i in self.ignored:
-            i.setCheckState(state)
-
-    def lock_extension(self, i, state):
-        if not state:
-            self.extensions[i].setEnabled(True)
-        else:
-            self.extensions[i].setChecked(False)
-            self.extensions[i].setEnabled(False)
+        self.process_button.clicked.connect(self.process)
 
     def populate_view(self, index):
         self.view.clear()
         self.data = {}
+        self.root_path = ''
         if index:
             path = self.folder_tree.model().filePath(index)
-            extensions = set()
+            self.file_extensions = set()
             for root, dirs, files in os.walk(path):
                 self.total_label.setText('Total files : {}'.format(len(files)))
                 root = root.replace('\\', '/')
-                for i, file in enumerate(files):
+                self.root_path = root
+                for file in files:
                     file_splitted = file.lower().split('.')
                     full_path = os.path.join(root, file)
                     size = round(os.path.getsize(full_path)/1000000, 2)
@@ -180,18 +160,57 @@ class MainUI(QtWidgets.QDialog):
                     self.data[file.lower()] = {'name': file_splitted[0],
                                                'ext': file_splitted[-1],
                                                'item': item,
-                                               'root_path': root,
                                                'full_path': full_path,
                                                'size': size,
                                                }
-                    extensions.add(file_splitted[-1])
+                    self.file_extensions.add(file_splitted[-1])
                     item.setText(0, file)
                     item.setText(1, file_splitted[-1])
                     item.setText(2, str(size))
                     self.view.addTopLevelItem(item)
                 break
-            self.type_label.setText('File types : {}'.format(extensions))
+            self.type_label.setText('File types : {}'.format(self.file_extensions))
+        self.populate_extensions()
         self.highlight()
+
+    def populate_extensions(self):
+        for item in self.extension_btns:
+            self.extension_layout.removeWidget(item)
+            item.hide()
+            del item
+        for item in self.ignore_btns:
+            self.ignore_layout.removeWidget(item)
+            item.hide()
+            del item
+        self.extension_btns = []
+        self.ignore_btns = []
+        for extension in self.file_extensions:
+            ext_btn = QtWidgets.QCheckBox(extension)
+            self.extension_btns.append(ext_btn)
+            self.extension_layout.insertWidget(self.ignore_layout.count()-1, ext_btn)
+            ext_btn.stateChanged.connect(self.highlight)
+
+            ignore_btn = QtWidgets.QCheckBox(extension)
+            self.ignore_btns.append(ignore_btn)
+            self.ignore_layout.insertWidget(self.ignore_layout.count()-1, ignore_btn)
+            ignore_btn.stateChanged.connect(self.highlight)
+            ignore_btn.stateChanged.connect(partial(self.lock_extension, ext_btn))
+
+    def check_extensions(self, state):
+        for ext in self.extension_btns:
+            ext.setCheckState(state)
+
+    def check_ignore(self, state):
+        for i in self.ignore_btns:
+            i.setCheckState(state)
+
+    @staticmethod
+    def lock_extension(ext_btn, state):
+        if not state:
+            ext_btn.setEnabled(True)
+        else:
+            ext_btn.setChecked(False)
+            ext_btn.setEnabled(False)
 
     def browse(self):
         path = QtWidgets.QFileDialog.getExistingDirectory(directory=self.browse_line.text())
@@ -207,13 +226,13 @@ class MainUI(QtWidgets.QDialog):
             self.folder_tree.setRootIndex(model.index(path))
 
     def highlight(self):
+        self.selected = {}
         for file in self.data:
             self.data[file]['item'].setBackground(0, QtGui.QColor(1, 1, 1, 1))
             self.data[file]['item'].setBackground(1, QtGui.QColor(1, 1, 1, 1))
             self.data[file]['item'].setBackground(2, QtGui.QColor(1, 1, 1, 1))
-        self.selected = []
-        ignored_extensions = [x.text() for x in self.ignored if x.isChecked()]
-        checked_extensions = [x.text() for x in self.extensions if x.isChecked()]
+        ignored_extensions = [x.text() for x in self.ignore_btns if x.isChecked()]
+        checked_extensions = [x.text() for x in self.extension_btns if x.isChecked()]
         new_data = {}
         for file in self.data:
             if not self.data[file]['ext'] in ignored_extensions:
@@ -226,17 +245,47 @@ class MainUI(QtWidgets.QDialog):
                     new_data[file]['item'].setBackground(0, QtGui.QColor(255, 0, 0, 50))
                     new_data[file]['item'].setBackground(1, QtGui.QColor(255, 0, 0, 50))
                     new_data[file]['item'].setBackground(2, QtGui.QColor(255, 0, 0, 50))
-                    self.selected.append(new_data[file]['full_path'])
+                    self.selected[file] = new_data[file]
                     count += 1
         self.selected_label.setText('Selected files : {}'.format(count))
 
-    def open_path(self, index):
+    def open_path(self):
         print('Opening in windows exporer')
-        file = self.view.model().itemData(index)[0].lower()
-        os.startfile(self.data[file.lower()]['root_path'])
+        os.startfile(self.root_path)
 
     def process(self):
         print('Processing')
+        indexes = self.folder_tree.selectedIndexes()
+        if indexes:
+            action = self.action_button_group.checkedButton().text()
+            if action == 'Move':
+                self.move_files()
+            elif action == 'Delete':
+                self.delete_files()
+            else:
+                self.copy_files()
+            self.populate_view(indexes[0])
+
+    def move_files(self):
+        print('Moving files')
+        subfolder = self.move_line.text()
+        new_root = os.path.join(self.root_path, subfolder)
+        if not os.path.exists(new_root):
+            os.makedirs(new_root)
+        self.progress.setMaximum(len(self.selected))
+        self.progress.setValue(0)
+        count = 0
+        for file in self.selected:
+            self.progress.setValue(count)
+            new_path = os.path.join(new_root, file)
+            shutil.move(self.selected[file]['full_path'], new_path)
+            count += 1
+
+    def delete_files(self):
+        print('Deleting files')
+
+    def copy_files(self):
+        print('Copying files')
 
 
 def test():
