@@ -50,3 +50,15 @@ break"""
 def adjustSize(self):
     mc.refresh()
     super(QtWidgets.QDialog, self).adjustSize()
+
+########################################################################################################################
+# Adds a separator to the active shelf
+import maya.cmds as cmds
+addSeparator_cmd = "import maya.cmds as cmds;import maya.mel as mel;cmds.separator(width=12, height = 35, style='shelf', hr=False, parent=mel.eval(\"tabLayout -q -selectTab $gShelfTopLevel\"))"
+win_name = "Addshelf_win"
+if cmds.window(win_name, ex=True):
+    cmds.deleteUI(win_name)
+win = cmds.window(win_name)
+cmds.columnLayout(adj=True)
+cmds.button(l="Add separator to this active self", command=addSeparator_cmd)
+cmds.showWindow(win_name)
