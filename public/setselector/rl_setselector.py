@@ -465,7 +465,7 @@ def save_data(data):
 
 
 def get_file_path():
-    full_path = 'D:/Robin/Documents/maya/2019/scripts/setselector_data'
+    full_path = os.path.join(os.path.split(__file__)[0], 'setselector')
     if not os.path.exists(full_path):
         os.mkdir(full_path)
     return '{}/setselector_data.json'.format(full_path)
