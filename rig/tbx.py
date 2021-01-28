@@ -1,10 +1,11 @@
 import maya.cmds as mc
+import maya.mel as mel
 
 
 def get_skinCluster(obj):
 
-    sknclust = mc.ls(mc.listHistory(obj, ac=True, pdo=True), type='skinCluster')
-    return sknclust[0] if sknclust else None
+    sknclust = mel.eval('findRelatedSkinCluster '+obj)
+    return sknclust if sknclust else None
 
 
 def get_shape(obj):
@@ -59,3 +60,38 @@ def get_axis_orientation(obj):
         if vals[index] < 0:
             axis_dir[axis] = '-{}'.format(axis_dir[axis])
     return axis_dir
+
+
+def matrix_sum_bis(*matrices):
+    mx_sum = matrices[0]
+    for mx in matrices[1:]:
+        mx_temp = mx_sum[:]
+        index = 0
+        for i in range(0, 13, 4):
+            for j in range(4):
+                mx_temp[index] = mx_sum[i] * mx[j] + mx_sum[i+1] * mx[j+4] + mx_sum[i+2] * mx[j+8] + mx_sum[i+3] * mx[j+12]
+                index += 1
+        mx_sum = mx_temp[:]
+    return mx_sum
+
+
+def matrix_sum(*matrices):
+    matrices = [matrix_list2row(mx) for mx in matrices]
+    mx_sum = matrices[0]
+    for mx in matrices[1:]:
+        mx_temp = mx_sum[:]
+        for i in range(4):
+            for j in range(4):
+                mx_temp[i][j] = []
+                for k in range(4):
+                    mx_temp[i][j] += mx_sum[i][j] * mx[j]
+    return mx_sum
+
+
+def matrix_list2row(matrix, size=4):
+    row_matrix = []
+    start = 0
+    for row in range(size):
+        row_matrix.append(matrix[start:start+size])
+        start += 4
+    return row_matrix

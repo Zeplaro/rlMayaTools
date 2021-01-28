@@ -1,26 +1,20 @@
 import maya.cmds as mc
 
 
-def get_sym_data(precision=4, axis='x'):
-    l_vtxs = mc.ls(sl=True, fl=True)
-    if not l_vtxs:
-        mc.warning('Nothing selected')
-    obj = l_vtxs[0].split('.')[0]
-
-    positions = get_vtxs_positions(obj, precision)
-    table = SymTable(axis)
-    unfound = l_vtxs[:]
-    for l_vtx in l_vtxs:
-        l_index = int(l_vtx.split('[')[-1][:-1])
-        l_pos = positions[l_index]
-        r_pos = mult_list(l_pos, table.axis_mult)
-        for vtx in positions:
-            if positions[vtx] == r_pos:
-                table[l_index] = vtx
-                unfound.remove(l_vtx)
-                break
-    print('Matching point were not found for : {}'.format(unfound))
+def get_sym_data(axis='x'):
+    obj = mc.ls(sl=True)[0]
+    r_vtxs = mc.select(sys=1)
+    l_vtxs = mc.select(sys=2)
+    mid_vtxs = mc.select(sys=0)
+    table = SymTable(axis=axis)
+    for x, y in zip(l_vtxs, r_vtxs):
+        table[comp_index(x)] = comp_index(y)
+    table.mids = [comp_index(x) for x in mid_vtxs]
     return table
+
+
+def comp_index(comp):
+    return int(comp.split('[')[-1][:-1])
 
 
 def mult_list(list_a, list_b):
@@ -77,9 +71,13 @@ def get_vtxs_positions(obj, precision=4):
 
 
 class SymTable(dict):
-    def __init__(self, axis='x', precision=4):
+    def __init__(self, axis='x'):
         super(SymTable, self).__init__()
         self.axis = axis
-        self.axis_mult = [1, 1, 1]
-        self.axis_mult[('x', 'y', 'z').index(axis)] *= -1
+        self._axis_mult = [1, 1, 1]
+        self._axis_mult[('x', 'y', 'z').index(axis)] *= -1
         self.mids = []
+
+    @property
+    def axis_mult(self):
+        return self._axis_mult
