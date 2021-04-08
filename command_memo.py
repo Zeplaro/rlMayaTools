@@ -62,3 +62,9 @@ win = cmds.window(win_name)
 cmds.columnLayout(adj=True)
 cmds.button(l="Add separator to this active self", command=addSeparator_cmd)
 cmds.showWindow(win_name)
+
+########################################################################################################################
+# Change main window colors
+import maya.cmds as mc
+gMainWindow = maya.mel.eval('$tmpVar=$gMainWindow')
+mc.window(gMainWindow, e=True, mw=True, bgc=(0.22, 0.35, 0.26))
