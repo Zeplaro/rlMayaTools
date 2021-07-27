@@ -1,0 +1,22 @@
+{
+  "0": {
+    "index": 0, 
+    "weights": [], 
+    "name": "|joint1", 
+    "position": []
+  }, 
+  "1": {
+    "index": 1, 
+    "weights": [], 
+    "name": "|joint2", 
+    "position": []
+  }, 
+  "skinClusterInfo": {
+    "obeyMaxInfluences": false, 
+    "weightDistribution": 0, 
+    "maximumInfluences": 2, 
+    "normalizeWeights": 1, 
+    "skinMethod": 2
+  }, 
+  "dQWeigths": []
+}

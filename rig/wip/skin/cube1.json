@@ -1,0 +1,37 @@
+{
+  "layers": [
+    {
+      "opacity": 1.0, 
+      "name": "Base Weights", 
+      "enabled": true, 
+      "mask": [], 
+      "influences": [
+        {
+          "index": 0, 
+          "weights": [0.5721558332443237, 0.5, 0.5], 
+          "name": "|joint1"
+        }, 
+        {
+          "index": 1, 
+          "weights": [0.4278441369533539, 0.5, 0.5], 
+          "name": "|joint1|joint2"
+        }], 
+      "dqWeights": []
+    }], 
+  "influences": {
+    "0": {
+      "path": "|joint1", 
+      "pivot": [-1.7458783024927382, 0.9449132653951406, -1.1301479534364316], 
+      "index": 0
+    }, 
+    "1": {
+      "path": "|joint1|joint2", 
+      "pivot": [0.592488085846329, 1.067638037575485, -0.9146547511480141], 
+      "index": 1
+    }
+  }, 
+  "meshInfo": {
+    "verts": [0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 2.0, 0.0, 0.0], 
+    "triangles": [0, 2, 1]
+  }
+}
