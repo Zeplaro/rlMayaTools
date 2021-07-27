@@ -15,29 +15,29 @@ positions = {i: [round(y, precision) for y in mc.xform(x, q=True, t=True, os=Tru
 sym_map = {}
 
 for l_vtx in l_vtxs:
- index = int(l_vtx.split('[')[-1][:-1])
- pos = positions[index]
- mir_pos = [pos[0] * -1, pos[1], pos[2]]
- for vtx, position in positions.items():
- if position == mir_pos:
- print(l_vtx, index, vtx)
- sym_map[index] = vtx
- break
+    index = int(l_vtx.split('[')[-1][:-1])
+    pos = positions[index]
+    mir_pos = [pos[0] * -1, pos[1], pos[2]]
+    for vtx, position in positions.items():
+       if position == mir_pos:
+          print(l_vtx, index, vtx)
+          sym_map[index] = vtx
+       break
 # TODO : check if some are missing in the sym table
 print(len(l_vtxs), len(sym_map))
 for i in l_vtxs:
- index = int(i.split('[')[-1][:-1])
- if index not in sym_map:
- print('{} not in sym table'.format(i))
+    index = int(i.split('[')[-1][:-1])
+    if index not in sym_map:
+       print('{} not in sym table'.format(i))
 
 
 # CLUSTERS
 for l_index, r_index in sym_map.items():
- l_weight = mc.getAttr('testclust.weightList[0].weights[{}]'.format(l_index))
- r_weight = mc.getAttr('testclust.weightList[0].weights[{}]'.format(r_index))
+    l_weight = mc.getAttr('testclust.weightList[0].weights[{}]'.format(l_index))
+    r_weight = mc.getAttr('testclust.weightList[0].weights[{}]'.format(r_index))
 
- mc.setAttr('testclust.weightList[0].weights[{}]'.format(l_index), r_weight)
- mc.setAttr('testclust.weightList[0].weights[{}]'.format(r_index), l_weight)
+    mc.setAttr('testclust.weightList[0].weights[{}]'.format(l_index), r_weight)
+    mc.setAttr('testclust.weightList[0].weights[{}]'.format(r_index), l_weight)
 
 
 # Blendshapes targets flip
@@ -80,18 +80,18 @@ for l_index, r_index in sym_map.items():
 
 
 
-import deformer.mapmixer as mm
+import yama.mapmixer as mm
 t = mm.get_sym_data()
 # Blendshapes targets mirror
 target_index = 1
 for l, r in t.items():
- l_weight = mc.getAttr(
- 'FACE_BodyClothed_GeoShape_BS.inputTarget[0].inputTargetGroup[{}].targetWeights[{}]'.format(target_index, l))
- mc.setAttr(
- 'FACE_BodyClothed_GeoShape_BS.inputTarget[0].inputTargetGroup[{}].targetWeights[{}]'.format(target_index, r),
- l_weight)
+    l_weight = mc.getAttr(
+    'FACE_BodyClothed_GeoShape_BS.inputTarget[0].inputTargetGroup[{}].targetWeights[{}]'.format(target_index, l))
+    mc.setAttr(
+    'FACE_BodyClothed_GeoShape_BS.inputTarget[0].inputTargetGroup[{}].targetWeights[{}]'.format(target_index, r),
+    l_weight)
 
 # Deltamush mirror
 for r, l in t.items():
- l_weight = mc.getAttr('deltaMush1.weightList[0].weights[{}]'.format(l))
- mc.setAttr('deltaMush1.weightList[0].weights[{}]'.format(r), l_weight)
+    l_weight = mc.getAttr('deltaMush1.weightList[0].weights[{}]'.format(l))
+    mc.setAttr('deltaMush1.weightList[0].weights[{}]'.format(r), l_weight)

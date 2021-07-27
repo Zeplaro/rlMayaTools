@@ -643,7 +643,7 @@ class Matrix(list):
         '''
         if isinstance(values, Matrix):
             size = values.size
-            values = values.as_list()
+            values = values.asList()
 
         elif isinstance(values, Quaternion):
             # NOTE: quaternions result in a 4x4 matrix

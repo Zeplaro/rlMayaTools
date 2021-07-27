@@ -67,4 +67,4 @@ cmds.showWindow(win_name)
 # Change main window colors
 import maya.cmds as mc
 gMainWindow = maya.mel.eval('$tmpVar=$gMainWindow')
-mc.window(gMainWindow, e=True, mw=True, bgc=(0.22, 0.35, 0.26))
+mc.window(gMainWindow, e=True, mw=True, bgc=(0.22, 0.35, 0.26)) # grey : 0.25

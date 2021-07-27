@@ -10,7 +10,7 @@ class Depend(object):
         self._type_inheritance = mc.nodeType(node, i=True)
 
     def __repr__(self):
-        return 'deformer.{}({})'.format(self.__class__.__name__, self._name)
+        return 'yama.{}({})'.format(self.__class__.__name__, self._name)
 
     def __str__(self):
         return self._name

@@ -32,7 +32,7 @@ __email__ = "contact@robinlavigne.com"
 def launch_ui():
     if mc.window('rl_attr_manager', exists=True):
         mc.deleteUI('rl_attr_manager')
-    ui = MainUi()
+    ui = MainUI()
     ui.show()
     return ui
 
@@ -42,9 +42,9 @@ def get_maya_win():
     return QtCompat.wrapInstance(int(pointer), QtWidgets.QWidget)
 
 
-class MainUi(QtWidgets.QDialog, object):
+class MainUI(QtWidgets.QDialog, object):
     def __init__(self, parent=get_maya_win()):
-        super(MainUi, self).__init__(parent)
+        super(MainUI, self).__init__(parent)
         self.parent = parent
 
         self.setWindowTitle('Attribute Manager')
@@ -793,6 +793,7 @@ class AttrData(object):
             mc.setAttr('{}.{}'.format(self.obj, self.name), value, type='string')
         else:
             mc.setAttr('{}.{}'.format(self.obj, self.name), value)
+
 
 if __name__ == '__main__':
     launch_ui()
