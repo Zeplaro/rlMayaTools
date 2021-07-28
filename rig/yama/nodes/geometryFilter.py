@@ -70,3 +70,13 @@ class DeformerWeights(wdt.WeightsDict):
     def clamp(self, min_value=0.0, max_value=1.0):
         super(DeformerWeights, self).clamp(min_value, max_value)
         self.apply_weights()
+
+
+def normalize_weights(*weights):
+    if any((not isinstance(x, DeformerWeights) for x in weights)):
+        weights_types = [type(x).__name__ for x in weights]
+        raise ValueError('geometryFilter.normalize_weights() expects DeformerWeights objects and was given: {}'.format(weights_types))
+    new_weights = wdt.normalize_weights(*weights)
+    for w, nw in zip(weights, new_weights):
+        w.replace_weights(nw)
+        w.apply_weights()

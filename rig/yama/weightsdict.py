@@ -128,6 +128,14 @@ class WeightsDict(dict):
             if not max_value > self[i] > min_value:
                 self[i] = max(min(self[i], max_value), min_value)
 
+    def replace_weights(self, weights, default=None):
+        if default is None:
+            for i in self:
+                self[i] = weights.get(i, self[i])
+        else:
+            for i in self:
+                self[i] = weights.get(i, default)
+
     def export_weights(self, path):
         export_weights(self, path)
 
