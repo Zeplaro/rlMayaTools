@@ -1,4 +1,5 @@
 from __future__ import division
+import json
 
 
 class WeightsDict(dict):
@@ -127,6 +128,16 @@ class WeightsDict(dict):
             if not max_value > self[i] > min_value:
                 self[i] = max(min(self[i], max_value), min_value)
 
+    def export_weights(self, path):
+        export_weights(self, path)
+
+    def import_weigths(self, path, apply_data=True):
+        data = import_weights(path)
+        if apply_data:
+            for i in self:
+                self[i] = data.get(i, self[i])
+        return data
+
 
 def normalize_weights(*weights):
     for i in weights:
@@ -145,3 +156,14 @@ def normalize_weights(*weights):
 
 def weightsdict_from_float(value, length):
     return WeightsDict({i: value for i in range(length)})
+
+
+def export_weights(data, path):
+    with open(path, 'w') as outfile:
+        json.dump(data, outfile)
+
+
+def import_weights(path):
+    with open(path) as json_file:
+        data = json.load(json_file)
+    return data

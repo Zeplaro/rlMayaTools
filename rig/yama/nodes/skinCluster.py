@@ -1,7 +1,7 @@
 import maya.cmds as mc
 import maya.mel as mel
 import geometryFilter as gof
-import weightdict as wdt
+import weightsdict as wdt
 
 
 def get_skinCluster(obj):
@@ -15,6 +15,7 @@ class SkinCluster(gof.GeometryFilter):
         super(SkinCluster, self).__init__(node)
         if 'skinCluster' not in self._type_inheritance:
             raise Exception("{} is not a skinCluster".format(node))
+        self._weights_attr = None
 
     def influences(self):
         return mc.skinCluster(self.name, q=True, inf=True) or []
@@ -22,10 +23,10 @@ class SkinCluster(gof.GeometryFilter):
     @property
     def weights(self):
         weights = {}
-        for vtx, _ in enumerate(self.geometry.get_components()):
-            weights[vtx] = wdt.WeightsDict()
+        for i in self.geometry.get_component_indexes():
+            weights[i] = wdt.WeightsDict()
             for jnt, _ in enumerate(self.influences()):
-                weights[vtx][jnt] = mc.getAttr('{}.weightList[{}].weights[{}]'.format(self, vtx, jnt))
+                weights[i][jnt] = mc.getAttr('{}.weightList[{}].weights[{}]'.format(self, i, jnt))
         return weights
 
     @weights.setter
@@ -33,3 +34,6 @@ class SkinCluster(gof.GeometryFilter):
         for vtx in weights:
             for jnt in weights[vtx]:
                 mc.setAttr('{}.weightList[{}].weights[{}]'.format(self, vtx, jnt), weights[vtx][jnt])
+
+    def weights_attr(self, index):
+        raise NotImplementedError

@@ -6,7 +6,6 @@ import weightsdict as wdt
 
 class GeometryFilter(dpn.Depend):
     def __init__(self, node):
-        print('geof')
         super(GeometryFilter, self).__init__(node)
         if 'geometryFilter' not in self._type_inheritance:
             raise Exception("{} is not a geometryFilter".format(node))
@@ -26,19 +25,24 @@ class WeightGeometryFilter(GeometryFilter):
     @property
     def weights(self):
         weights = DeformerWeights(self)
-        for c, _ in enumerate(self.geometry.get_components()):
-            weights[c] = mc.getAttr('{}.weightList[0].weights[{}]'.format(self, c))
+        for i in self.geometry.get_components_index():
+            weights[i] = mc.getAttr(self.weights_attr(i))
         return weights
 
     @weights.setter
     def weights(self, weights):
         for i, weight in weights.items():
-            mc.setAttr('{}.weightList[0].weights[{}]'.format(self, i), weight)
+            mc.setAttr(self.weights_attr(i), weight)
+
+    def weights_attr(self, index):
+        return '{}.weightList[0].weights[{}]'.format(self, index)
 
 
 class DeformerWeights(wdt.WeightsDict):
     def __init__(self, node):
+        print('trying init DW')
         super(DeformerWeights, self).__init__()
+        print('init DW')
         self._node = node
 
     def __iadd__(self, other):
@@ -58,14 +62,10 @@ class DeformerWeights(wdt.WeightsDict):
         self.apply_weights()
 
     def invert(self):
-        weights = super(DeformerWeights, self).__invert__()
-        self.apply_weights(weights)
+        self._node.weights = super(DeformerWeights, self).__invert__()
 
-    def apply_weights(self, weights=None):
-        if weights is None:
-            self._node.weights = self
-        else:
-            self._node.weights = weights
+    def apply_weights(self):
+        self._node.weights = self
 
     def clamp(self, min_value=0.0, max_value=1.0):
         super(DeformerWeights, self).clamp(min_value, max_value)

@@ -12,6 +12,9 @@ class Shape(dpn.Depend):
     def get_components(self):
         raise NotImplementedError
 
+    def __len__(self):
+        return len(self.get_components())
+
 
 class Mesh(Shape):
     def __init__(self, node):
@@ -21,3 +24,7 @@ class Mesh(Shape):
 
     def get_components(self):
         return mc.ls(self.name + '.vtx[*]', fl=True)
+
+    def get_component_indexes(self):
+        for i in range(len(self)):
+            yield i
