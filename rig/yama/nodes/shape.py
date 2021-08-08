@@ -28,3 +28,17 @@ class Mesh(Shape):
     def get_component_indexes(self):
         for i in range(len(self)):
             yield i
+
+
+class NurbsCurve(Shape):
+    def __init__(self, name):
+        super(NurbsCurve, self).__init__(name)
+        if 'nurbsCurve' not in self._type_inheritance:
+            raise Exception("{} is not a nurbsCurve".format(name))
+
+    def get_components(self):
+        return mc.ls(self.name + '.cv[*]', fl=True)
+
+    def get_component_indexes(self):
+        for i in range(len(self)):
+            yield i
