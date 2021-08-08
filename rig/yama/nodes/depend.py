@@ -3,6 +3,7 @@ import attributes as attr
 
 
 class Depend(object):
+    # todo : link to openMaya mObject instead of string
     def __init__(self, name):
         print('dpn')
         if not mc.objExists(name):
