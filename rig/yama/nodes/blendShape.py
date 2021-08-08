@@ -3,10 +3,10 @@ import geometryFilter as gof
 
 
 class BlendShape(gof.GeometryFilter):
-    def __init__(self, node):
-        super(BlendShape, self).__init__(node)
+    def __init__(self, name):
+        super(BlendShape, self).__init__(name)
         if 'blendShape' not in self._type_inheritance:
-            raise Exception("{} is not a blendShape".format(node))
+            raise Exception("{} is not a blendShape".format(name))
         self._targets = []
         self._targets_names = {}
         self.get_targets()
@@ -26,7 +26,7 @@ class BlendShape(gof.GeometryFilter):
             raise KeyError(target)
 
     def weights_attr(self, index):
-        return '{}.inputTarget[0].baseWeights[{}]'.format(self, index)
+        return self.attr.inputTarget[0].baseWeights[index]
 
     @property
     def weights(self):
@@ -34,13 +34,13 @@ class BlendShape(gof.GeometryFilter):
         weights = gof.DeformerWeights(self)
         print(weights)
         for c, _ in enumerate(self.geometry.get_components()):
-            weights[c] = mc.getAttr(self.weights_attr(c))
+            weights[c] = self.weights_attr(c).value
         return weights
 
     @weights.setter
     def weights(self, weights):
         for i, weight in weights.items():
-            mc.setAttr(self.weights_attr(i), weight)
+            self.weights_attr(i).value = weight
 
 
 class Target(object):
@@ -68,16 +68,16 @@ class Target(object):
         return self._node
 
     def weights_attr(self, index):
-        return '{}.inputTarget[0].inputTargetGroup[{}].targetWeights[{}]'.format(self._node, self._index, index)
+        return self._node.attr.inputTarget[0].inputTargetGroup[self._index].targetWeights[index]
 
     @property
     def weights(self):
         weights = gof.DeformerWeights(self)
         for c, _ in enumerate(self._node.geometry.get_components()):
-            weights[c] = mc.getAttr(self.weights_attr(c))
+            weights[c] = self.weights_attr(c).value
         return weights
 
     @weights.setter
     def weights(self, weights):
         for i, weight in weights.items():
-            mc.setAttr(self.weights_attr(i), weight)
+            self.weights_attr(i).value = weight

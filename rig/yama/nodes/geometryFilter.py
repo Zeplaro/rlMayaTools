@@ -5,10 +5,10 @@ import weightsdict as wdt
 
 
 class GeometryFilter(dpn.Depend):
-    def __init__(self, node):
-        super(GeometryFilter, self).__init__(node)
+    def __init__(self, name):
+        super(GeometryFilter, self).__init__(name)
         if 'geometryFilter' not in self._type_inheritance:
-            raise Exception("{} is not a geometryFilter".format(node))
+            raise Exception("{} is not a geometryFilter".format(name))
 
     @property
     def geometry(self):
@@ -17,25 +17,25 @@ class GeometryFilter(dpn.Depend):
 
 
 class WeightGeometryFilter(GeometryFilter):
-    def __init__(self, node):
-        super(WeightGeometryFilter, self).__init__(node)
+    def __init__(self, name):
+        super(WeightGeometryFilter, self).__init__(name)
         if 'weightGeometryFilter' not in self._type_inheritance:
-            raise Exception("{} is not a weightGeometryFilter".format(node))
+            raise Exception("{} is not a weightGeometryFilter".format(name))
 
     @property
     def weights(self):
         weights = DeformerWeights(self)
         for i in self.geometry.get_components_index():
-            weights[i] = mc.getAttr(self.weights_attr(i))
+            weights[i] = self.weights_attr(i).value
         return weights
 
     @weights.setter
     def weights(self, weights):
         for i, weight in weights.items():
-            mc.setAttr(self.weights_attr(i), weight)
+            self.weights_attr(i).value = weight
 
     def weights_attr(self, index):
-        return '{}.weightList[0].weights[{}]'.format(self, index)
+        return self.attr.weightList[0].weights[index]
 
 
 class DeformerWeights(wdt.WeightsDict):

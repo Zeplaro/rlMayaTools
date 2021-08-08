@@ -10,11 +10,10 @@ def get_skinCluster(obj):
 
 
 class SkinCluster(gof.GeometryFilter):
-    def __init__(self, node):
-        print('skn')
-        super(SkinCluster, self).__init__(node)
+    def __init__(self, name):
+        super(SkinCluster, self).__init__(name)
         if 'skinCluster' not in self._type_inheritance:
-            raise Exception("{} is not a skinCluster".format(node))
+            raise Exception("{} is not a skinCluster".format(name))
         self._weights_attr = None
 
     def influences(self):
@@ -26,14 +25,14 @@ class SkinCluster(gof.GeometryFilter):
         for i in self.geometry.get_component_indexes():
             weights[i] = wdt.WeightsDict()
             for jnt, _ in enumerate(self.influences()):
-                weights[i][jnt] = mc.getAttr('{}.weightList[{}].weights[{}]'.format(self, i, jnt))
+                weights[i][jnt] = self.attr.weightList[i].weights[jnt].value
         return weights
 
     @weights.setter
     def weights(self, weights):
         for vtx in weights:
             for jnt in weights[vtx]:
-                mc.setAttr('{}.weightList[{}].weights[{}]'.format(self, vtx, jnt), weights[vtx][jnt])
+                self.attr.weightList[vtx].weights[jnt].value = weights[vtx][jnt]
 
     def weights_attr(self, index):
         raise NotImplementedError
