@@ -1,5 +1,5 @@
 import maya.cmds as mc
-import attributes as attr
+import attribute as attr
 
 
 class Depend(object):
