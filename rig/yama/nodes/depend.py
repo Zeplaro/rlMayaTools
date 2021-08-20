@@ -28,9 +28,6 @@ def node_to_class(node):
     return Depend(node)
 
 
-ntc = node_to_class
-
-
 def nodes_to_classes(nodes):
     return [node_to_class(node) for node in nodes]
 
@@ -38,7 +35,6 @@ def nodes_to_classes(nodes):
 class Depend(object):
     # todo : link to openMaya mObject instead of string
     def __init__(self, name):
-        print('dpn')
         if not mc.objExists(name):
             raise Exception("{} does not exist in scene".format(name))
         self._name = name
