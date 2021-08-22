@@ -1,5 +1,12 @@
+# encoding: utf8
+
 import maya.cmds as mc
 import geometryFilter as gof
+
+try:
+    basestring
+except NameError:
+    basestring = str
 
 
 class BlendShape(gof.GeometryFilter):
@@ -26,7 +33,7 @@ class BlendShape(gof.GeometryFilter):
             raise KeyError(target)
 
     def weights_attr(self, index):
-        return self.attr.inputTarget[0].baseWeights[index]
+        return self.inputTarget[0].baseWeights[index]
 
     @property
     def weights(self):
@@ -68,7 +75,7 @@ class Target(object):
         return self._node
 
     def weights_attr(self, index):
-        return self._node.attr.inputTarget[0].inputTargetGroup[self._index].targetWeights[index]
+        return self._node.inputTarget[0].inputTargetGroup[self._index].targetWeights[index]
 
     @property
     def weights(self):

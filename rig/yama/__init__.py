@@ -1,10 +1,14 @@
 import maya.cmds as mc
-import nodes.depend as dpn
+import nodes.dependNode as dpn
 
 
-ntc = dpn.node_to_class
-ntcs = dpn.nodes_to_classes
+yam = dpn.yam
+yams = dpn.yams
 
 
 def ls(*args, **kwargs):
-    return ntcs(mc.ls(*args, **kwargs))
+    return yams(mc.ls(*args, **kwargs))
+
+
+def selected():
+    return yams(mc.ls(sl=True, fl=True))

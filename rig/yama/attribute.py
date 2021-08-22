@@ -1,43 +1,34 @@
 # encoding: utf8
 
 import maya.cmds as mc
+from nodes import dependNode
+
+try:
+    basestring
+except NameError:
+    basestring = str
 
 
 class Attribute(object):
     """
     A class for handling a node attribute and sub-attributes.
-    Any new property with a setter method needs to be added to the settable_properties list due to __setattr__ being
-    overwritten.
     """
-    settable_properties = ['value',
-                           'defaultValue',
-                           'hasMinValue',
-                           'minValue',
-                           'hasMaxValue',
-                           'maxValue',
-                           'niceName',
-                           'keyable',
-                           'channelBox',
-                           'hidden',
-                           'locked',
-                           'enumName',
-                           ]
 
-    def __init__(self, parent, attr):
+    def __init__(self, parent, attr=None):
         """
         :param parent (Depend/Attribute): the node or attribute parent to attr.
         :param attr (str):
         """
-        import depend
-        assert isinstance(parent, (depend.Depend, Attribute)) and isinstance(attr, basestring)
-        self.__dict__['_parent'] = parent
-        self.__dict__['_attr'] = attr
+        # todo : add handling of Attribute('node.attr') and Attribute('node.attr.attr') and Attribute('node.attr[0]')
+        assert isinstance(parent, (dependNode.DependNode, Attribute)) and isinstance(attr, basestring)
+        self._parent = parent
+        self._attr = attr
 
     def __str__(self):
-        return '{}.{}'.format(self._parent, self._attr)
+        return self.get_full_attribute()
 
     def __repr__(self):
-        return "{}({}, '{}')".format(self.__class__.__name__, self._parent, self._attr)
+        return "{}('{}')".format(self.__class__.__name__, self.get_full_attribute())
 
     def __getattr__(self, item):
         """
@@ -47,18 +38,6 @@ class Attribute(object):
         """
         return Attribute(self, item)
 
-    def __setattr__(self, key, value):
-        """
-        Allows to set the value of the attribute without having to assign it to the value property.
-        e.g. : Allows "node.attr = 42" instead of "node.attr.value = 42"
-        :param key (str): the attr to set the value of.
-        :param value: the value to set the attribute to.
-        """
-        if key in self.settable_properties:
-            super(Attribute, self).__setattr__(key, value)
-        else:
-            Attribute(self, key).value = value
-
     def __getitem__(self, item):
         """
         Gets attributes of type multi; for exemple a deformer weights attribute.
@@ -67,14 +46,13 @@ class Attribute(object):
         """
         return MultiAttribute(self, item)
 
-    def __setitem__(self, key, value):
-        """
-        Allows to set the value of the attribute without having to assign it to the value property.
-        e.g. : Allows "node.attr[1] = 42" instead of "node.attr[1].value = 42"
-        :param key (int): the attribute index to set the value of.
-        :param value: the value to set the attribute to.
-        """
-        MultiAttribute(self, key).value = value
+    @property
+    def value(self):
+        return mc.getAttr(self)
+
+    @value.setter
+    def value(self, *value):
+        mc.setAttr(self, value)
 
     @property
     def node(self):
@@ -82,6 +60,12 @@ class Attribute(object):
             return self._parent.node
         else:
             return self._parent
+
+    def connect_to(self, attr, *args, **kwargs):
+        mc.connectAttr(self, attr, *args, **kwargs)
+
+    def connect_from(self, attr, *args, **kwargs):
+        mc.connectAttr(attr, self, *args, **kwargs)
 
     def get_full_attribute(self):
         """
@@ -147,14 +131,6 @@ class Attribute(object):
         :return: str
         """
         return mc.getAttr(self, type=True)
-
-    @property
-    def value(self):
-        return mc.getAttr(self)
-
-    @value.setter
-    def value(self, value):
-        mc.setAttr(self, value)
 
     @property
     def defaultValue(self):
@@ -269,13 +245,13 @@ class MultiAttribute(Attribute):
     """
     def __init__(self, parent, index):
         """
-        :param parent (Attribute/MultiAttribute): The parent attribute of this attribtue; Needs to be of type Attribute
+        :param parent (Attribute/MultiAttribute): The parent attribute of this attribute; Needs to be of type Attribute
                                                   or MultiAttribute.
         :param index: The index of this attribute
         """
         assert isinstance(parent, Attribute) and isinstance(index, int)
         super(MultiAttribute, self).__init__(parent, '[{}]'.format(index))
-        self.__dict__['_index'] = index
+        self._index = index
 
     def __str__(self):
         return '{}[{}]'.format(self._parent, self._index)

@@ -1,6 +1,11 @@
 from __future__ import division
 import json
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 
 class WeightsDict(dict):
     def __init__(self, *args, **kwargs):
@@ -122,6 +127,14 @@ class WeightsDict(dict):
     def __iter__(self):
         for i in range(len(self)):
             yield i
+
+    def __contains__(self, item):
+        if isinstance(item, basestring):
+            try:
+                item = int(item)
+            except ValueError:
+                pass
+        super(WeightsDict, self).__contains__(item)
 
     def clamp(self, min_value=0.0, max_value=1.0):
         for i in self:

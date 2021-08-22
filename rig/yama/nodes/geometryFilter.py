@@ -1,10 +1,9 @@
 import maya.cmds as mc
-import deformer as dfn
-import depend as dpn
+import dependNode as dpn
 import weightsdict as wdt
 
 
-class GeometryFilter(dpn.Depend):
+class GeometryFilter(dpn.DependNode):
     def __init__(self, name):
         super(GeometryFilter, self).__init__(name)
         if 'geometryFilter' not in self._type_inheritance:
@@ -13,7 +12,7 @@ class GeometryFilter(dpn.Depend):
     @property
     def geometry(self):
         geo = mc.deformer(self.name, q=True, geometry=True)
-        return dfn.node_to_class(geo[0]) if geo else None
+        return dpn.yam(geo[0]) if geo else None
 
 
 class WeightGeometryFilter(GeometryFilter):
