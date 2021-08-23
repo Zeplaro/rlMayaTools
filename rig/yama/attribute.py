@@ -1,7 +1,7 @@
 # encoding: utf8
 
 import maya.cmds as mc
-from nodes import dependNode
+import nodes
 
 try:
     basestring
@@ -20,15 +20,15 @@ class Attribute(object):
         :param attr (str):
         """
         # todo : add handling of Attribute('node.attr') and Attribute('node.attr.attr') and Attribute('node.attr[0]')
-        assert isinstance(parent, (dependNode.DependNode, Attribute)) and isinstance(attr, basestring)
+        assert isinstance(parent, (nodes.DependNode, Attribute)) and isinstance(attr, basestring)
         self._parent = parent
         self._attr = attr
 
     def __str__(self):
-        return self.get_full_attribute()
+        return '{}.{}'.format(self.node, self.get_full_attribute())
 
     def __repr__(self):
-        return "{}('{}')".format(self.__class__.__name__, self.get_full_attribute())
+        return "{}('{}')".format(self.__class__.__name__, self.__str__())
 
     def __getattr__(self, item):
         """
@@ -48,10 +48,10 @@ class Attribute(object):
 
     @property
     def value(self):
-        return mc.getAttr(self)
+        return mc.getAttr(self.__str__())
 
     @value.setter
-    def value(self, *value):
+    def value(self, value):
         mc.setAttr(self, value)
 
     @property

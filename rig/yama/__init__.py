@@ -1,9 +1,15 @@
+import sys
+
+yama_path = '/'.join(__file__.replace('\\', '/').split('/')[:-2])
+if yama_path not in sys.path:
+    sys.path.append(yama_path)
+
 import maya.cmds as mc
-import nodes.dependNode as dpn
+import nodes
 
 
-yam = dpn.yam
-yams = dpn.yams
+yam = nodes.yam
+yams = nodes.yams
 
 
 def ls(*args, **kwargs):
