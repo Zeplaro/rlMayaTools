@@ -1,5 +1,6 @@
 import maya.cmds as mc
 import maya.mel as mel
+from functools import wraps
 
 
 def get_skinCluster(obj):
@@ -95,3 +96,34 @@ def matrix_list2row(matrix, size=4):
         row_matrix.append(matrix[start:start+size])
         start += 4
     return row_matrix
+
+
+def keepsel(func):
+    """
+    Decorator that keeps maya current selection after running a function that might change the current selection.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        sel = mc.ls(sl=True, fl=True)
+        result = func(*args, **kwargs)
+        mc.select(sel)
+        return result
+    return wrapper
+
+
+def mayaundo(func):
+    """
+    Decorator that allows the function to be undone as single undo chunk.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        mc.undoInfo(openChunk=True)
+        try:
+            result = func(*args, **kwargs)
+        except Exception as e:
+            print("Exception raised from : {}".format(func.__name__))
+            raise e
+        finally:
+            mc.undoInfo(closeChunk=True)
+        return result
+    return wrapper

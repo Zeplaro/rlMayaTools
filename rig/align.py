@@ -1,4 +1,5 @@
 from maya import cmds
+import tbx
 
 
 def align(objs=None, t=True, r=True):
@@ -6,6 +7,7 @@ def align(objs=None, t=True, r=True):
         if cmds.selectPref(q=True, tso=True) == 0:  # Allows you to get components order of selection
             cmds.selectPref(tso=True)
         objs = cmds.ls(os=True, fl=True)
+    assert objs and len(objs) > 2, 'Not enough object selected'
     poses = [cmds.xform(x, q=True, t=True, ws=True) for x in objs]
     if t:
         t_start, t_end = poses[0], poses[-1]
@@ -27,9 +29,21 @@ def align(objs=None, t=True, r=True):
             cmds.xform(obj, t=pos, ws=True)
 
 
+@tbx.keepsel
 def aim(objs=None, aimVector=(0, 0, 1), upVector=(0, 1, 0), worldUpType='scene', worldUpObject=None, worldUpVector=(0, 1, 0)):
+    """
+    (objs=None, aimVector=(0, 0, 1), upVector=(0, 1, 0), worldUpType='scene', worldUpObject=None, worldUpVector=(0, 1, 0))
+    Args:
+        objs: [str, ...]
+        aimVector: [float, float, float]
+        upVector: [float, float, float]
+        worldUpType: str, One of 5 values : "scene", "object", "objectrotation", "vector", or "none"
+        worldUpObject: str, Use for worldUpType "object" and "objectrotation"
+        worldUpVector: [float, float, float], Use for worldUpType "scene" and "objectrotation"
+    """
     if not objs:
         objs = cmds.ls(sl=True)
+    assert objs and len(objs) > 1, 'Not enough object selected'
     poses = [cmds.xform(x, q=True, t=True, ws=True) for x in objs]
     nulls = [cmds.createNode('transform') for _ in objs]
     [cmds.xform(null, t=pos, ws=True) for null, pos in zip(nulls, poses)]
@@ -40,8 +54,13 @@ def aim(objs=None, aimVector=(0, 0, 1), upVector=(0, 1, 0), worldUpType='scene',
             cmds.delete(cmds.aimConstraint(null, obj, aimVector=aimVector, upVector=upVector,
                                            worldUpType='objectrotation', worldUpObject=world_null,
                                            worldUpVector=worldUpVector, mo=False))
-        elif worldUpType == '':
-            pass
+        elif worldUpType == 'object':
+            cmds.delete(cmds.aimConstraint(null, obj, aimVector=aimVector, upVector=upVector, worldUpType='object',
+                                           worldUpObject=worldUpObject, mo=False))
+        else:
+            cmds.delet(nulls, world_null)
+            raise NotImplementedError
+
     cmds.xform(objs[-1], t=poses[-1], ro=cmds.xform(objs[-2], q=True, ro=True, ws=True), ws=True)
     cmds.delete(world_null, nulls)
 
