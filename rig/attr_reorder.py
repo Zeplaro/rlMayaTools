@@ -3,19 +3,16 @@ from functools import partial
 
 
 def launch_ui():
-
     if mc.window('attrReoderUI', exists=True):
         mc.deleteUI('attrReoderUI')
-    AttrReorder()
+    return AttrReorder()
 
 
 class AttrReorder():
-
-    obj = None
-    attrs = []
-
     def __init__(self):
         self.main_ui()
+        self.obj = None
+        self.attrs = []
         mc.showWindow('attrReoderUI')
 
     def main_ui(self):
