@@ -3,8 +3,8 @@ from functools import partial
 
 
 def launch_ui():
-    if mc.window('attrReoderUI', exists=True):
-        mc.deleteUI('attrReoderUI')
+    if mc.window('attrReorderUI', exists=True):
+        mc.deleteUI('attrReorderUI')
     return AttrReorder()
 
 
@@ -13,11 +13,11 @@ class AttrReorder():
         self.main_ui()
         self.obj = None
         self.attrs = []
-        mc.showWindow('attrReoderUI')
+        mc.showWindow('attrReorderUI')
 
     def main_ui(self):
 
-        mc.window('attrReoderUI', title='Attribute reorderer', s=True, rtf=True)
+        mc.window('attrReorderUI', title='Attribute reorderer', s=True, rtf=True)
         mc.columnLayout()
         mc.button('reload', l='Reload selected', w=100, command=self.reload_sel)
         mc.rowLayout('rowMain', nc=2)
