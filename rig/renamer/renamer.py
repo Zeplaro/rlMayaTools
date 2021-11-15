@@ -41,7 +41,6 @@ def launch_ui():
 
 
 def loadUiWidget(uifilename, parent=None):
-    """Properly Loads and returns UI files - by BarryPye on stackOverflow"""
     loader = QtUiTools.QUiLoader()
     uifile = QtCore.QFile(uifilename)
     uifile.open(QtCore.QFile.ReadOnly)
