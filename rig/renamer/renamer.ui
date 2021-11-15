@@ -369,14 +369,14 @@
          </item>
         </layout>
        </item>
-       <item>
-        <widget class="QPushButton" name="rename_button">
-         <property name="text">
-          <string>Rename</string>
-         </property>
-        </widget>
-       </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="rename_button">
+      <property name="text">
+       <string>Rename</string>
+      </property>
      </widget>
     </item>
    </layout>
