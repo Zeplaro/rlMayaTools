@@ -74,7 +74,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="remove_groupBox">
+     <widget class="QGroupBox" name="remove_group">
       <property name="title">
        <string>Remove</string>
       </property>
@@ -95,7 +95,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="first_spin"/>
+          <widget class="QSpinBox" name="first_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="last_label">
@@ -105,7 +109,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="last_spin"/>
+          <widget class="QSpinBox" name="last_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="firstlast_spacer">
@@ -132,7 +140,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="from_spin"/>
+          <widget class="QSpinBox" name="from_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="to_label">
@@ -142,7 +154,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="to_spin"/>
+          <widget class="QSpinBox" name="to_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="fromto_spacer">
@@ -163,7 +179,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="add_groupBox">
+     <widget class="QGroupBox" name="add_group">
       <property name="title">
        <string>Add</string>
       </property>
@@ -208,7 +224,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="insertat_spin"/>
+          <widget class="QSpinBox" name="insertat_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -230,7 +250,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="numbering_groupBox">
+     <widget class="QGroupBox" name="numbering_group">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -260,11 +280,6 @@
           <widget class="QComboBox" name="mode_combo">
            <item>
             <property name="text">
-             <string>None</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Suffix</string>
             </property>
            </item>
@@ -282,13 +297,23 @@
          </item>
          <item>
           <widget class="QLabel" name="modeat_label">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>  at :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="modeat_spin"/>
+          <widget class="QSpinBox" name="modeat_spin">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="mode_spacer">
@@ -306,7 +331,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="startincrement_layout">
+        <layout class="QHBoxLayout" name="startstep_layout">
          <item>
           <widget class="QLabel" name="start_label">
            <property name="text">
@@ -315,20 +340,31 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="start_spin"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="increment_label">
-           <property name="text">
-            <string>Increment :</string>
+          <widget class="QSpinBox" name="start_spin">
+           <property name="maximum">
+            <number>9999</number>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="increment_spin"/>
+          <widget class="QLabel" name="step_label">
+           <property name="text">
+            <string>Step</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <spacer name="startincrement_spacer">
+          <widget class="QSpinBox" name="step_spin">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="startstep_spacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -352,10 +388,37 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="padding_spin"/>
+          <widget class="QSpinBox" name="padding_spin">
+           <property name="maximum">
+            <number>9999</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="sep_label">
+           <property name="text">
+            <string>Sep.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="sep_line"/>
          </item>
          <item>
           <spacer name="padding_spacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
