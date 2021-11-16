@@ -6,15 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>566</height>
+    <width>372</width>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_9">
+   <layout class="QVBoxLayout" name="verticalLayout_11">
     <item>
      <widget class="QPushButton" name="reload_button">
       <property name="sizePolicy">
@@ -26,6 +25,61 @@
       <property name="text">
        <string>Reload from selection</string>
       </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableView" name="name_table">
+      <property name="minimumSize">
+       <size>
+        <width>350</width>
+        <height>150</height>
+       </size>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
+      <property name="wordWrap">
+       <bool>false</bool>
+      </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="rename_group">
+      <property name="title">
+       <string>Rename</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="rename_widget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QLineEdit" name="rename_line"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -331,7 +385,7 @@
         <widget class="QWidget" name="numbering_widget" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
-           <layout class="QHBoxLayout" name="mode_layout">
+           <layout class="QHBoxLayout" name="modetype_layout">
             <item>
              <widget class="QLabel" name="mode_label">
               <property name="text">
@@ -359,27 +413,58 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="modeat_label">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
+             <widget class="QLabel" name="type_label">
               <property name="text">
-               <string>  at :</string>
+               <string>Type</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="modeat_spin">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="maximum">
-               <number>9999</number>
-              </property>
+             <widget class="QComboBox" name="type_combo">
+              <item>
+               <property name="text">
+                <string>Decimal</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Alphabetical (upper)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Alphabetical (lower)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hexadecimal (upper)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Hexadecimal (lower)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Octal</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Binary</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Roman</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item>
-             <spacer name="mode_spacer">
+             <spacer name="modetype_spacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -394,7 +479,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="startstep_layout">
+           <layout class="QHBoxLayout" name="startstepat_layout">
             <item>
              <widget class="QLabel" name="start_label">
               <property name="text">
@@ -420,6 +505,26 @@
              <widget class="QSpinBox" name="step_spin">
               <property name="minimum">
                <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="numberinginsertat_label">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>  Insert at :</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="numberinginsertat_spin">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
               <property name="maximum">
                <number>9999</number>
