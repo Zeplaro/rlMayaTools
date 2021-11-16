@@ -121,8 +121,9 @@ class MainUI(QtWidgets.QMainWindow):
         self.type_combo = self.window.findChild(QtWidgets.QComboBox, 'type_combo')
         self.start_spin = self.window.findChild(QtWidgets.QSpinBox, 'start_spin')
         self.step_spin = self.window.findChild(QtWidgets.QSpinBox, 'step_spin')
-        self.numberinginsertat_label = self.window.findChild(QtWidgets.QLabel, 'numberinginsertatlabel')
+        self.numberinginsertat_label = self.window.findChild(QtWidgets.QLabel, 'numberinginsertat_label')
         self.numberinginsertat_spin = self.window.findChild(QtWidgets.QSpinBox, 'numberinginsertat_spin')
+        self.padding_label = self.window.findChild(QtWidgets.QLabel, 'padding_label')
         self.padding_spin = self.window.findChild(QtWidgets.QSpinBox, 'padding_spin')
         self.sep_line = self.window.findChild(QtWidgets.QLineEdit, 'sep_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.sep_line)
@@ -239,17 +240,27 @@ class MainUI(QtWidgets.QMainWindow):
         padding = self.padding_spin.value()
         separator = self.sep_line.text()
 
-        numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
         if numtype == 'Decimal':
+            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
             num_string = str(numbering[index]).zfill(padding)
         elif numtype == 'Binary':
+            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
             num_string = str(bin(numbering[index]))[2:].zfill(padding)
         elif numtype == 'Hexadecimal (upper)':
+            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
             num_string = str(hex(numbering[index]))[2:].zfill(padding).upper()
         elif numtype == 'Hexadecimal (lower)':
+            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
             num_string = str(hex(numbering[index]))[2:].zfill(padding)
         elif numtype == 'Octal':
+            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
             num_string = str(oct(numbering[index]))[1:].zfill(padding)
+        elif numtype == 'Alpha (upper)':
+            numbering = [decimal_to_alpha(x) for x in range(start, len(self.model.maya_nodes) * step + start, step)]
+            num_string = numbering[index].upper()
+        elif numtype == 'Alpha (lower)':
+            numbering = [decimal_to_alpha(x) for x in range(start, len(self.model.maya_nodes) * step + start, step)]
+            num_string = numbering[index]
         else:
             num_string = ''
 
@@ -278,16 +289,20 @@ class MainUI(QtWidgets.QMainWindow):
     def mode_changed(self):
         mode = self.mode_combo.currentText()
         if mode == 'Insert':
-            self.numberinginsertat_spin.setEnabled(True)
             self.numberinginsertat_label.setEnabled(True)
+            self.numberinginsertat_spin.setEnabled(True)
         else:
-            self.numberinginsertat_spin.setEnabled(False)
             self.numberinginsertat_label.setEnabled(False)
+            self.numberinginsertat_spin.setEnabled(False)
         self.refresh_newnames()
 
     def type_changed(self):
-        if self.type_combo.currentText() == 'Decimal':
-            pass
+        if 'Alpha' in self.type_combo.currentText():
+            self.padding_label.setEnabled(False)
+            self.padding_spin.setEnabled(False)
+        else:
+            self.padding_label.setEnabled(True)
+            self.padding_spin.setEnabled(True)
         self.refresh_newnames()
 
     def do_rename(self):
