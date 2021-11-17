@@ -6,8 +6,8 @@ For it to work with maya 2016- you can install Marcus Ottosson's Qt.py from here
 
 To launch run :
 
-from renamer import renamer
-renamer.launch_ui()
+from renamer import rl_renamer
+rl_renamer.launch_ui()
 
 """
 
@@ -78,7 +78,7 @@ class MainUI(QtWidgets.QMainWindow):
     def __init__(self, title, parent=None):
         super(MainUI, self).__init__(parent)
         # main window load / settings
-        self.window = loadUiWidget(os.path.split(__file__)[0] + "/renamer.ui", parent)
+        self.window = loadUiWidget(os.path.split(__file__)[0] + "/rl_renamer.ui", parent)
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.window.setWindowTitle(title)
 
