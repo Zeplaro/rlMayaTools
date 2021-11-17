@@ -141,6 +141,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.remove_group.setChecked(False)
         self.add_group.setChecked(False)
         self.numbering_group.setChecked(False)
+
         self.reload_selection()
 
     def ui_connections(self):
@@ -189,6 +190,7 @@ class MainUI(QtWidgets.QMainWindow):
 
     def refresh_newnames(self):
         """Refreshes the new names in the table"""
+        self.refresh_numbering_range()
         self.model.layoutChanged.emit()
 
     def get_new_name(self, name, index):
@@ -247,33 +249,26 @@ class MainUI(QtWidgets.QMainWindow):
     def numbering(self, name, index):
         mode = self.mode_combo.currentText()
         numtype = self.type_combo.currentText()
-        start = self.start_spin.value()
-        step = self.step_spin.value()
         insertat = self.numberinginsertat_spin.value()
         padding = self.padding_spin.value()
         separator = self.sep_line.text()
 
         if numtype == 'Decimal':
-            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
-            num_string = str(numbering[index]).zfill(padding)
-        elif numtype == 'Binary':
-            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
-            num_string = str(bin(numbering[index]))[2:].zfill(padding)
+            num_string = str(self.numbering_range[index]).zfill(padding)
+        elif numtype == 'Alphabetical (upper)':
+            num_string = self.numbering_range[index].upper()
+        elif numtype == 'Alphabetical (lower)':
+            num_string = self.numbering_range[index]
         elif numtype == 'Hexadecimal (upper)':
-            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
-            num_string = str(hex(numbering[index]))[2:].zfill(padding).upper()
+            num_string = str(hex(self.numbering_range[index]))[2:].zfill(padding).upper()
         elif numtype == 'Hexadecimal (lower)':
-            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
-            num_string = str(hex(numbering[index]))[2:].zfill(padding)
+            num_string = str(hex(self.numbering_range[index]))[2:].zfill(padding)
         elif numtype == 'Octal':
-            numbering = list(range(start, len(self.model.maya_nodes) * step + start, step))
-            num_string = str(oct(numbering[index]))[1:].zfill(padding)
-        elif numtype == 'Alpha (upper)':
-            numbering = [decimal_to_alpha(x) for x in range(start, len(self.model.maya_nodes) * step + start, step)]
-            num_string = numbering[index].upper()
-        elif numtype == 'Alpha (lower)':
-            numbering = [decimal_to_alpha(x) for x in range(start, len(self.model.maya_nodes) * step + start, step)]
-            num_string = numbering[index]
+            num_string = str(oct(self.numbering_range[index]))[1:].zfill(padding) or '0'.zfill(padding)
+        elif numtype == 'Binary':
+            num_string = str(bin(self.numbering_range[index]))[2:].zfill(padding)
+        elif numtype == 'Roman':
+            num_string = decimal_to_roman(self.numbering_range[index])
         else:
             num_string = ''
 
@@ -313,13 +308,29 @@ class MainUI(QtWidgets.QMainWindow):
 
     def type_changed(self):
         """Updates padding spinBox and label to be disabled when 'Alphabetical' mode is selected"""
-        if 'Alphabetical' in self.type_combo.currentText():
+        current_type = self.type_combo.currentText()
+        if 'Alphabetical' in current_type:
+            self.start_spin.setMinimum(0)
+            self.padding_label.setEnabled(False)
+            self.padding_spin.setEnabled(False)
+        elif current_type == 'Roman':
+            self.start_spin.setMinimum(1)
             self.padding_label.setEnabled(False)
             self.padding_spin.setEnabled(False)
         else:
+            self.start_spin.setMinimum(0)
             self.padding_label.setEnabled(True)
             self.padding_spin.setEnabled(True)
         self.refresh_newnames()
+
+    def refresh_numbering_range(self):
+        current_type = self.type_combo.currentText()
+        start = self.start_spin.value()
+        step = self.step_spin.value()
+        if 'Alphabetical' in current_type:
+            self.numbering_range = [decimal_to_alpha(x) for x in range(start, len(self.model.maya_nodes) * step + start, step)]
+        else:
+            self.numbering_range = list(range(start, len(self.model.maya_nodes) * step + start, step))
 
     def do_rename(self):
         """Renames the objects in maya. Will fail if given invalid characters or trying to rename non renamable nodes"""
@@ -417,3 +428,23 @@ def decimal_to_alpha(index):
         index = index // 26
         alphanum = ascii_lowercase[reste] + alphanum
     return alphanum
+
+
+def decimal_to_roman(index):
+    """Converts an int to a roman numerical index"""
+    assert isinstance(index, int) and index > 0
+    roman = [(1000, 'M'), (900, 'CM'),
+             (500, 'D'), (400, 'CD'),
+             (100, 'C'), (90, 'XC'),
+             (50, 'L'), (40, 'XL'),
+             (10, 'X'), (9, 'IX'),
+             (5, 'V'), (4, 'IV'),
+             (1, 'I')]
+    roman_num = ''
+    while index:
+        for value, num in roman:
+            if index >= value:
+                roman_num += num
+                index -= value
+                break
+    return roman_num
