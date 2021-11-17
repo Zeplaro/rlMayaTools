@@ -1,5 +1,16 @@
 # coding: utf-8
 
+"""
+Advanced renamer tool for maya 2017+.
+For it to work with maya 2016- you can install Marcus Ottosson's Qt.py from here https://github.com/mottosso/Qt.py
+
+To launch run :
+
+from renamer import renamer
+renamer.launch_ui()
+
+"""
+
 import os
 import re
 import sys
@@ -22,12 +33,14 @@ import maya.api.OpenMaya as om
 
 
 def get_maya_window():
+    """Getting maya's window"""
     ptr = omui.MQtUtil.mainWindow()
     parent = QtCompat.wrapInstance(long(ptr), QtWidgets.QMainWindow)
     return parent
 
 
 def close_existing(target_title):
+    """Close existing Renamer is already openned"""
     parent = get_maya_window()
     children = parent.children()
     for child in children:
@@ -43,6 +56,7 @@ def close_existing(target_title):
 
 
 def launch_ui():
+    """Launch the Renamer ui"""
     ui_title = 'Renamer'
     close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
@@ -51,6 +65,7 @@ def launch_ui():
 
 
 def loadUiWidget(uifilename, parent=None):
+    """Loads and gets the ui layout from the .ui file """
     loader = QtUiTools.QUiLoader()
     uifile = QtCore.QFile(uifilename)
     uifile.open(QtCore.QFile.ReadOnly)
@@ -140,6 +155,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.reload_selection()
 
     def ui_connections(self):
+        """Sets the signal connections"""
         self.reload_button.clicked.connect(self.reload_selection)
         # rename group
         self.rename_group.toggled.connect(partial(self.refresh_group, self.rename_widget))
@@ -173,17 +189,23 @@ class MainUI(QtWidgets.QMainWindow):
         self.rename_button.clicked.connect(self.do_rename)
 
     def refresh_group(self, widget, state):
+        """Refreshes the groupBox visibility when checked/unchecked"""
         widget.setVisible(state)
         self.refresh_newnames()
 
     def reload_selection(self):
+        """Reloads objects list from current selection"""
         self.model.maya_nodes = get_selection()
         self.refresh_newnames()
 
     def refresh_newnames(self):
+        """Refreshes the new names in the table"""
         self.model.layoutChanged.emit()
 
     def get_new_name(self, name, index):
+        """Gets the new name passing through all the checked 'modifiers', leaving out the parents if in the name"""
+        split = name.split('|')
+        name = split.pop(-1)
         if self.rename_group.isChecked():
             name = self.rename(name)
         if self.replace_group.isChecked():
@@ -194,6 +216,8 @@ class MainUI(QtWidgets.QMainWindow):
             name = self.add(name)
         if self.numbering_group.isChecked():
             name = self.numbering(name, index)
+        split.append(name)
+        name = '|'.join(split)
         return name
 
     def rename(self, name):
@@ -273,6 +297,7 @@ class MainUI(QtWidgets.QMainWindow):
         return name
 
     def fromspin_changed(self):
+        """Updates to_spin spinBox so that it's never lower than from_spin spinBox"""
         from_value = self.from_spin.value()
         to_value = self.to_spin.value()
         if to_value < from_value:
@@ -280,6 +305,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_newnames()
 
     def tospin_changed(self):
+        """Updates from_spin spinBox so that it's never higher than to_spin spinBox"""
         from_value = self.from_spin.value()
         to_value = self.to_spin.value()
         if from_value > to_value:
@@ -287,8 +313,8 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_newnames()
 
     def mode_changed(self):
-        mode = self.mode_combo.currentText()
-        if mode == 'Insert':
+        """Updates insert spinBox and label to be disabled when 'Insert' mode is selected"""
+        if self.mode_combo.currentText() == 'Insert':
             self.numberinginsertat_label.setEnabled(True)
             self.numberinginsertat_spin.setEnabled(True)
         else:
@@ -297,7 +323,8 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_newnames()
 
     def type_changed(self):
-        if 'Alpha' in self.type_combo.currentText():
+        """Updates padding spinBox and label to be disabled when 'Alphabetical' mode is selected"""
+        if 'Alphabetical' in self.type_combo.currentText():
             self.padding_label.setEnabled(False)
             self.padding_spin.setEnabled(False)
         else:
@@ -306,6 +333,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_newnames()
 
     def do_rename(self):
+        """Renames the objects in maya. Will fail if given invalid characters or trying to rename non renamable nodes"""
         counter = 0
         for i, node in enumerate(self.model.maya_nodes):
             try:
@@ -338,7 +366,7 @@ class NameModel(QtCore.QAbstractTableModel):
                 return name
             else:
                 return self.main_ui.get_new_name(name, index.row())
-        elif role == QtCore.Qt.ForegroundRole:
+        elif role == QtCore.Qt.ForegroundRole:  # Sets the new names color if different than current name
             if index.column() == 1:
                 name = self.maya_nodes[index.row()].name
                 if self.main_ui.get_new_name(name, index.row()) != name:
@@ -354,15 +382,17 @@ class NameModel(QtCore.QAbstractTableModel):
 
 
 def get_selection():
-    l = om.MSelectionList()
-    nodes = []
+    """Returns OpenMaya MObject for current scene selection"""
+    mSelectionList = om.MSelectionList()
+    mObjects = []
     for i, node in enumerate(cmds.ls(os=True, fl=True)):
-        l.add(node)
-        nodes.append(MayaNode(l.getDependNode(i)))
-    return nodes
+        mSelectionList.add(node)
+        mObjects.append(MayaNode(mSelectionList.getDependNode(i)))
+    return mObjects
 
 
 class MayaNode(object):
+    """Manages maya nodes naming properly keeping track of each nodes MObject"""
     def __init__(self, mObject):
         self.mObject = mObject
         self.mFnDependencyNode = om.MFnDependencyNode(mObject)
@@ -376,6 +406,7 @@ class MayaNode(object):
 
     @property
     def name(self):
+        """Gets the node name from its MObject"""
         try:
             return self.mFnDagNode.partialPathName()
         except RuntimeError:
@@ -387,12 +418,12 @@ class MayaNode(object):
 
 
 def decimal_to_alpha(index):
+    """Converts an int to an alphabetical index"""
     from string import ascii_lowercase
     alphanum = ''
     index += 1  # because alphabet hase no 0 and starts with 'a'
     while index:
-        # v alphabet has no 0 and 'a' needs to be used as next 'decimal' unit when reaching 'z':  'y', 'z', 'aa', 'ab'
-        index -= 1
+        index -= 1  # 'a' needs to be used as next 'decimal' unit when reaching 'z':  ..., 'y', 'z', 'aa', 'ab', ...
         reste = index % 26
         index = index // 26
         alphanum = ascii_lowercase[reste] + alphanum
