@@ -32,7 +32,6 @@
       <property name="minimumSize">
        <size>
         <width>350</width>
-        <height>150</height>
        </size>
       </property>
       <property name="alternatingRowColors">

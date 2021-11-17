@@ -132,11 +132,11 @@ class MainUI(QtWidgets.QMainWindow):
         self.rename_button = self.window.findChild(QtWidgets.QPushButton, 'rename_button')
 
         self.ui_connections()
-        self.rename_group.setChecked(True)
+        self.rename_group.setChecked(False)
         self.replace_group.setChecked(False)
         self.remove_group.setChecked(False)
         self.add_group.setChecked(False)
-        self.numbering_group.setChecked(True)
+        self.numbering_group.setChecked(False)
         self.reload_selection()
 
     def ui_connections(self):
@@ -391,10 +391,9 @@ def decimal_to_alpha(index):
     alphanum = ''
     index += 1  # because alphabet hase no 0 and starts with 'a'
     while index:
-        # v because alphabet has no 0 and 'a' is used as next step when reaching 'z': ..., 'y', 'z', 'aa', 'ab'...
+        # v alphabet has no 0 and 'a' needs to be used as next 'decimal' unit when reaching 'z':  'y', 'z', 'aa', 'ab'
         index -= 1
         reste = index % 26
         index = index // 26
         alphanum = ascii_lowercase[reste] + alphanum
     return alphanum
-
