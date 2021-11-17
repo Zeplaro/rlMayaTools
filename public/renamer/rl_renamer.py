@@ -1,8 +1,12 @@
 # coding: utf-8
 
+__author__ = "Robin Lavigne"
+__email__ = "contact@robinlavigne.com"
+
 """
-Advanced renamer tool for maya 2017+.
-For it to work with maya 2016- you can install Marcus Ottosson's Qt.py from here https://github.com/mottosso/Qt.py
+Advanced node renaming tool for maya.
+For it to work you need to have Marcus Ottosson's Qt.py installed. 
+You can find it here https://github.com/mottosso/Qt.py
 
 To launch run :
 
@@ -21,11 +25,7 @@ if _pyversion == 3:
     basestring = str
     long = int
 
-try:
-    from Qt import QtGui, QtCore, QtWidgets, QtCompat, uic
-except ImportError:
-    from PySide2 import QtGui, QtCore, QtWidgets, QtUiTools
-    import shiboken2 as QtCompat
+from Qt import QtGui, QtCore, QtWidgets, QtCompat
 
 import maya.OpenMayaUI as omui
 from maya import cmds
@@ -57,94 +57,83 @@ def close_existing(target_title):
 
 def launch_ui():
     """Launch the Renamer ui"""
-    ui_title = 'Renamer'
+    ui_title = 'rl Renamer'
     close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
-    ui.window.show()
-    return ui
-
-
-def loadUiWidget(uifilename, parent=None):
-    """Loads and gets the ui layout from the .ui file """
-    loader = QtUiTools.QUiLoader()
-    uifile = QtCore.QFile(uifilename)
-    uifile.open(QtCore.QFile.ReadOnly)
-    ui = loader.load(uifile, parent)
-    uifile.close()
+    ui.show()
     return ui
 
 
 class MainUI(QtWidgets.QMainWindow):
-    def __init__(self, title, parent=None):
+    def __init__(self, title='rl Renamer', parent=None):
         super(MainUI, self).__init__(parent)
-        # main window load / settings
-        self.window = loadUiWidget(os.path.split(__file__)[0] + "/rl_renamer.ui", parent)
-        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-        self.window.setWindowTitle(title)
+        QtCompat.loadUi(os.path.split(__file__)[0] + "/rl_renamer.ui", self)  # Loading the .ui file
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.setWindowTitle(title)
 
-        self.central_widget = self.window.findChild(QtWidgets.QWidget, 'centralwidget')
+        self.central_widget = self.findChild(QtWidgets.QWidget, 'centralwidget')
         self.main_layout = self.central_widget.layout()
 
         self.model = NameModel(self)
 
-        self.name_table = self.window.findChild(QtWidgets.QTableView, 'name_table')
+        self.name_table = self.findChild(QtWidgets.QTableView, 'name_table')
         self.name_table.setModel(self.model)
         self.name_table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         # lineEdit regex validator for maya allowed characters
         reg_ex = QtCore.QRegExp("([a-zA-Z0-9]|_)+")
 
-        self.reload_button = self.window.findChild(QtWidgets.QPushButton, 'reload_button')
+        self.reload_button = self.findChild(QtWidgets.QPushButton, 'reload_button')
         # rename group
-        self.rename_group = self.window.findChild(QtWidgets.QGroupBox, 'rename_group')
-        self.rename_widget = self.window.findChild(QtWidgets.QWidget, 'rename_widget')
-        self.rename_line = self.window.findChild(QtWidgets.QLineEdit, 'rename_line')
+        self.rename_group = self.findChild(QtWidgets.QGroupBox, 'rename_group')
+        self.rename_widget = self.findChild(QtWidgets.QWidget, 'rename_widget')
+        self.rename_line = self.findChild(QtWidgets.QLineEdit, 'rename_line')
         # replace group
-        self.replace_group = self.window.findChild(QtWidgets.QGroupBox, 'replace_group')
-        self.replace_widget = self.window.findChild(QtWidgets.QWidget, 'replace_widget')
-        self.replace_line = self.window.findChild(QtWidgets.QLineEdit, 'replace_line')
+        self.replace_group = self.findChild(QtWidgets.QGroupBox, 'replace_group')
+        self.replace_widget = self.findChild(QtWidgets.QWidget, 'replace_widget')
+        self.replace_line = self.findChild(QtWidgets.QLineEdit, 'replace_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.replace_line)
         self.replace_line.setValidator(input_validator)
-        self.replacewith_line = self.window.findChild(QtWidgets.QLineEdit, 'replacewith_line')
+        self.replacewith_line = self.findChild(QtWidgets.QLineEdit, 'replacewith_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.replacewith_line)
         self.replacewith_line.setValidator(input_validator)
-        self.matchcase_checkbox = self.window.findChild(QtWidgets.QCheckBox, 'matchcase_checkbox')
+        self.matchcase_checkbox = self.findChild(QtWidgets.QCheckBox, 'matchcase_checkbox')
         # remove group
-        self.remove_group = self.window.findChild(QtWidgets.QGroupBox, 'remove_group')
-        self.remove_widget = self.window.findChild(QtWidgets.QWidget, 'remove_widget')
-        self.first_spin = self.window.findChild(QtWidgets.QSpinBox, 'first_spin')
-        self.last_spin = self.window.findChild(QtWidgets.QSpinBox, 'last_spin')
-        self.from_spin = self.window.findChild(QtWidgets.QSpinBox, 'from_spin')
-        self.to_spin = self.window.findChild(QtWidgets.QSpinBox, 'to_spin')
+        self.remove_group = self.findChild(QtWidgets.QGroupBox, 'remove_group')
+        self.remove_widget = self.findChild(QtWidgets.QWidget, 'remove_widget')
+        self.first_spin = self.findChild(QtWidgets.QSpinBox, 'first_spin')
+        self.last_spin = self.findChild(QtWidgets.QSpinBox, 'last_spin')
+        self.from_spin = self.findChild(QtWidgets.QSpinBox, 'from_spin')
+        self.to_spin = self.findChild(QtWidgets.QSpinBox, 'to_spin')
         # add group
-        self.add_group = self.window.findChild(QtWidgets.QGroupBox, 'add_group')
-        self.add_widget = self.window.findChild(QtWidgets.QWidget, 'add_widget')
-        self.prefix_line = self.window.findChild(QtWidgets.QLineEdit, 'prefix_line')
+        self.add_group = self.findChild(QtWidgets.QGroupBox, 'add_group')
+        self.add_widget = self.findChild(QtWidgets.QWidget, 'add_widget')
+        self.prefix_line = self.findChild(QtWidgets.QLineEdit, 'prefix_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.prefix_line)
         self.prefix_line.setValidator(input_validator)
-        self.insert_line = self.window.findChild(QtWidgets.QLineEdit, 'insert_line')
+        self.insert_line = self.findChild(QtWidgets.QLineEdit, 'insert_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.insert_line)
         self.insert_line.setValidator(input_validator)
-        self.insertat_spin = self.window.findChild(QtWidgets.QSpinBox, 'insertat_spin')
-        self.suffix_line = self.window.findChild(QtWidgets.QLineEdit, 'suffix_line')
+        self.insertat_spin = self.findChild(QtWidgets.QSpinBox, 'insertat_spin')
+        self.suffix_line = self.findChild(QtWidgets.QLineEdit, 'suffix_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.suffix_line)
         self.suffix_line.setValidator(input_validator)
         # numbering group
-        self.numbering_group = self.window.findChild(QtWidgets.QGroupBox, 'numbering_group')
-        self.numbering_widget = self.window.findChild(QtWidgets.QWidget, 'numbering_widget')
-        self.mode_combo = self.window.findChild(QtWidgets.QComboBox, 'mode_combo')
-        self.type_combo = self.window.findChild(QtWidgets.QComboBox, 'type_combo')
-        self.start_spin = self.window.findChild(QtWidgets.QSpinBox, 'start_spin')
-        self.step_spin = self.window.findChild(QtWidgets.QSpinBox, 'step_spin')
-        self.numberinginsertat_label = self.window.findChild(QtWidgets.QLabel, 'numberinginsertat_label')
-        self.numberinginsertat_spin = self.window.findChild(QtWidgets.QSpinBox, 'numberinginsertat_spin')
-        self.padding_label = self.window.findChild(QtWidgets.QLabel, 'padding_label')
-        self.padding_spin = self.window.findChild(QtWidgets.QSpinBox, 'padding_spin')
-        self.sep_line = self.window.findChild(QtWidgets.QLineEdit, 'sep_line')
+        self.numbering_group = self.findChild(QtWidgets.QGroupBox, 'numbering_group')
+        self.numbering_widget = self.findChild(QtWidgets.QWidget, 'numbering_widget')
+        self.mode_combo = self.findChild(QtWidgets.QComboBox, 'mode_combo')
+        self.type_combo = self.findChild(QtWidgets.QComboBox, 'type_combo')
+        self.start_spin = self.findChild(QtWidgets.QSpinBox, 'start_spin')
+        self.step_spin = self.findChild(QtWidgets.QSpinBox, 'step_spin')
+        self.numberinginsertat_label = self.findChild(QtWidgets.QLabel, 'numberinginsertat_label')
+        self.numberinginsertat_spin = self.findChild(QtWidgets.QSpinBox, 'numberinginsertat_spin')
+        self.padding_label = self.findChild(QtWidgets.QLabel, 'padding_label')
+        self.padding_spin = self.findChild(QtWidgets.QSpinBox, 'padding_spin')
+        self.sep_line = self.findChild(QtWidgets.QLineEdit, 'sep_line')
         input_validator = QtGui.QRegExpValidator(reg_ex, self.sep_line)
         self.sep_line.setValidator(input_validator)
 
-        self.rename_button = self.window.findChild(QtWidgets.QPushButton, 'rename_button')
+        self.rename_button = self.findChild(QtWidgets.QPushButton, 'rename_button')
 
         self.ui_connections()
         self.rename_group.setChecked(False)
