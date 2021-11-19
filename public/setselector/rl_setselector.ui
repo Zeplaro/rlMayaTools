@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
-    <height>296</height>
+    <width>374</width>
+    <height>251</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,40 +52,22 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QPushButton" name="up_button">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
+         <widget class="QToolButton" name="up_button">
           <property name="text">
-           <string>▲</string>
+           <string>...</string>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::UpArrow</enum>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="down_button">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
+         <widget class="QToolButton" name="down_button">
           <property name="text">
-           <string>▼</string>
+           <string>...</string>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::DownArrow</enum>
           </property>
          </widget>
         </item>
@@ -199,8 +181,8 @@ scene selection</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>446</width>
-     <height>26</height>
+     <width>374</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

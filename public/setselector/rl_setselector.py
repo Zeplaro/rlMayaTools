@@ -66,7 +66,7 @@ def close_existing(target_title):
 def launch_ui():
     """Launch the Renamer ui"""
     ui_title = 'rl Set Selector'
-    close_existing(ui_title)
+    # close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
     ui.show()
     return ui
@@ -93,8 +93,8 @@ class MainUI(QtWidgets.QMainWindow):
         self.deleteset_button = self.findChild(QtWidgets.QPushButton, 'deleteset_button')
 
         # move
-        self.up_button = self.findChild(QtWidgets.QPushButton, 'up_button')
-        self.down_button = self.findChild(QtWidgets.QPushButton, 'down_button')
+        self.up_button = self.findChild(QtWidgets.QToolButton, 'up_button')
+        self.down_button = self.findChild(QtWidgets.QToolButton, 'down_button')
 
         # tabs
         tabs_layout = self.findChild(QtWidgets.QVBoxLayout, 'tabs_layout')

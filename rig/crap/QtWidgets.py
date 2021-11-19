@@ -23,7 +23,10 @@
 ##
 #############################################################################
 
-from PySide2 import QtCore, QtGui, QtWidgets
+try:
+    from PyQt5 import QtCore, QtGui, QtWidgets
+except ImportError:
+    from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class WidgetGallery(QtWidgets.QDialog):
@@ -92,7 +95,7 @@ class WidgetGallery(QtWidgets.QDialog):
     def advanceProgressBar(self):
         curVal = self.progressBar.value()
         maxVal = self.progressBar.maximum()
-        self.progressBar.setValue(curVal + (maxVal - curVal) / 100)
+        self.progressBar.setValue(int(curVal + (maxVal - curVal) / 100))
 
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QtWidgets.QGroupBox("Group 1")
