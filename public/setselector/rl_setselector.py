@@ -1,18 +1,20 @@
 # coding: utf-8
 
 import os
+import sys
 import json
 from functools import partial
 import maya.OpenMayaUI as omui
 import maya.cmds as mc
-try:
-    from Qt import QtGui, QtCore, QtWidgets, QtCompat
-except ImportError:
-    from PySide2 import QtGui, QtCore, QtWidgets
-    import shiboken2 as QtCompat
+
+_pyversion = sys.version_info[0]
+if _pyversion == 3:
+    long = int
+
+from Qt import QtGui, QtCore, QtWidgets, QtCompat
 
 __author__ = "Robin Lavigne"
-__version__ = "1.0"
+__version__ = "2.0"
 __email__ = "contact@robinlavigne.com"
 
 
@@ -25,12 +27,14 @@ empty_data = {'tabs': ['Main'],
 
 
 def get_maya_window():
+    """Getting maya's window"""
     ptr = omui.MQtUtil.mainWindow()
     parent = QtCompat.wrapInstance(long(ptr), QtWidgets.QMainWindow)
     return parent
 
 
 def close_existing(target_title):
+    """Close existing Renamer is already openned"""
     parent = get_maya_window()
     children = parent.children()
     for child in children:
@@ -42,11 +46,12 @@ def close_existing(target_title):
             try:
                 child.close()
             except ValueError:
-                print('fail')
+                print("failed to close '{}'".format(target_title))
 
 
 def launch_ui():
-    ui_title = 'Set Selector'
+    """Launch the Renamer ui"""
+    ui_title = 'rl Set Selector'
     close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
     ui.show()
@@ -54,107 +59,61 @@ def launch_ui():
 
 
 class MainUI(QtWidgets.QMainWindow):
-    def __init__(self, parent=None, title='Set Sel'):
+    def __init__(self, parent=None, title='rl Set Selector'):
         super(MainUI, self).__init__(parent=parent)
+        QtCompat.loadUi(os.path.split(__file__)[0] + "/rl_setselector.ui", self)  # Loading the .ui file
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
-        self.data = SelData(get_scene_data(True))
+        self.data = SelData(get_scene_data())
+
         self.ui_layout()
+
         self.ui_connections()
 
     def ui_layout(self):
-        main_widget = QtWidgets.QWidget()
-        self.setCentralWidget(main_widget)
-        main_layout = QtWidgets.QVBoxLayout()
-        main_widget.setLayout(main_layout)
-        menu_bar = QtWidgets.QMenuBar()
-        self.setMenuBar(menu_bar)
-        file_menu = menu_bar.addMenu('File')
-        self.reset_data_button = file_menu.addAction('Reset to data', self.reset_data)
-        top_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(top_layout)
-        self.setsel_name_field = QtWidgets.QLineEdit('Selection set')
-        self.setsel_name_field.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
-        top_layout.addWidget(self.setsel_name_field)
-        self.add_setsel_button = QtWidgets.QPushButton('Add set')
-        top_layout.addWidget(self.add_setsel_button)
-        sep = QtWidgets.QLabel()
-        sep.setFrameStyle(QtWidgets.QFrame.VLine)
-        top_layout.addWidget(sep)
-        self.delete_button = QtWidgets.QPushButton('Delete set')
-        top_layout.addWidget(self.delete_button)
-
-        mid_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(mid_layout)
+        # top
+        self.resetdata_action = self.findChild(QtWidgets.QAction, 'resetdata_action')
+        self.setname_line = self.findChild(QtWidgets.QLineEdit, 'setname_line')
+        self.setname_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
+        self.addset_button = self.findChild(QtWidgets.QPushButton, 'addset_button')
+        self.deleteset_button = self.findChild(QtWidgets.QPushButton, 'deleteset_button')
 
         # move
-        move_layout = QtWidgets.QVBoxLayout()
-        mid_layout.addLayout(move_layout)
-        self.move_up_button = QtWidgets.QPushButton(u'▲')
-        move_layout.addWidget(self.move_up_button)
-        self.move_up_button.setFixedWidth(20)
-        self.move_down_button = QtWidgets.QPushButton(u'▼')
-        move_layout.addWidget(self.move_down_button)
-        self.move_down_button.setFixedWidth(20)
+        self.up_button = self.findChild(QtWidgets.QPushButton, 'up_button')
+        self.down_button = self.findChild(QtWidgets.QPushButton, 'down_button')
 
-        tab_list_layout = QtWidgets.QVBoxLayout()
-        mid_layout.addLayout(tab_list_layout)
-        tab_list_layout.setSpacing(0)
         # tabs
-        self.tab_group_widget = TabBarWidget(self)
-        tab_list_layout.addWidget(self.tab_group_widget)
-        self.tab_group_widget.setStyleSheet("QTabBar { background-color: #373737 }")
+        tabs_layout = self.findChild(QtWidgets.QVBoxLayout, 'tabs_layout')
+        self.tab_widget = TabBarWidget(self)
+        tabs_layout.addWidget(self.tab_widget)
+        self.tab_widget.setStyleSheet("QTabBar { background-color: #373737 }")
         # list
-        self.list_view = SelListView(self, self.data)
-        tab_list_layout.addWidget(self.list_view)
+        self.list_view = SetListView(self, self.data)
+        tabs_layout.addWidget(self.list_view)
 
         # update
-        update_layout = QtWidgets.QVBoxLayout()
-        mid_layout.addLayout(update_layout)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.add_members_button = QtWidgets.QPushButton('+')
-        update_layout.addWidget(self.add_members_button)
-        self.add_members_button.setFixedWidth(20)
-        self.add_members_button.setFont(font)
-        self.replace_members_button = QtWidgets.QPushButton('R\nE\nP\nL\nA\nC\nE')
-        update_layout.addWidget(self.replace_members_button)
-        self.replace_members_button.setFixedWidth(20)
-        self.sub_members_button = QtWidgets.QPushButton('-')
-        update_layout.addWidget(self.sub_members_button)
-        self.sub_members_button.setFixedWidth(20)
-        self.sub_members_button.setFont(font)
+        self.plus_button = self.findChild(QtWidgets.QPushButton, 'plus_button')
+        self.replace_button = self.findChild(QtWidgets.QPushButton, 'replace_button')
+        self.minus_button = self.findChild(QtWidgets.QPushButton, 'minus_button')
 
         # bottom
-        bottom_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(bottom_layout)
-        self.select_button = QtWidgets.QPushButton('Select')
-        bottom_layout.addWidget(self.select_button)
-        self.add_current_sel_checkbox = QtWidgets.QCheckBox('add to current\nscene selection')
-        bottom_layout.addWidget(self.add_current_sel_checkbox)
-
-        sep = QtWidgets.QLabel()
-        sep.setFrameStyle(QtWidgets.QFrame.VLine)
-        bottom_layout.addWidget(sep)
-        self.create_scene_sets_button = QtWidgets.QPushButton('Create scene sets')
-        bottom_layout.addWidget(self.create_scene_sets_button)
-
-        sep = QtWidgets.QLabel()
-        sep.setFrameStyle(QtWidgets.QFrame.VLine)
-        bottom_layout.addWidget(sep)
-        self.refresh_button = QtWidgets.QPushButton('Refresh')
-        bottom_layout.addWidget(self.refresh_button)
+        self.select_button = self.findChild(QtWidgets.QPushButton, 'select_button')
+        self.add_check = self.findChild(QtWidgets.QCheckBox, 'add_check')
+        self.createset_button = self.findChild(QtWidgets.QPushButton, 'createset_button')
+        self.refresh_button = self.findChild(QtWidgets.QPushButton, 'refresh_button')
 
     def ui_connections(self):
-        self.add_setsel_button.clicked.connect(self.add_set)
-        self.delete_button.clicked.connect(self.delete_sets)
-        self.move_up_button.clicked.connect(self.move_up)
-        self.move_down_button.clicked.connect(self.move_down)
+        self.resetdata_action.triggered.connect(self.reset_data)
+        self.addset_button.clicked.connect(self.add_set)
+        self.deleteset_button.clicked.connect(self.delete_sets)
+        self.up_button.clicked.connect(self.move_up)
+        self.down_button.clicked.connect(self.move_down)
+        self.plus_button.clicked.connect(self.add_members)
+        self.replace_button.clicked.connect(self.replace_members)
+        self.minus_button.clicked.connect(self.remove_members)
         self.select_button.clicked.connect(self.select_members)
+        self.createset_button.clicked.connect(self.create_scene_sets)
         self.refresh_button.clicked.connect(self.refresh_data)
-        self.create_scene_sets_button.clicked.connect(self.create_scene_sets)
-        self.add_members_button.clicked.connect(self.add_members)
-        self.sub_members_button.clicked.connect(self.remove_members)
-        self.replace_members_button.clicked.connect(self.replace_members)
 
     def reset_data(self):
         self.data.replace_data(empty_data)
@@ -165,7 +124,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.list_view.model().layoutChanged.emit()
 
     def add_set(self):
-        name = self.setsel_name_field.text()
+        name = self.setname_line.text()
         if name in self.data.current_sets:
             a = QtWidgets.QMessageBox.question(self, 'Set already existing',
                                                'The given name already exists in the sets list.\n'
@@ -213,7 +172,7 @@ class MainUI(QtWidgets.QMainWindow):
             self.list_view.setCurrentIndex(index)
 
     def select_members(self):
-        add = self.add_current_sel_checkbox.isChecked()
+        add = self.add_check.isChecked()
         indexes = self.list_view.selectedIndexes()
         members = []
         for index in indexes:
@@ -230,7 +189,7 @@ class MainUI(QtWidgets.QMainWindow):
     def refresh_data(self):
         new = get_scene_data()
         self.data.replace_data(new)
-        self.tab_group_widget.refresh_data()
+        self.tab_widget.refresh_data()
         self.refresh_list()
 
     def create_scene_sets(self):
@@ -360,9 +319,9 @@ class TabBarWidget(QtWidgets.QTabBar):
             self.removeTab(0)
 
 
-class SelListView(QtWidgets.QListView):
+class SetListView(QtWidgets.QListView):
     def __init__(self, ui, data):
-        super(SelListView, self).__init__()
+        super(SetListView, self).__init__()
         self.data = data
         self.ui = ui
         self.setModel(ItemsListModel(ui, data))
@@ -375,7 +334,7 @@ class SelListView(QtWidgets.QListView):
         menu = QtWidgets.QMenu(parent=self)
         move_menu = menu.addMenu('Move to tab...')
         for tab in self.data.tabs:
-            if tab != self.data.current_tab:
+            if tab != self.data.current_tab():
                 move_menu.addAction(tab, partial(self.ui.move_to_tab, setsels, tab))
         menu.exec_(event.globalPos())
 
@@ -428,7 +387,6 @@ class SelData(object):
         self.tabs = data['tabs']
         self.data = data['tabs_data']
 
-    @property
     def current_tab(self):
         if self.current_tab_func:
             current_tab = self.current_tab_func()
@@ -437,14 +395,16 @@ class SelData(object):
 
     @property
     def current_sets(self):
-        if self.current_tab:
-            return self.data[self.current_tab]['sets']
+        current_tab = self.current_tab()
+        if current_tab:
+            return self.data[current_tab]['sets']
         return []
 
     @property
     def current_members(self):
-        if self.current_tab:
-            return self.data[self.current_tab]['members']
+        current_tab = self.current_tab()
+        if current_tab:
+            return self.data[current_tab]['members']
 
     def save_data(self):
         save_data(self.full_data())
@@ -465,7 +425,7 @@ def save_data(data):
 
 
 def get_file_path():
-    full_path = os.path.join(os.path.split(__file__)[0], 'setselector')
+    full_path = os.path.split(__file__)[0]
     if not os.path.exists(full_path):
         os.mkdir(full_path)
-    return '{}/setselector_data.json'.format(full_path)
+    return '{}/rl_setselector_data.json'.format(full_path)
