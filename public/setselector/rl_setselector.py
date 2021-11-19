@@ -1,5 +1,23 @@
 # coding: utf-8
 
+__author__ = "Robin Lavigne"
+__version__ = "2.0"
+__email__ = "contact@robinlavigne.com"
+
+"""
+Selection manager tool for maya. Stores multiple selection data in different tab for easy selection modification and 
+recovery.
+ 
+For it to work you need to have Marcus Ottosson's Qt.py installed. 
+You can find it here https://github.com/mottosso/Qt.py
+
+To launch run :
+
+from setselector import rl_setselector
+rl_setselector.launch_ui()
+
+"""
+
 import os
 import sys
 import json
@@ -12,10 +30,6 @@ if _pyversion == 3:
     long = int
 
 from Qt import QtGui, QtCore, QtWidgets, QtCompat
-
-__author__ = "Robin Lavigne"
-__version__ = "2.0"
-__email__ = "contact@robinlavigne.com"
 
 
 empty_data = {'tabs': ['Main'],

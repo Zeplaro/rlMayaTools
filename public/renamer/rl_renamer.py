@@ -1,10 +1,12 @@
 # coding: utf-8
 
 __author__ = "Robin Lavigne"
+__version__ = "1.0"
 __email__ = "contact@robinlavigne.com"
 
 """
 Advanced node renaming tool for maya.
+
 For it to work you need to have Marcus Ottosson's Qt.py installed. 
 You can find it here https://github.com/mottosso/Qt.py
 
