@@ -1,9 +1,5 @@
 # coding: utf-8
 
-__author__ = "Robin Lavigne"
-__version__ = "2.0"
-__email__ = "contact@robinlavigne.com"
-
 """
 Selection manager tool for maya. Stores multiple selection data in different tab for easy selection modification and 
 recovery.
@@ -17,6 +13,10 @@ from setselector import rl_setselector
 rl_setselector.launch_ui()
 
 """
+
+__author__ = "Robin Lavigne"
+__version__ = "2.0"
+__email__ = "contact@robinlavigne.com"
 
 import os
 import sys

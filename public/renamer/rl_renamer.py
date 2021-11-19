@@ -1,9 +1,5 @@
 # coding: utf-8
 
-__author__ = "Robin Lavigne"
-__version__ = "1.0"
-__email__ = "contact@robinlavigne.com"
-
 """
 Advanced node renaming tool for maya.
 
@@ -16,6 +12,10 @@ from renamer import rl_renamer
 rl_renamer.launch_ui()
 
 """
+
+__author__ = "Robin Lavigne"
+__version__ = "1.0"
+__email__ = "contact@robinlavigne.com"
 
 import os
 import re

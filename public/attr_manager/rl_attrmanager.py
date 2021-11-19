@@ -8,10 +8,15 @@ The Attribute Manager allows you to quickly manage your custom attributes proper
 Supported attribute type are: bool, double, double3, long, enum, string
 
 run command:
-import rl_attr_manager
-rl_attr_manager.launch_ui()
+
+from attrmanager import rl_attrmanager
+rl_attrmanager.launch_ui()
 
 """
+
+__author__ = "Robin Lavigne"
+__version__ = "1.0"
+__email__ = "contact@robinlavigne.com"
 
 from collections import OrderedDict
 from functools import partial
@@ -24,14 +29,10 @@ except ImportError:
     from PySide2 import QtGui, QtCore, QtWidgets
     import shiboken2 as QtCompat
 
-__author__ = "Robin Lavigne"
-__version__ = "1.0"
-__email__ = "contact@robinlavigne.com"
-
 
 def launch_ui():
-    if mc.window('rl_attr_manager', exists=True):
-        mc.deleteUI('rl_attr_manager')
+    if mc.window('rl_attrmanager', exists=True):
+        mc.deleteUI('rl_attrmanager')
     ui = MainUI()
     ui.show()
     return ui
@@ -47,8 +48,8 @@ class MainUI(QtWidgets.QDialog, object):
         super(MainUI, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowTitle('Attribute Manager')
-        self.setObjectName('rl_attr_manager')
+        self.setWindowTitle('rl Attribute Manager')
+        self.setObjectName('rl_attrmanager')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setMinimumSize(225, 300)
 
