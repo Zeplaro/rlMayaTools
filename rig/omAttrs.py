@@ -15,9 +15,9 @@ def get_Mplug(plug):
     sel.add(node)
     mObject = sel.getDependNode(0)
     dep_node = om.MFnDependencyNode(mObject)
-    plug = dep_node.findPlug(data[-1][0])
+    plug = dep_node.findPlug(data[-1][0], True)
     for attr, index in data:
-        sub_plug = dep_node.findPlug(attr).attribute()
+        sub_plug = dep_node.findPlug(attr, True).attribute()
         if index is not None:
             plug.selectAncestorLogicalIndex(index, sub_plug)
     return plug
