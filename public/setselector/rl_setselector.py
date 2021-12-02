@@ -7,6 +7,8 @@ recovery.
 For it to work you need to have Marcus Ottosson's Qt.py installed. 
 You can find it here https://github.com/mottosso/Qt.py
 
+Todo: add 'Replace' option
+
 To launch run :
 
 from setselector import rl_setselector
