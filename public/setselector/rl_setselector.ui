@@ -19,8 +19,8 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLineEdit" name="setname_line">
-        <property name="text">
-         <string>selectionSet</string>
+        <property name="placeholderText">
+         <string>Selection Set</string>
         </property>
        </widget>
       </item>
