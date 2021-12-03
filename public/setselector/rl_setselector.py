@@ -1,10 +1,10 @@
 # coding: utf-8
 
 """
-Selection manager tool for maya. Stores multiple selection data in different tab for easy selection modification and 
+Selection manager tool for maya. Stores multiple selection data in different tab for easy selection modification and
 recovery.
- 
-For it to work you need to have Marcus Ottosson's Qt.py installed. 
+
+For it to work you need to have Marcus Ottosson's Qt.py installed.
 You can find it here https://github.com/mottosso/Qt.py
 
 Todo: add 'Replace' option
@@ -68,7 +68,7 @@ def close_existing(target_title):
 def launch_ui():
     """Launch the Renamer ui"""
     ui_title = 'rl Set Selector'
-    # close_existing(ui_title)
+    close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
     ui.show()
     return ui
@@ -112,6 +112,13 @@ class MainUI(QtWidgets.QMainWindow):
         self.replace_button = self.findChild(QtWidgets.QPushButton, 'replace_button')
         self.minus_button = self.findChild(QtWidgets.QPushButton, 'minus_button')
 
+        # Replace
+        self.replace_group = self.findChild(QtWidgets.QGroupBox, 'replace_group')
+        self.replace_widget = self.findChild(QtWidgets.QWidget, 'replace_widget')
+        self.replace_widget.setVisible(False)
+        self.replace_line = self.findChild(QtWidgets.QLineEdit, 'replace_line')
+        self.replaceby_line = self.findChild(QtWidgets.QLineEdit, 'replaceby_line')
+
         # bottom
         self.select_button = self.findChild(QtWidgets.QPushButton, 'select_button')
         self.add_check = self.findChild(QtWidgets.QCheckBox, 'add_check')
@@ -127,6 +134,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.plus_button.clicked.connect(self.add_members)
         self.replace_button.clicked.connect(self.replace_members)
         self.minus_button.clicked.connect(self.remove_members)
+        self.replace_group.toggled.connect(self.refresh_replace)
         self.select_button.clicked.connect(self.select_members)
         self.createset_button.clicked.connect(self.create_scene_sets)
         self.refresh_button.clicked.connect(self.refresh_data)
@@ -138,6 +146,10 @@ class MainUI(QtWidgets.QMainWindow):
 
     def refresh_list(self):
         self.list_view.model().layoutChanged.emit()
+
+    def refresh_replace(self, state):
+        """Refreshes the groupBox visibility when checked/unchecked"""
+        self.replace_widget.setVisible(state)
 
     def add_set(self):
         name = self.setname_line.text()
@@ -193,7 +205,17 @@ class MainUI(QtWidgets.QMainWindow):
         members = []
         for index in indexes:
             members += self.data.current_members[self.data.current_sets[index.row()]]
-        existing = [x for x in members if mc.objExists(x)]
+
+        existing = []
+        replace = self.replace_group.isChecked()
+        replace_text = self.replace_line.text()
+        by_text = self.replaceby_line.text()
+        for member in members:
+            if replace:
+                member = member.replace(replace_text, by_text)
+            if mc.objExists(member):
+                existing.append(member)
+
         mc.select(existing, add=add)
         missing = len(members) - len(existing)
         if missing:
