@@ -23,7 +23,7 @@ import sys
 import json
 from functools import partial
 import maya.OpenMayaUI as omui
-import maya.cmds as mc
+from maya import cmds
 
 _pyversion = sys.version_info[0]
 if _pyversion == 3:
@@ -156,10 +156,10 @@ class MainUI(QtWidgets.QMainWindow):
                                                'The given name already exists in the sets list.\n'
                                                'Do you want to overwrite it ?')
             if str(a).split('.')[-1] == 'Yes':
-                self.data.current_sets[name] = mc.ls(os=True, fl=True)
+                self.data.current_sets[name] = cmds.ls(os=True, fl=True)
         else:
             self.data.current_sets.append(name)
-            self.data.current_members[name] = mc.ls(os=True, fl=True)
+            self.data.current_members[name] = cmds.ls(os=True, fl=True)
         self.refresh_list()
         self.save_data()
 
@@ -173,29 +173,35 @@ class MainUI(QtWidgets.QMainWindow):
 
     def move_up(self):
         indexes = self.list_view.selectedIndexes()
-        indexes.sort(key=lambda x: x.row())
-        for index in indexes:
-            if index.row() == 0:
-                continue
-            item = self.data.current_sets.pop(index.row())
-            self.data.current_sets.insert(index.row()-1, item)
-        self.refresh_list()
-        index = self.list_view.model().index(indexes[0].row()-1)
-        if -1 < index.row() < len(self.data.current_sets):
-            self.list_view.setCurrentIndex(index)
+        if indexes:
+            indexes.sort(key=lambda x: x.row())
+            for index in indexes:
+                if index.row() == 0:
+                    continue
+                item = self.data.current_sets.pop(index.row())
+                self.data.current_sets.insert(index.row()-1, item)
+            self.refresh_list()
+            index = self.list_view.model().index(indexes[0].row()-1)
+            if -1 < index.row() < len(self.data.current_sets):
+                self.list_view.setCurrentIndex(index)
+        else:
+            cmds.warning("No set selected. Select one or more set  to move them up the list")
 
     def move_down(self):
         indexes = self.list_view.selectedIndexes()
-        indexes.sort(key=lambda x: x.row())
-        for index in indexes[::-1]:
-            if index.row() == len(self.data.current_sets)-1:
-                continue
-            item = self.data.current_sets.pop(index.row())
-            self.data.current_sets.insert(index.row()+1, item)
-        self.refresh_list()
-        index = self.list_view.model().index(indexes[0].row()+1)
-        if -1 < index.row() < len(self.data.current_sets):
-            self.list_view.setCurrentIndex(index)
+        if indexes:
+            indexes.sort(key=lambda x: x.row())
+            for index in indexes[::-1]:
+                if index.row() == len(self.data.current_sets)-1:
+                    continue
+                item = self.data.current_sets.pop(index.row())
+                self.data.current_sets.insert(index.row()+1, item)
+            self.refresh_list()
+            index = self.list_view.model().index(indexes[0].row()+1)
+            if -1 < index.row() < len(self.data.current_sets):
+                self.list_view.setCurrentIndex(index)
+        else:
+            cmds.warning("No set selected. Select one or more set  to move them down the list")
 
     def select_members(self):
         add = self.add_check.isChecked()
@@ -211,10 +217,10 @@ class MainUI(QtWidgets.QMainWindow):
         for member in members:
             if replace:
                 member = member.replace(replace_text, by_text)
-            if mc.objExists(member):
+            if cmds.objExists(member):
                 existing.append(member)
 
-        mc.select(existing, add=add)
+        cmds.select(existing, add=add)
         missing = len(members) - len(existing)
         if missing:
             print("{} members are missing from the scene".format(missing))
@@ -229,20 +235,20 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_list()
 
     def create_scene_sets(self):
-        sel = mc.ls(sl=True, fl=True)
-        mc.select(clear=True)
+        sel = cmds.ls(sl=True, fl=True)
+        cmds.select(clear=True)
         for index in self.list_view.selectedIndexes():
             setsel = self.data.current_sets[index.row()]
             members = self.data.current_members[setsel]
-            existing = [x for x in members if mc.objExists(x)]
+            existing = [x for x in members if cmds.objExists(x)]
             if existing:
-                mc.sets(*existing, name=setsel)
+                cmds.sets(*existing, name=setsel)
             else:
-                mc.warning("'{}' not created, no members found in current scene.".format(setsel))
-        mc.select(sel)
+                cmds.warning("'{}' not created, no members found in current scene.".format(setsel))
+        cmds.select(sel)
 
     def add_members(self):
-        sel = mc.ls(sl=True, fl=True)
+        sel = cmds.ls(sl=True, fl=True)
         for index in self.list_view.selectedIndexes():
             setsel = self.data.current_sets[index.row()]
             members = self.data.current_members[setsel]
@@ -252,7 +258,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.save_data()
 
     def remove_members(self):
-        sel = mc.ls(sl=True, fl=True)
+        sel = cmds.ls(sl=True, fl=True)
         for index in self.list_view.selectedIndexes():
             setsel = self.data.current_sets[index.row()]
             members = self.data.current_members[setsel]
@@ -262,7 +268,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.save_data()
 
     def replace_members(self):
-        sel = mc.ls(sl=True, fl=True)
+        sel = cmds.ls(sl=True, fl=True)
         for index in self.list_view.selectedIndexes():
             setsel = self.data.current_sets[index.row()]
             self.data.current_members[setsel] = sel
@@ -271,7 +277,7 @@ class MainUI(QtWidgets.QMainWindow):
     def move_to_tab(self, setsels, tab):
         for setsel in setsels:
             if setsel in self.data.data[tab]['sets']:
-                mc.warning("'{}' set already exists in '{}' tab".format(setsel, tab))
+                cmds.warning("'{}' set already exists in '{}' tab".format(setsel, tab))
                 continue
             self.data.data[tab]['sets'].append(setsel)
             self.data.data[tab]['members'][setsel] = self.data.current_members[setsel]
@@ -394,7 +400,7 @@ class ItemsListModel(QtCore.QAbstractListModel):
     def setData(self, index, value, role):
         if index.isValid() and role == QtCore.Qt.EditRole and value:
             if value in self.sel_data.current_sets:
-                mc.warning("'{}' set already exists in the list")
+                cmds.warning("'{}' set already exists in the list")
             row = index.row()
             old_name = self.sel_data.current_sets[row]
             self.sel_data.current_sets.pop(row)
