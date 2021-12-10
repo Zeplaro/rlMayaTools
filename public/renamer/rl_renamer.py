@@ -73,9 +73,6 @@ class MainUI(QtWidgets.QMainWindow):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
 
-        self.central_widget = self.findChild(QtWidgets.QWidget, 'centralwidget')
-        self.main_layout = self.central_widget.layout()
-
         self.model = NameModel(self)
 
         self.name_table = self.findChild(QtWidgets.QTableView, 'name_table')
