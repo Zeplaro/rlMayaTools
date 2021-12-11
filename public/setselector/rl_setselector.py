@@ -471,3 +471,7 @@ def get_file_path():
     if not os.path.exists(full_path):
         os.mkdir(full_path)
     return '{}/rl_setselector_data.json'.format(full_path)
+
+
+if __name__ == '__main__':
+    launch_ui()

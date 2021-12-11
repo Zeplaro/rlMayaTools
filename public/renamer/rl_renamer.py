@@ -447,3 +447,7 @@ def decimal_to_roman(index):
                 index -= value
                 break
     return roman_num
+
+
+if __name__ == '__main__':
+    launch_ui()
