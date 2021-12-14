@@ -57,12 +57,22 @@ def close_existing(target_title):
                 print("failed to close '{}'".format(target_title))
 
 
+def center_ui(ui):
+    cursor_pos = QtGui.QCursor.pos()
+    screen_index = QtWidgets.QApplication.desktop().screenNumber(cursor_pos)
+    ui_center = QtCore.QPoint(ui.frameSize().height() / 2, ui.frameSize.width() / 2)
+    screen_center = QtWidgets.QApplication.screens()[screen_index].geometry().center()
+    center_pos = screen_center - ui_center
+    ui.move(center_pos)
+
+
 def launch_ui():
     """Launch the Renamer ui"""
     ui_title = 'rl Renamer'
     close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
     ui.show()
+    center_ui(ui.window())
     return ui
 
 
