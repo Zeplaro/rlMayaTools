@@ -343,7 +343,7 @@ class TabBarWidget(QtWidgets.QTabBar):
     def rename_tab(self):
         current_index = self.currentIndex()
         old_name = self.data.tabs[current_index]
-        name, do = QtWidgets.QInputDialog.getText(self, 'Rename tab', 'New name?')
+        name, do = QtWidgets.QInputDialog.getText(self, 'Rename tab', 'New name?', text=old_name)
         if do and name:
             if name in self.data.tabs:
                 QtWidgets.QMessageBox.warning(self, 'Tab name already existing',
