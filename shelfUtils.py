@@ -31,7 +31,7 @@ def get_shelf_data(shelf=None):
             for menu in cmds.shelfButton(button, q=True, pma=True) or []:
                 for item in cmds.popupMenu(menu, q=True, itemArray=True) or []:
                     button_data['submenus'].append(item)
-                    button_data['submenus_data'][item] = {kwarg: cmds.menuItem(item, q=True, **{kwarg: True})
+                    button_data['submenus_data'][item] = {kwarg: cmds.menuItem(item, q=True, **{kwarg: True}) or ''
                                                           for kwarg in menu_kwargs}
         data.append(button_data)
     return data
