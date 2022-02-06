@@ -327,6 +327,9 @@
             </item>
             <item>
              <widget class="QSpinBox" name="insertat_spin">
+              <property name="minimum">
+               <number>-9999</number>
+              </property>
               <property name="maximum">
                <number>9999</number>
               </property>

@@ -60,7 +60,7 @@ def close_existing(target_title):
 def center_ui(ui):
     cursor_pos = QtGui.QCursor.pos()
     screen_index = QtWidgets.QApplication.desktop().screenNumber(cursor_pos)
-    ui_center = QtCore.QPoint(ui.frameSize().height() / 2, ui.frameSize.width() / 2)
+    ui_center = QtCore.QPoint(ui.frameSize().height() / 2, ui.frameSize().width() / 2)
     screen_center = QtWidgets.QApplication.screens()[screen_index].geometry().center()
     center_pos = screen_center - ui_center
     ui.move(center_pos)
@@ -251,7 +251,12 @@ class MainUI(QtWidgets.QMainWindow):
     def add(self, name):
         name = self.prefix_line.text() + name
         insertat_value = self.insertat_spin.value()
-        name = name[:insertat_value] + self.insert_line.text() + name[insertat_value:]
+        if insertat_value == -1:
+            name += self.insert_line.text()
+        elif insertat_value < 0:
+            name = name[:insertat_value+1] + self.insert_line.text() + name[insertat_value+1:]
+        else:
+            name = name[:insertat_value] + self.insert_line.text() + name[insertat_value:]
         name += self.suffix_line.text()
         return name
 
@@ -343,6 +348,7 @@ class MainUI(QtWidgets.QMainWindow):
 
     def do_rename(self):
         """Renames the objects in maya. Will fail if given invalid characters or trying to rename non renamable nodes"""
+        cmds.undoInfo(openChunk=True)
         counter = 0
         for i, node in enumerate(self.model.maya_nodes):
             try:
@@ -352,6 +358,7 @@ class MainUI(QtWidgets.QMainWindow):
                 counter += 1
             except RuntimeError as e:
                 print("cannot rename node '{}' : {}".format(node.name, e))
+        cmds.undoInfo(closeChunk=True)
         print("Renamed {} nodes.".format(counter))
         self.refresh_newnames()
 
