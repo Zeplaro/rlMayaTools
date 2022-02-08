@@ -1,5 +1,5 @@
 import maya.cmds as mc
-from tbx import get_shape
+from .tbx import get_shape
 from functools import partial
 
 
