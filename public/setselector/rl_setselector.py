@@ -396,7 +396,7 @@ class ItemsListModel(QtCore.QAbstractListModel):
         self.ui = ui
 
     def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             return self.sel_data.current_sets[index.row()]
 
     def rowCount(self, index):
