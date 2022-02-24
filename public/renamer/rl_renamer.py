@@ -3,7 +3,7 @@
 """
 Advanced node renaming tool for maya.
 
-For it to work you need to have Marcus Ottosson's Qt.py installed. 
+For it to work you need to have Marcus Ottosson's Qt.py installed.
 You can find it here https://github.com/mottosso/Qt.py
 
 To launch run :
@@ -216,8 +216,6 @@ class MainUI(QtWidgets.QMainWindow):
             name = self.add(name)
         if self.numbering_group.isChecked():
             name = self.numbering(name, index)
-        split.append(name)
-        name = '|'.join(split)
         return name
 
     def rename(self, name):
@@ -349,6 +347,7 @@ class MainUI(QtWidgets.QMainWindow):
     def do_rename(self):
         """Renames the objects in maya. Will fail if given invalid characters or trying to rename non renamable nodes"""
         cmds.undoInfo(openChunk=True)
+        self.model.maya_nodes = get_selection()
         counter = 0
         for i, node in enumerate(self.model.maya_nodes):
             try:
@@ -401,9 +400,12 @@ def get_selection():
     """Returns OpenMaya MObject for current scene selection"""
     mSelectionList = om.MSelectionList()
     mObjects = []
-    for i, node in enumerate(cmds.ls(os=True, fl=True)):
-        mSelectionList.add(node)
-        mObjects.append(MayaNode(mSelectionList.getDependNode(i)))
+    i = 0  # not using enumerate in case components are in selection
+    for node in cmds.ls(os=True, fl=True):
+        if '.' not in node:
+            mSelectionList.add(node)
+            mObjects.append(MayaNode(mSelectionList.getDependNode(i)))
+            i += 1
     return mObjects
 
 
