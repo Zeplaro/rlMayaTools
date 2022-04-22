@@ -98,7 +98,6 @@ class MainUI(QtWidgets.QMainWindow):
         self.setname_line = self.findChild(QtWidgets.QLineEdit, 'setname_line')
         self.setname_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
         self.addset_button = self.findChild(QtWidgets.QPushButton, 'addset_button')
-        self.deleteset_button = self.findChild(QtWidgets.QPushButton, 'deleteset_button')
 
         # move
         self.up_button = self.findChild(QtWidgets.QToolButton, 'up_button')
@@ -134,7 +133,6 @@ class MainUI(QtWidgets.QMainWindow):
     def ui_connections(self):
         self.resetdata_action.triggered.connect(self.reset_data)
         self.addset_button.clicked.connect(self.add_set)
-        self.deleteset_button.clicked.connect(self.delete_sets)
         self.up_button.clicked.connect(self.move_up)
         self.down_button.clicked.connect(self.move_down)
         self.plus_button.clicked.connect(self.add_members)
@@ -159,6 +157,9 @@ class MainUI(QtWidgets.QMainWindow):
 
     def add_set(self):
         name = self.setname_line.text()
+        if not name:
+            cmds.error('Please enter a name for the set')
+            return
         if name in self.data.current_sets:
             a = QtWidgets.QMessageBox.question(self, 'Set already existing',
                                                'The given name already exists in the sets list.\n'
@@ -293,6 +294,15 @@ class MainUI(QtWidgets.QMainWindow):
             del self.data.current_members[setsel]
         self.save_data()
 
+    def print_members(self):
+        from pprint import pprint
+        indexes = self.list_view.selectedIndexes()
+        members = {}
+        for index in indexes:
+            set_ = self.data.current_sets[index.row()]
+            members[set_] = self.data.current_members[set_]
+        pprint(members)
+
 
 class TabBarWidget(QtWidgets.QTabBar):
     def __init__(self, ui):
@@ -386,6 +396,8 @@ class SetListView(QtWidgets.QListView):
         for tab in self.data.tabs:
             if tab != self.data.current_tab():
                 move_menu.addAction(tab, partial(self.ui.move_to_tab, setsels, tab))
+        menu.addAction('Print members', self.ui.print_members)
+        menu.addAction('Delete', self.ui.delete_sets)
         menu.exec_(event.globalPos())
 
 

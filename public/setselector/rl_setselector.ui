@@ -31,20 +31,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="deleteset_button">
-        <property name="text">
-         <string>Delete set</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
