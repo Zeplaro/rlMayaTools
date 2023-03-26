@@ -276,7 +276,7 @@ class MainUI(QtWidgets.QMainWindow):
         elif numtype == 'Hexadecimal (lower)':
             num_string = str(hex(self.numbering_range[index]))[2:].zfill(padding)
         elif numtype == 'Octal':
-            num_string = str(oct(self.numbering_range[index]))[1:].zfill(padding) or '0'.zfill(padding)
+            num_string = str(oct(self.numbering_range[index]))[2:].zfill(padding) or '0'.zfill(padding)
         elif numtype == 'Binary':
             num_string = str(bin(self.numbering_range[index]))[2:].zfill(padding)
         elif numtype == 'Roman':
@@ -358,7 +358,7 @@ class MainUI(QtWidgets.QMainWindow):
             except RuntimeError as e:
                 print("cannot rename node '{}' : {}".format(node.name, e))
         cmds.undoInfo(closeChunk=True)
-        print("Renamed {} nodes.".format(counter))
+        print("## Renamed {} nodes.".format(counter))
         self.refresh_newnames()
 
 
