@@ -450,7 +450,10 @@ def decimal_to_alpha(index):
 
 def decimal_to_roman(index):
     """Converts an int to a roman numerical index"""
-    assert isinstance(index, int) and index > 0
+    if not isinstance(index, int):
+        raise TypeError("Expected index to be int; got : {}, {}".format(index, type(index).__name__))
+    if not index > 0:
+        raise ValueError("Given index must be > 0; got : {}".format(index))
     roman = [(1000, 'M'), (900, 'CM'),
              (500, 'D'), (400, 'CD'),
              (100, 'C'), (90, 'XC'),
