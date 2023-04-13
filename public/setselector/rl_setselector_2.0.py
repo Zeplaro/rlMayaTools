@@ -272,16 +272,15 @@ class TabBarWidget(QtWidgets.QTabBar):
         self.setCurrentIndex(self.count()-1)
 
     def close_tab(self):
-        answer = QtWidgets.QMessageBox.question(self, 'Closing a tab',
+        index = self.currentIndex()
+        answer = QtWidgets.QMessageBox.question(self, f'Closing {self.tabText(index)}',
                                                 'Closing this tab will delete all of its data.\n'
                                                 'Are you sure you want to continue ?')
         if not answer.name == b'Yes':
             return
 
-        index = self.currentIndex()
         self.removeTab(index)
         self.data.remove_tab(index)
-        print(self.count())
         if not self.count():
             self.data.reset()
         self.refresh_tabs()
@@ -401,11 +400,19 @@ class ItemsListModel(QtCore.QAbstractListModel):
 
 
 class SelData:
-    def __init__(self, tab='Main'):
+    def __init__(self, tab=None):
+        sync_tabs_and_files()
         self.tabs = get_tabs_list()
-        self.tab = tab
-        if tab == 'Main' and not get_file_path(tab).exists():
-            save_tab_data(tab, empty_data)
+        if tab:
+            self.tab = tab
+        else:
+            if self.tabs:
+                self.tab = self.tabs[0]
+            else:
+                save_tabs_file(['Main'])
+                save_tab_data('Main', empty_data)
+                self.tabs = ['Main']
+                self.tab = 'Main'
 
         self.sets = []
         self.members = {}
@@ -413,8 +420,13 @@ class SelData:
 
     def reset(self):
         self.tabs = get_tabs_list()
-        print(self.tabs)
-        self.tab = 'Main'
+        if self.tabs:
+            self.tab = self.tabs[0]
+        else:
+            save_tabs_file(['Main'])
+            save_tab_data('Main', empty_data)
+            self.tabs = ['Main']
+            self.tab = 'Main'
         self.sets = []
         self.members = {}
         self.reload_data()
