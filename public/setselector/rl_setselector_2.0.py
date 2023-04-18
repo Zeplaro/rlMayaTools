@@ -32,13 +32,12 @@ from maya import cmds
 
 from Qt import QtGui, QtCore, QtWidgets, QtCompat
 
-
 empty_data = {'sets': [],
               'members': {},
               }
 
 base_path = Path(__file__).parent
-data_path = base_path/'setselector_data'
+data_path = base_path / 'setselector_data'
 tabs_file_path = data_path / 'tabs.setsel'
 
 
@@ -65,11 +64,17 @@ def close_existing(target_title):
 
 
 def center_ui(ui):
+    # Get the cursor position
     cursor_pos = QtGui.QCursor.pos()
-    screen_index = QtWidgets.QApplication.desktop().screenNumber(cursor_pos)
-    ui_center = QtCore.QPoint(ui.frameSize().height() / 2, ui.frameSize().width() / 2)
-    screen_center = QtWidgets.QApplication.screens()[screen_index].geometry().center()
+    # Get the screen the cursor is on
+    screen = QtWidgets.QApplication.screenAt(cursor_pos)
+    # Get the center point of the screen
+    screen_center = screen.geometry().center()
+    # Get the center point of the UI
+    ui_center = ui.frameGeometry().center()
+    # Calculate the position to move the UI to the center of the screen
     center_pos = screen_center - ui_center
+    # Move the UI to the calculated position
     ui.move(center_pos)
 
 
@@ -85,7 +90,7 @@ def launch_ui():
 class MainUI(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='rl Set Selector'):
         super(MainUI, self).__init__(parent=parent)
-        QtCompat.loadUi(str(base_path/"setselector_2.0.ui"), self)  # Loading the .ui file
+        QtCompat.loadUi(str(base_path / "setselector_2.0.ui"), self)  # Loading the .ui file
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
         self.data = SelData()
@@ -144,10 +149,10 @@ class MainUI(QtWidgets.QMainWindow):
         self.refresh_button.clicked.connect(self.reload_data)
 
     def clear_all_data(self):
-        a = QtWidgets.QMessageBox.question(self, 'Clear all Data',
+        answer = QtWidgets.QMessageBox.question(self, 'Clear all Data',
                                            'This action will clear all set data files.\n'
                                            'Are you sure you want to continue ?')
-        if a.name == b'Yes':
+        if answer == QtWidgets.QMessageBox.StandardButton.Yes:
             clear_all_data()
             self.data.reset()
 
@@ -161,10 +166,10 @@ class MainUI(QtWidgets.QMainWindow):
             cmds.error('Set name cannot be empty', noContext=True)
             return
         if name in self.data.sets:
-            a = QtWidgets.QMessageBox.question(self, 'Set already existing',
+            answer = QtWidgets.QMessageBox.question(self, 'Set already existing',
                                                'The given name already exists in the sets list.\n'
                                                'Do you want to overwrite it ?')
-            if not a.name == b'Yes':
+            if answer != QtWidgets.QMessageBox.StandardButton.Yes:
                 return
         self.data.add_set(name, get_selected())
         self.list_view.refresh()
@@ -269,14 +274,14 @@ class TabBarWidget(QtWidgets.QTabBar):
             return
         self.data.add_tab(tab_name)
         self.addTab(tab_name)
-        self.setCurrentIndex(self.count()-1)
+        self.setCurrentIndex(self.count() - 1)
 
     def close_tab(self):
         index = self.currentIndex()
         answer = QtWidgets.QMessageBox.question(self, f'Closing {self.tabText(index)}',
                                                 'Closing this tab will delete all of its data.\n'
                                                 'Are you sure you want to continue ?')
-        if not answer.name == b'Yes':
+        if answer != QtWidgets.QMessageBox.StandardButton.Yes:
             return
 
         self.removeTab(index)
@@ -354,14 +359,14 @@ class SetListView(QtWidgets.QListView):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_up(indexes)
         self.refresh()
-        indexes = [x-1 for x in indexes]
+        indexes = [x - 1 for x in indexes]
         self.selectIndexes(indexes)
 
     def move_down(self):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_down(indexes)
         self.refresh()
-        indexes = [x+1 for x in indexes]
+        indexes = [x + 1 for x in indexes]
         self.selectIndexes(indexes)
 
     def selectIndexes(self, indexes):
@@ -400,44 +405,28 @@ class ItemsListModel(QtCore.QAbstractListModel):
 
 
 class SelData:
-    def __init__(self, tab=None):
-        sync_tabs_and_files()
-        self.tabs = get_tabs_list()
-        if tab:
-            self.tab = tab
-        else:
-            if self.tabs:
-                self.tab = self.tabs[0]
-            else:
-                save_tabs_file(['Main'])
-                save_tab_data('Main', empty_data)
-                self.tabs = ['Main']
-                self.tab = 'Main'
+    DEFAULT_TAB_NAME = 'Main'
+    SETS_KEY = 'sets'
+    MEMBERS_KEY = 'members'
 
-        self.sets = []
-        self.members = {}
-        self.reload_data()
+    def __init__(self):
+        self.reset()
 
     def reset(self):
-        self.tabs = get_tabs_list()
-        if self.tabs:
-            self.tab = self.tabs[0]
-        else:
-            save_tabs_file(['Main'])
-            save_tab_data('Main', empty_data)
-            self.tabs = ['Main']
-            self.tab = 'Main'
+        sync_tabs_and_files()
+        self.tabs = get_tabs_list() or [self.DEFAULT_TAB_NAME]
+        self.tab = self.tabs[0]
         self.sets = []
         self.members = {}
         self.reload_data()
 
     # DATA stuff
     def get_data(self):
-        return {'sets': self.sets, 'members': self.members}
+        return {self.SETS_KEY: self.sets, self.MEMBERS_KEY: self.members}
 
     def set_data(self, data):
-        self.sets = data['sets']
-        self.members = data['members']
+        self.sets = data[self.SETS_KEY]
+        self.members = data[self.MEMBERS_KEY]
 
     def save_data(self):
         save_tab_data(self.tab, self.get_data())
@@ -470,7 +459,7 @@ class SelData:
         delete_tab_file(tab)
         save_tabs_file(self.tabs)
         if not self.tabs:
-            self.add_tab("Main")
+            self.add_tab(self.DEFAULT_TAB_NAME)
 
     def rename_tab(self, name):
         old_name = self.tab
@@ -509,11 +498,11 @@ class SelData:
         sets = [self.sets[index] for index in sorted(indexes)]
         tab_data = get_tab_data(tab)
         for sel_set in sets:
-            if sel_set in tab_data['sets']:
+            if sel_set in tab_data[self.SETS_KEY]:
                 cmds.warning(f"'{sel_set}' set already exists in '{tab}' tab")
                 continue
-            tab_data['sets'].append(sel_set)
-            tab_data['members'][sel_set] = self.members[sel_set]
+            tab_data[self.SETS_KEY].append(sel_set)
+            tab_data[self.MEMBERS_KEY][sel_set] = self.members[sel_set]
             self.sets.remove(sel_set)
             del self.members[sel_set]
         save_tab_data(tab, tab_data)
@@ -538,7 +527,7 @@ class SelData:
             if index == 0:
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index-1, sel_set)
+            self.sets.insert(index - 1, sel_set)
         self.save_data()
 
     def move_sets_down(self, indexes):
@@ -547,19 +536,19 @@ class SelData:
             if index == len(self.sets):
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index+1, sel_set)
+            self.sets.insert(index + 1, sel_set)
         self.save_data()
 
 
 def get_tabs_list() -> [str, ...]:
     """
     Returns the list of tabs from the tabs file.
-    Returns the default tabs list if the tabs file does not exist : ['Main']
+    Returns an empty list if the tabs file does not exist.
     """
     if os.path.exists(tabs_file_path):
         with open(tabs_file_path, 'r') as f:
             return json.loads(f.read())
-    return ['Main']
+    return []
 
 
 def save_tabs_file(data: [str, ...]) -> None:
@@ -594,7 +583,7 @@ def get_file_path(tab: str) -> Path:
     """
     if not os.path.exists(data_path):
         data_path.mkdir()
-    return data_path/f'{tab}.json'
+    return data_path / f'{tab}.json'
 
 
 def get_tab_files() -> [Path, ...]:
@@ -634,16 +623,16 @@ def clear_all_data() -> None:
 
 def delete_tab_file(tab: str) -> None:
     """Deletes the file corresponding to the given tab."""
-    tab_file = data_path/(tab+'.json')
+    tab_file = data_path / (tab+'.json')
     if tab_file.exists():
         tab_file.unlink()
 
 
 def rename_tab_file(tab: str, name: str) -> None:
     """Renames the file corresponding to the given tab with the given name"""
-    tab_file = data_path/(tab+'.json')
+    tab_file = data_path / (tab+'.json')
     if tab_file.exists():
-        new_path = tab_file.with_name(name+'.json')  # replace with tab_file.with_stem when in python 3.9
+        new_path = tab_file.with_name(name + '.json')  # replace with tab_file.with_stem when in python 3.9
         tab_file.rename(new_path)
 
 
