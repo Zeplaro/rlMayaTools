@@ -52,7 +52,9 @@ def set_shelf_data(data, shelf=None):
             cmds.separator(width=12, height=35, style='shelf', hr=False, parent=shelf)
         else:
             menu_items = button_data.pop('menu')
-            button = cmds.shelfButton(parent=shelf, **button_data)
+            # To replace with cmds.shelfButton(parent=shelf, **button_data) when only using Python 3
+            button = cmds.shelfButton(parent=shelf, imageOverlayLabel=button_data['imageOverlayLabel'], sourceType=button_data['sourceType'], image=button_data['image'], label=button_data['label'], command=button_data['command'], annotation=button_data['annotation'], doubleClickCommand=button_data['doubleClickCommand'])
             menu = cmds.shelfButton(button, q=True, pma=True)[0]
             for menu_data in menu_items:
-                cmds.menuItem(parent=menu, **menu_data)
+                # To replace with cmds.menuItem(parent=menu, **menu_data) when only using Python 3
+                cmds.menuItem(parent=menu, command=menu_data['command'], sourceType=menu_data['sourceType'], label=menu_data['label'])
