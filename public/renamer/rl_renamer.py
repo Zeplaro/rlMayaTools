@@ -58,11 +58,17 @@ def close_existing(target_title):
 
 
 def center_ui(ui):
+    # Get the cursor position
     cursor_pos = QtGui.QCursor.pos()
-    screen_index = QtWidgets.QApplication.desktop().screenNumber(cursor_pos)
-    ui_center = QtCore.QPoint(ui.frameSize().height() / 2, ui.frameSize().width() / 2)
-    screen_center = QtWidgets.QApplication.screens()[screen_index].geometry().center()
+    # Get the screen the cursor is on
+    screen = QtWidgets.QApplication.screenAt(cursor_pos)
+    # Get the center point of the screen
+    screen_center = screen.geometry().center()
+    # Get the center point of the UI
+    ui_center = ui.frameGeometry().center()
+    # Calculate the position to move the UI to the center of the screen
     center_pos = screen_center - ui_center
+    # Move the UI to the calculated position
     ui.move(center_pos)
 
 
