@@ -32,13 +32,9 @@ from maya import cmds
 
 from Qt import QtGui, QtCore, QtWidgets, QtCompat
 
-empty_data = {'sets': [],
-              'members': {},
-              }
-
-base_path = Path(__file__).parent
-data_path = base_path / 'setselector_data'
-tabs_file_path = data_path / 'tabs.setsel'
+BASE_PATH = Path(__file__).parent
+DATA_PATH = BASE_PATH / 'setselector_data'
+TABS_FILE_PATH = DATA_PATH / 'tabs.setsel'
 
 
 def get_maya_window():
@@ -90,7 +86,7 @@ def launch_ui():
 class MainUI(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='rl Set Selector'):
         super(MainUI, self).__init__(parent=parent)
-        QtCompat.loadUi(str(base_path / "setselector_2.0.ui"), self)  # Loading the .ui file
+        QtCompat.loadUi(str(BASE_PATH / "setselector_v2.ui"), self)  # Loading the .ui file
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
         self.data = SelData()
@@ -130,6 +126,7 @@ class MainUI(QtWidgets.QMainWindow):
         # bottom
         self.select_button = self.findChild(QtWidgets.QPushButton, 'select_button')
         self.add_check = self.findChild(QtWidgets.QCheckBox, 'add_check')
+        self.remove_check = self.findChild(QtWidgets.QCheckBox, 'remove_check')
         self.createset_button = self.findChild(QtWidgets.QPushButton, 'createset_button')
         self.refresh_button = self.findChild(QtWidgets.QPushButton, 'refresh_button')
 
@@ -145,13 +142,22 @@ class MainUI(QtWidgets.QMainWindow):
         self.minus_button.clicked.connect(self.remove_members)
         self.replace_group.toggled.connect(self.refresh_replace)
         self.select_button.clicked.connect(self.select_members)
+        self.add_check.stateChanged.connect(partial(self.add_remove_toggle, self.add_check))
+        self.remove_check.stateChanged.connect(partial(self.add_remove_toggle, self.remove_check))
         self.createset_button.clicked.connect(self.create_scene_sets)
         self.refresh_button.clicked.connect(self.reload_data)
 
+    def add_remove_toggle(self, button, state):
+        if state:
+            if button is self.add_check:
+                self.remove_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
+            else:
+                self.add_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
+
     def clear_all_data(self):
         answer = QtWidgets.QMessageBox.question(self, 'Clear all Data',
-                                           'This action will clear all set data files.\n'
-                                           'Are you sure you want to continue ?')
+                                                'This action will clear all set data files.\n'
+                                                'Are you sure you want to continue ?')
         if answer == QtWidgets.QMessageBox.StandardButton.Yes:
             clear_all_data()
             self.data.reset()
@@ -167,8 +173,8 @@ class MainUI(QtWidgets.QMainWindow):
             return
         if name in self.data.sets:
             answer = QtWidgets.QMessageBox.question(self, 'Set already existing',
-                                               'The given name already exists in the sets list.\n'
-                                               'Do you want to overwrite it ?')
+                                                    'The given name already exists in the sets list.\n'
+                                                    'Do you want to overwrite it ?')
             if answer != QtWidgets.QMessageBox.StandardButton.Yes:
                 return
         self.data.add_set(name, get_selected())
@@ -359,14 +365,14 @@ class SetListView(QtWidgets.QListView):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_up(indexes)
         self.refresh()
-        indexes = [x - 1 for x in indexes]
+        indexes = [x-1 for x in indexes]
         self.selectIndexes(indexes)
 
     def move_down(self):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_down(indexes)
         self.refresh()
-        indexes = [x + 1 for x in indexes]
+        indexes = [x+1 for x in indexes]
         self.selectIndexes(indexes)
 
     def selectIndexes(self, indexes):
@@ -408,6 +414,7 @@ class SelData:
     DEFAULT_TAB_NAME = 'Main'
     SETS_KEY = 'sets'
     MEMBERS_KEY = 'members'
+    EMPTY_DATA = {SETS_KEY: [], MEMBERS_KEY: {}}
 
     def __init__(self):
         self.reset()
@@ -435,7 +442,7 @@ class SelData:
     def reload_data(self):
         sync_tabs_and_files()
         self.tabs = get_tabs_list()
-        self.set_data(get_tab_data(self.tab))
+        self.set_data(get_tab_data(self.tab) or self.EMPTY_DATA)
         self.save_data()
 
     # TAB Stuff
@@ -443,7 +450,7 @@ class SelData:
         tab = self.tabs[index]
         if not self.tab == tab:
             self.tab = tab
-            self.set_data(get_tab_data(tab))
+            self.set_data(get_tab_data(tab) or self.EMPTY_DATA)
 
     def change_tabs_order(self, new_order):
         self.tabs = new_order
@@ -451,7 +458,7 @@ class SelData:
 
     def add_tab(self, tab):
         self.tabs.append(tab)
-        save_tab_data(tab, empty_data)
+        save_tab_data(tab, self.EMPTY_DATA)
         save_tabs_file(self.tabs)
 
     def remove_tab(self, index):
@@ -496,7 +503,7 @@ class SelData:
 
     def move_sets_to_tab(self, indexes, tab):
         sets = [self.sets[index] for index in sorted(indexes)]
-        tab_data = get_tab_data(tab)
+        tab_data = get_tab_data(tab) or self.EMPTY_DATA
         for sel_set in sets:
             if sel_set in tab_data[self.SETS_KEY]:
                 cmds.warning(f"'{sel_set}' set already exists in '{tab}' tab")
@@ -527,7 +534,7 @@ class SelData:
             if index == 0:
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index - 1, sel_set)
+            self.sets.insert(index-1, sel_set)
         self.save_data()
 
     def move_sets_down(self, indexes):
@@ -536,7 +543,7 @@ class SelData:
             if index == len(self.sets):
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index + 1, sel_set)
+            self.sets.insert(index+1, sel_set)
         self.save_data()
 
 
@@ -545,28 +552,28 @@ def get_tabs_list() -> [str, ...]:
     Returns the list of tabs from the tabs file.
     Returns an empty list if the tabs file does not exist.
     """
-    if os.path.exists(tabs_file_path):
-        with open(tabs_file_path, 'r') as f:
+    if os.path.exists(TABS_FILE_PATH):
+        with open(TABS_FILE_PATH, 'r') as f:
             return json.loads(f.read())
     return []
 
 
 def save_tabs_file(data: [str, ...]) -> None:
     """Saves the given tabs list to the tabs file."""
-    with open(tabs_file_path, 'w') as f:
+    with open(TABS_FILE_PATH, 'w') as f:
         f.write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
 def get_tab_data(tab: str) -> {}:
     """
     Returns the data from the file corresponding to the given tab.
-    The default empty_data are returned if the corresponding file does not exist.
+    An empty dict is returned if the corresponding file does not exist.
     """
     file_path = get_file_path(tab)
     if os.path.exists(file_path):
         with open(file_path, 'r') as data:
             return json.loads(data.read())
-    return empty_data
+    return {}
 
 
 def save_tab_data(tab: str, data: {}) -> None:
@@ -579,16 +586,16 @@ def save_tab_data(tab: str, data: {}) -> None:
 def get_file_path(tab: str) -> Path:
     """
     Returns a Path to the file corresponding to the given tab.
-    Creates the data_path folder if it does not already exist.
+    Creates the DATA_PATH folder if it does not already exist.
     """
-    if not os.path.exists(data_path):
-        data_path.mkdir()
-    return data_path / f'{tab}.json'
+    if not os.path.exists(DATA_PATH):
+        DATA_PATH.mkdir()
+    return DATA_PATH / f'{tab}.json'
 
 
 def get_tab_files() -> [Path, ...]:
-    """Returns a list of Path for each json file in the data_path."""
-    files = [f for f in data_path.iterdir() if f.is_file() and f.suffix == '.json']
+    """Returns a list of Path for each json file in the DATA_PATH."""
+    files = [f for f in DATA_PATH.iterdir() if f.is_file() and f.suffix == '.json']
     return files
 
 
@@ -614,25 +621,25 @@ def sync_tabs_and_files() -> None:
 
 def clear_all_data() -> None:
     """Deletes all json tab files and the tabs file."""
-    for tab_file in data_path.iterdir():
+    for tab_file in DATA_PATH.iterdir():
         if tab_file.is_file() and tab_file.suffix == '.json':
             tab_file.unlink()
-    if tabs_file_path.exists():
-        tabs_file_path.unlink()
+    if TABS_FILE_PATH.exists():
+        TABS_FILE_PATH.unlink()
 
 
 def delete_tab_file(tab: str) -> None:
     """Deletes the file corresponding to the given tab."""
-    tab_file = data_path / (tab+'.json')
+    tab_file = DATA_PATH / (tab+'.json')
     if tab_file.exists():
         tab_file.unlink()
 
 
 def rename_tab_file(tab: str, name: str) -> None:
     """Renames the file corresponding to the given tab with the given name"""
-    tab_file = data_path / (tab+'.json')
+    tab_file = DATA_PATH / (tab+'.json')
     if tab_file.exists():
-        new_path = tab_file.with_name(name + '.json')  # replace with tab_file.with_stem when in python 3.9
+        new_path = tab_file.with_name(name+'.json')  # replace with tab_file.with_stem when in python 3.9
         tab_file.rename(new_path)
 
 
