@@ -86,73 +86,47 @@ def launch_ui():
 class MainUI(QtWidgets.QMainWindow):
     def __init__(self, parent=None, title='rl Set Selector'):
         super(MainUI, self).__init__(parent=parent)
-        QtCompat.loadUi(str(BASE_PATH / "setselector_v2.ui"), self)  # Loading the .ui file
+        self.ui = QtCompat.loadUi(str(BASE_PATH / "setselector_v2.ui"), self)  # Loading the .ui file
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
         self.data = SelData()
 
         # UI LAYOUT
         # top
-        self.clearalldata_action = self.findChild(QtWidgets.QAction, 'clearalldata_action')
-        self.setname_line = self.findChild(QtWidgets.QLineEdit, 'setname_line')
-        self.setname_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
-        self.addset_button = self.findChild(QtWidgets.QPushButton, 'addset_button')
-
-        # move
-        self.up_button = self.findChild(QtWidgets.QToolButton, 'up_button')
-        self.down_button = self.findChild(QtWidgets.QToolButton, 'down_button')
-
+        self.ui.setname_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
         # tabs
-        tabs_layout = self.findChild(QtWidgets.QVBoxLayout, 'tabs_layout')
         self.tab_widget = TabBarWidget(self)
-        tabs_layout.addWidget(self.tab_widget)
+        self.ui.tabs_layout.addWidget(self.tab_widget)
         self.tab_widget.setStyleSheet("QTabBar { background-color: #373737 }")
         # list
         self.list_view = SetListView(self.data)
-        tabs_layout.addWidget(self.list_view)
-
-        # update
-        self.plus_button = self.findChild(QtWidgets.QPushButton, 'plus_button')
-        self.replace_button = self.findChild(QtWidgets.QPushButton, 'replace_button')
-        self.minus_button = self.findChild(QtWidgets.QPushButton, 'minus_button')
-
+        self.ui.tabs_layout.addWidget(self.list_view)
         # Replace
-        self.replace_group = self.findChild(QtWidgets.QGroupBox, 'replace_group')
-        self.replace_widget = self.findChild(QtWidgets.QWidget, 'replace_widget')
-        self.replace_widget.setVisible(False)
-        self.replace_line = self.findChild(QtWidgets.QLineEdit, 'replace_line')
-        self.replaceby_line = self.findChild(QtWidgets.QLineEdit, 'replaceby_line')
-
-        # bottom
-        self.select_button = self.findChild(QtWidgets.QPushButton, 'select_button')
-        self.add_check = self.findChild(QtWidgets.QCheckBox, 'add_check')
-        self.remove_check = self.findChild(QtWidgets.QCheckBox, 'remove_check')
-        self.createset_button = self.findChild(QtWidgets.QPushButton, 'createset_button')
-        self.refresh_button = self.findChild(QtWidgets.QPushButton, 'refresh_button')
+        self.ui.replace_widget.setVisible(False)
 
         self.ui_connections()
 
     def ui_connections(self):
-        self.clearalldata_action.triggered.connect(self.clear_all_data)
-        self.addset_button.clicked.connect(self.add_set)
-        self.up_button.clicked.connect(self.list_view.move_up)
-        self.down_button.clicked.connect(self.list_view.move_down)
-        self.plus_button.clicked.connect(self.add_members)
-        self.replace_button.clicked.connect(self.replace_members)
-        self.minus_button.clicked.connect(self.remove_members)
-        self.replace_group.toggled.connect(self.refresh_replace)
-        self.select_button.clicked.connect(self.select_members)
-        self.add_check.stateChanged.connect(partial(self.add_remove_toggle, self.add_check))
-        self.remove_check.stateChanged.connect(partial(self.add_remove_toggle, self.remove_check))
-        self.createset_button.clicked.connect(self.create_scene_sets)
-        self.refresh_button.clicked.connect(self.reload_data)
+        self.ui.clearalldata_action.triggered.connect(self.clear_all_data)
+        self.ui.addset_button.clicked.connect(self.add_set)
+        self.ui.up_button.clicked.connect(self.list_view.move_up)
+        self.ui.down_button.clicked.connect(self.list_view.move_down)
+        self.ui.plus_button.clicked.connect(self.add_members)
+        self.ui.replace_button.clicked.connect(self.replace_members)
+        self.ui.minus_button.clicked.connect(self.remove_members)
+        self.ui.replace_group.toggled.connect(self.refresh_replace)
+        self.ui.select_button.clicked.connect(self.select_members)
+        self.ui.add_check.stateChanged.connect(partial(self.add_remove_toggle, self.ui.add_check))
+        self.ui.remove_check.stateChanged.connect(partial(self.add_remove_toggle, self.ui.remove_check))
+        self.ui.createset_button.clicked.connect(self.create_scene_sets)
+        self.ui.refresh_button.clicked.connect(self.reload_data)
 
     def add_remove_toggle(self, button, state):
         if state:
-            if button is self.add_check:
-                self.remove_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
+            if button is self.ui.add_check:
+                self.ui.remove_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
             else:
-                self.add_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
+                self.ui.add_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
     def clear_all_data(self):
         answer = QtWidgets.QMessageBox.question(self, 'Clear all Data',
@@ -164,10 +138,10 @@ class MainUI(QtWidgets.QMainWindow):
 
     def refresh_replace(self, state):
         """Refreshes the groupBox visibility when checked/unchecked"""
-        self.replace_widget.setVisible(state)
+        self.ui.replace_widget.setVisible(state)
 
     def add_set(self):
-        name = self.setname_line.text()
+        name = self.ui.setname_line.text()
         if not name:
             cmds.error('Set name cannot be empty', noContext=True)
             return
@@ -182,16 +156,16 @@ class MainUI(QtWidgets.QMainWindow):
 
     def select_members(self):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        add = self.add_check.isChecked()
+        add = self.ui.add_check.isChecked()
         indexes = self.list_view.selectedIndexes()
         members = []
         for index in indexes:
             members += self.data.members[self.data.sets[index.row()]]
 
         existing = []
-        replace = self.replace_group.isChecked()
-        replace_text = self.replace_line.text()
-        by_text = self.replaceby_line.text()
+        replace = self.ui.replace_group.isChecked()
+        replace_text = self.ui.replace_line.text()
+        by_text = self.ui.replaceby_line.text()
         for member in members:
             if replace:
                 member = member.replace(replace_text, by_text)
