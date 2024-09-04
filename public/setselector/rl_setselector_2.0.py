@@ -27,14 +27,15 @@ import json
 from pathlib import Path
 from functools import partial
 from pprint import pprint
+
 import maya.OpenMayaUI as omui
 from maya import cmds
 
 from Qt import QtGui, QtCore, QtWidgets, QtCompat
 
 BASE_PATH = Path(__file__).parent
-DATA_PATH = BASE_PATH / 'setselector_data'
-TABS_FILE_PATH = DATA_PATH / 'tabs.setsel'
+DATA_PATH = BASE_PATH / "setselector_data"
+TABS_FILE_PATH = DATA_PATH / "tabs.setsel"
 
 
 def get_maya_window():
@@ -51,7 +52,7 @@ def close_existing(target_title):
         try:
             title = child.windowTitle()
         except AttributeError:
-            title = ''
+            title = ""
         if title == target_title:
             try:
                 child.close()
@@ -75,7 +76,7 @@ def center_ui(ui):
 
 
 def launch_ui():
-    ui_title = 'rl Set Selector V2'
+    ui_title = "rl Set Selector V2"
     close_existing(ui_title)
     ui = MainUI(parent=get_maya_window(), title=ui_title)
     ui.show()
@@ -84,16 +85,16 @@ def launch_ui():
 
 
 class MainUI(QtWidgets.QMainWindow):
-    def __init__(self, parent=None, title='rl Set Selector'):
-        super(MainUI, self).__init__(parent=parent)
-        self.ui = QtCompat.loadUi(str(BASE_PATH / "setselector_v2.ui"), self)  # Loading the .ui file
+    def __init__(self, parent=None, title="rl Set Selector"):
+        super().__init__(parent=parent)
+        # Loading the .ui file
+        self.ui = QtCompat.loadUi(str(BASE_PATH / "setselector_v2.ui"), self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title)
+        setRLWidgetStyle(self.ui.menubar)
         self.data = SelData()
 
         # UI LAYOUT
-        # top
-        self.ui.setname_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(r'([a-zA-Z]|_){1}(\w|_|0-9| )+')))
         # tabs
         self.tab_widget = TabBarWidget(self)
         self.ui.tabs_layout.addWidget(self.tab_widget)
@@ -117,7 +118,9 @@ class MainUI(QtWidgets.QMainWindow):
         self.ui.replace_group.toggled.connect(self.refresh_replace)
         self.ui.select_button.clicked.connect(self.select_members)
         self.ui.add_check.stateChanged.connect(partial(self.add_remove_toggle, self.ui.add_check))
-        self.ui.remove_check.stateChanged.connect(partial(self.add_remove_toggle, self.ui.remove_check))
+        self.ui.remove_check.stateChanged.connect(
+            partial(self.add_remove_toggle, self.ui.remove_check)
+        )
         self.ui.createset_button.clicked.connect(self.create_scene_sets)
         self.ui.refresh_button.clicked.connect(self.reload_data)
 
@@ -129,9 +132,11 @@ class MainUI(QtWidgets.QMainWindow):
                 self.ui.add_check.setCheckState(QtCore.Qt.CheckState.Unchecked)
 
     def clear_all_data(self):
-        answer = QtWidgets.QMessageBox.question(self, 'Clear all Data',
-                                                'This action will clear all set data files.\n'
-                                                'Are you sure you want to continue ?')
+        answer = QtWidgets.QMessageBox.question(
+            self,
+            "Clear all Data",
+            "This action will clear all set data files.\nAre you sure you want to continue ?",
+        )
         if answer == QtWidgets.QMessageBox.StandardButton.Yes:
             clear_all_data()
             self.data.reset()
@@ -143,12 +148,14 @@ class MainUI(QtWidgets.QMainWindow):
     def add_set(self):
         name = self.ui.setname_line.text()
         if not name:
-            cmds.error('Set name cannot be empty', noContext=True)
+            cmds.error("Set name cannot be empty", noContext=True)
             return
         if name in self.data.sets:
-            answer = QtWidgets.QMessageBox.question(self, 'Set already existing',
-                                                    'The given name already exists in the sets list.\n'
-                                                    'Do you want to overwrite it ?')
+            answer = QtWidgets.QMessageBox.question(
+                self,
+                "Set already existing",
+                "The given name already exists in the sets list.\nDo you want to overwrite it ?",
+            )
             if answer != QtWidgets.QMessageBox.StandardButton.Yes:
                 return
         self.data.add_set(name, get_selected())
@@ -157,6 +164,7 @@ class MainUI(QtWidgets.QMainWindow):
     def select_members(self):
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         add = self.ui.add_check.isChecked()
+        deselect = self.ui.remove_check.isChecked()
         indexes = self.list_view.selectedIndexes()
         members = []
         for index in indexes:
@@ -172,7 +180,7 @@ class MainUI(QtWidgets.QMainWindow):
             if cmds.objExists(member):
                 existing.append(member)
 
-        cmds.select(existing, add=add)
+        cmds.select(existing, add=add, deselect=deselect)
         missing = len(members) - len(existing)
         if missing:
             print(f"{missing} members are missing from the scene")
@@ -226,9 +234,9 @@ class TabBarWidget(QtWidgets.QTabBar):
 
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(parent=self)
-        menu.addAction('Add tab', self.add_tab)
-        menu.addAction('Close tab', self.close_tab)
-        menu.addAction('Rename tab', self.rename_tab)
+        menu.addAction("Add tab", self.add_tab)
+        menu.addAction("Close tab", self.close_tab)
+        menu.addAction("Rename tab", self.rename_tab)
         menu.exec_(event.globalPos())
         return menu
 
@@ -244,13 +252,14 @@ class TabBarWidget(QtWidgets.QTabBar):
         self.setCurrentIndex(current_tab)
 
     def add_tab(self):
-        tab_name, do = QtWidgets.QInputDialog.getText(self, 'New tab', 'New tab name?')
+        tab_name, do = QtWidgets.QInputDialog.getText(self, "New tab", "New tab name?")
         if not do or not tab_name:
             return
         tab_name = tab_name
         if tab_name in self.data.tabs:
-            QtWidgets.QMessageBox.warning(self, 'Tab name already existing',
-                                          'The given name already exists in the tabs list.')
+            QtWidgets.QMessageBox.warning(
+                self, "Tab name already existing", "The given name already exists in the tabs list."
+            )
             return
         self.data.add_tab(tab_name)
         self.addTab(tab_name)
@@ -258,9 +267,11 @@ class TabBarWidget(QtWidgets.QTabBar):
 
     def close_tab(self):
         index = self.currentIndex()
-        answer = QtWidgets.QMessageBox.question(self, f'Closing {self.tabText(index)}',
-                                                'Closing this tab will delete all of its data.\n'
-                                                'Are you sure you want to continue ?')
+        answer = QtWidgets.QMessageBox.question(
+            self,
+            f"Closing {self.tabText(index)}",
+            "Closing this tab will delete all of its data.\nAre you sure you want to continue ?",
+        )
         if answer != QtWidgets.QMessageBox.StandardButton.Yes:
             return
 
@@ -273,12 +284,15 @@ class TabBarWidget(QtWidgets.QTabBar):
     def rename_tab(self):
         current_index = self.currentIndex()
         old_name = self.tabText(current_index)
-        new_name, do = QtWidgets.QInputDialog.getText(self, 'Rename tab', 'New name?', text=old_name)
+        new_name, do = QtWidgets.QInputDialog.getText(
+            self, "Rename tab", "New name?", text=old_name
+        )
         if not do or not new_name:
             return
         if new_name in self.data.tabs:
-            QtWidgets.QMessageBox.warning(self, 'Tab name already existing',
-                                          'The given name already exists in the tabs list.')
+            QtWidgets.QMessageBox.warning(
+                self, "Tab name already existing", "The given name already exists in the tabs list."
+            )
             return
 
         self.setTabText(current_index, new_name)
@@ -294,7 +308,7 @@ class TabBarWidget(QtWidgets.QTabBar):
 
 class SetListView(QtWidgets.QListView):
     def __init__(self, data):
-        super(SetListView, self).__init__()
+        super().__init__()
         self.data = data
         self.setModel(ItemsListModel(data))
         self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
@@ -306,16 +320,16 @@ class SetListView(QtWidgets.QListView):
         menu = QtWidgets.QMenu(parent=self)
 
         # Move to tab menu
-        move_menu = menu.addMenu('Move to tab...')
+        move_menu = menu.addMenu("Move to tab...")
         for tab in self.data.tabs:
             if tab != self.data.tab:
                 move_menu.addAction(tab, partial(self.data.move_sets_to_tab, selected_indexes, tab))
 
         # Print members action
-        menu.addAction('Print members', self.print_elements)
+        menu.addAction("Print members", self.print_elements)
 
         # Delete set action
-        menu.addAction('Delete', self.delete_sets)
+        menu.addAction("Delete", self.delete_sets)
 
         menu.exec_(event.globalPos())
 
@@ -339,14 +353,14 @@ class SetListView(QtWidgets.QListView):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_up(indexes)
         self.refresh()
-        indexes = [x-1 for x in indexes]
+        indexes = [x - 1 for x in indexes]
         self.selectIndexes(indexes)
 
     def move_down(self):
         indexes = [x.row() for x in self.selectedIndexes()]
         self.data.move_sets_down(indexes)
         self.refresh()
-        indexes = [x+1 for x in indexes]
+        indexes = [x + 1 for x in indexes]
         self.selectIndexes(indexes)
 
     def selectIndexes(self, indexes):
@@ -360,7 +374,7 @@ class SetListView(QtWidgets.QListView):
 
 class ItemsListModel(QtCore.QAbstractListModel):
     def __init__(self, data):
-        super(ItemsListModel, self).__init__()
+        super().__init__()
         self.sel_data = data
 
     def data(self, index, role):
@@ -371,7 +385,7 @@ class ItemsListModel(QtCore.QAbstractListModel):
         return len(self.sel_data.sets)
 
     def flags(self, index):
-        return super(ItemsListModel, self).flags(index) | QtCore.Qt.ItemIsEditable
+        return super().flags(index) | QtCore.Qt.ItemIsEditable
 
     def setData(self, index, value, role):
         if index.isValid() and role == QtCore.Qt.EditRole and value:
@@ -385,9 +399,9 @@ class ItemsListModel(QtCore.QAbstractListModel):
 
 
 class SelData:
-    DEFAULT_TAB_NAME = 'Main'
-    SETS_KEY = 'sets'
-    MEMBERS_KEY = 'members'
+    DEFAULT_TAB_NAME = "Main"
+    SETS_KEY = "sets"
+    MEMBERS_KEY = "members"
     EMPTY_DATA = {SETS_KEY: [], MEMBERS_KEY: {}}
 
     def __init__(self):
@@ -466,7 +480,7 @@ class SelData:
         sets = [self.sets[index] for index in indexes]
         for sel_set in sets:
             # recreating the members list with a new list is faster than using list.remove()
-            self.members[sel_set] = [member for member in self.members[sel_set] if member not in members]
+            self.members[sel_set] = [m for m in self.members[sel_set] if m not in members]
         self.save_data()
 
     def replace_members(self, indexes, members):
@@ -508,7 +522,7 @@ class SelData:
             if index == 0:
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index-1, sel_set)
+            self.sets.insert(index - 1, sel_set)
         self.save_data()
 
     def move_sets_down(self, indexes):
@@ -517,7 +531,7 @@ class SelData:
             if index == len(self.sets):
                 continue
             sel_set = self.sets.pop(index)
-            self.sets.insert(index+1, sel_set)
+            self.sets.insert(index + 1, sel_set)
         self.save_data()
 
 
@@ -527,15 +541,15 @@ def get_tabs_list() -> [str, ...]:
     Returns an empty list if the tabs file does not exist.
     """
     if os.path.exists(TABS_FILE_PATH):
-        with open(TABS_FILE_PATH, 'r') as f:
+        with open(TABS_FILE_PATH, "r") as f:
             return json.loads(f.read())
     return []
 
 
 def save_tabs_file(data: [str, ...]) -> None:
     """Saves the given tabs list to the tabs file."""
-    with open(TABS_FILE_PATH, 'w') as f:
-        f.write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
+    with open(TABS_FILE_PATH, "w") as f:
+        f.write(json.dumps(data, sort_keys=True, indent=4, separators=(",", ": ")))
 
 
 def get_tab_data(tab: str) -> {}:
@@ -545,7 +559,7 @@ def get_tab_data(tab: str) -> {}:
     """
     file_path = get_file_path(tab)
     if os.path.exists(file_path):
-        with open(file_path, 'r') as data:
+        with open(file_path, "r") as data:
             return json.loads(data.read())
     return {}
 
@@ -553,8 +567,8 @@ def get_tab_data(tab: str) -> {}:
 def save_tab_data(tab: str, data: {}) -> None:
     """Saves the given data to the file corresponding to the given tab."""
     file_path = get_file_path(tab)
-    with open(file_path, 'w') as f:
-        f.write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
+    with open(file_path, "w") as f:
+        f.write(json.dumps(data, sort_keys=True, indent=4, separators=(",", ": ")))
 
 
 def get_file_path(tab: str) -> Path:
@@ -564,12 +578,12 @@ def get_file_path(tab: str) -> Path:
     """
     if not os.path.exists(DATA_PATH):
         DATA_PATH.mkdir()
-    return DATA_PATH / f'{tab}.json'
+    return DATA_PATH / f"{tab}.json"
 
 
 def get_tab_files() -> [Path, ...]:
     """Returns a list of Path for each json file in the DATA_PATH."""
-    files = [f for f in DATA_PATH.iterdir() if f.is_file() and f.suffix == '.json']
+    files = [f for f in DATA_PATH.iterdir() if f.is_file() and f.suffix == ".json"]
     return files
 
 
@@ -596,7 +610,7 @@ def sync_tabs_and_files() -> None:
 def clear_all_data() -> None:
     """Deletes all json tab files and the tabs file."""
     for tab_file in DATA_PATH.iterdir():
-        if tab_file.is_file() and tab_file.suffix == '.json':
+        if tab_file.is_file() and tab_file.suffix == ".json":
             tab_file.unlink()
     if TABS_FILE_PATH.exists():
         TABS_FILE_PATH.unlink()
@@ -604,19 +618,33 @@ def clear_all_data() -> None:
 
 def delete_tab_file(tab: str) -> None:
     """Deletes the file corresponding to the given tab."""
-    tab_file = DATA_PATH / (tab+'.json')
+    tab_file = DATA_PATH / (tab + ".json")
     if tab_file.exists():
         tab_file.unlink()
 
 
 def rename_tab_file(tab: str, name: str) -> None:
     """Renames the file corresponding to the given tab with the given name"""
-    tab_file = DATA_PATH / (tab+'.json')
+    tab_file = DATA_PATH / (tab + ".json")
     if tab_file.exists():
-        new_path = tab_file.with_name(name+'.json')  # replace with tab_file.with_stem when in python 3.9
+        new_path = tab_file.with_name(
+            name + ".json"
+        )  # replace with tab_file.with_stem when in python 3.9
         tab_file.rename(new_path)
 
 
 def get_selected() -> [str, ...]:
     """Gets the current scene selection."""
     return cmds.ls(sl=True, fl=True)
+
+
+def setRLWidgetStyle(widget):
+    """Sets the widget background color style"""
+    palette = QtGui.QPalette()
+    gradient = QtGui.QLinearGradient(QtCore.QPoint(0, 0), QtCore.QPoint(10, 10))
+    gradient.setSpread(QtGui.QGradient.RepeatSpread)
+    gradient.setColorAt(0, QtGui.QColor(95, 173, 136, 50))
+    gradient.setColorAt(0.49, QtGui.QColor(95, 173, 136, 50))
+    gradient.setColorAt(0.5, QtCore.Qt.transparent)
+    palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(gradient))
+    widget.setPalette(palette)
