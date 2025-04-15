@@ -161,6 +161,7 @@ def indexColor(index, on_transform):
 
 
 def rgbColor():
+    # TODO
     ...
 
 
@@ -207,6 +208,3 @@ def copyColor(on_transform):
 def setDrawingOverride(value):
     for i in ym.selected():
         i.overrideEnabled.value = value
-
-
-
