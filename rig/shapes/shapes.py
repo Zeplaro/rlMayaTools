@@ -1,6 +1,6 @@
 # encoding: utf8
 
-import numpy as np
+# import numpy as np
 from maya import cmds
 
 import yama as ym
@@ -22,14 +22,14 @@ class Mirror:
         matrix = [round(x, 3) for x in matrix]
         return [matrix[0:4], matrix[4:8], matrix[8:12], matrix[12:16]]
 
-    @staticmethod
-    def compare_to_world(matrix):
+    @classmethod
+    def compare_to_world(cls, matrix):
         if len(matrix) > 3:
             matrix.pop(-1)
             for row in matrix:
                 row.pop(-1)
         world = [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]
-        result = np.matmul(world, matrix)
+        result = cls.matmul(world, matrix)
         table = []
         for row in result:
             max_value = max(row, key=abs)
@@ -57,6 +57,25 @@ class Mirror:
                 value *= -1
             table.append(value)
         return table
+
+    @staticmethod
+    def matmul(a, b):
+      rows_a = len(a)
+      cols_a = len(a[0])
+      rows_b = len(b)
+      cols_b = len(b[0])
+
+      if cols_a != rows_b:
+        raise ValueError("Matrices are not compatible for multiplication")
+
+      result = [[0 for _ in range(cols_b)] for _ in range(rows_a)]
+
+      for i in range(rows_a):
+        for j in range(cols_b):
+          for k in range(cols_a):
+            result[i][j] += a[i][k] * b[k][j]
+
+      return result
 
     @classmethod
     def mirror(cls, left, axis="x"):
